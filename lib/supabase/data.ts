@@ -204,7 +204,7 @@ export async function getPostById(postId: string, currentUserId?: string): Promi
           caption: data.caption,
           weirdness_score: data.weirdness_score,
           uniqueness_score: data.uniqueness_score,
-          scoring_status: data.scoring_status || (data.weirdness_score != null ? "completed" : "scoring"),
+          scoring_status: data.weirdness_score != null ? "completed" : "scoring",
           created_at: data.created_at,
           profiles: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles,
           likes_count: data.likes?.length || 0,
