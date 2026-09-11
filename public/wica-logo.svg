@@ -1,0 +1,23 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Aperture Ring with Shutter Gap -->
+  <path 
+    d="M 24 4 A 20 20 0 1 1 10 10" 
+    stroke="#0E0E10" 
+    stroke-width="3" 
+    stroke-linecap="round"
+  />
+  <circle cx="9" cy="9" r="1.5" fill="#7C5CFC" />
+  
+  <!-- Chromatic Aberration Glitch Cluster inside the aperture -->
+  <g style="mix-blend-mode: multiply;">
+    <!-- Violet (#7C5CFC) -->
+    <circle cx="21" cy="22" r="7" fill="#7C5CFC" fill-opacity="0.8" />
+    <!-- Magenta (#FF4D8D) -->
+    <circle cx="27" cy="22" r="7" fill="#FF4D8D" fill-opacity="0.8" />
+    <!-- Cyan (#22D3EE) -->
+    <circle cx="24" cy="28" r="7" fill="#22D3EE" fill-opacity="0.8" />
+  </g>
+  
+  <!-- Subtle center pupil/core -->
+  <circle cx="24" cy="24" r="2.5" fill="#0E0E10" fill-opacity="0.9" />
+</svg>
