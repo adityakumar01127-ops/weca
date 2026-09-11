@@ -183,16 +183,60 @@ export function getTierColor(tier: Tier): { text: string; bg: string; border: st
   }
 }
 
+// ==============================================================================
+// WECA PHASE 3: VS BATTLES & VOTING
+// ==============================================================================
+
+export interface BattleRecord {
+  id: string;
+  post_a_id: string;
+  post_b_id: string;
+  created_by: string;
+  status: "active" | "ended";
+  winner_post_id?: string | null;
+  vote_threshold: number;
+  created_at: string;
+  ended_at?: string | null;
+}
+
+export interface BattleVote {
+  id: string;
+  battle_id: string;
+  voter_id: string;
+  voted_for_post_id: string;
+  created_at: string;
+}
+
 export interface Battle {
   id: string;
-  category: Category;
+  post_a_id?: string;
+  post_b_id?: string;
+  created_by?: string;
+  status: "active" | "ended" | "completed";
+  winner_post_id?: string | null;
+  vote_threshold?: number;
+  created_at?: string;
+  ended_at?: string | null;
+
+  // Joined relations & computed stats
+  post_a?: Post | null;
+  post_b?: Post | null;
+  creator?: Profile | null;
+  votes_a_count?: number;
+  votes_b_count?: number;
+  total_votes?: number;
+  user_voted_for_post_id?: string | null;
+  user_has_voted?: boolean;
+  is_creator?: boolean;
+
+  // Compatibility fields for legacy prototypes
+  category?: Category;
   title?: string;
-  image_a: WicaImage;
-  image_b: WicaImage;
-  votes_a: number;
-  votes_b: number;
-  ends_at: string;
-  status: "active" | "completed";
+  image_a?: any;
+  image_b?: any;
+  votes_a?: number;
+  votes_b?: number;
+  ends_at?: string;
   user_voted?: "a" | "b";
 }
 

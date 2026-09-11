@@ -20,6 +20,13 @@ begin
   ) then
     drop table if exists public.comments cascade;
   end if;
+
+  if exists (
+    select 1 from information_schema.columns 
+    where table_schema = 'public' and table_name = 'battles' and column_name = 'image_a'
+  ) then
+    drop table if exists public.battles cascade;
+  end if;
 end $$;
 
 -- 1. Profiles Table
@@ -226,3 +233,145 @@ end $$;
 -- 3. Table: "posts", Events: "Insert"
 -- 4. Type: Supabase Edge Function (or HTTP Request to your deployment /api/score-post)
 -- 5. Method: POST, Function: "score-post"
+
+-- ==============================================================================
+-- 10. WECA PHASE 3: VS BATTLES & VOTING
+-- Tables: battles, battle_votes
+-- ==============================================================================
+
+-- 10.1 Battles Table
+create table if not exists public.battles (
+  id uuid primary key default gen_random_uuid(),
+  post_a_id uuid not null references public.posts(id) on delete cascade,
+  post_b_id uuid not null references public.posts(id) on delete cascade,
+  created_by uuid not null references public.profiles(id) on delete cascade,
+  status text not null default 'active' check (status in ('active', 'ended')),
+  winner_post_id uuid references public.posts(id) on delete set null,
+  vote_threshold int default 50,
+  created_at timestamptz default now(),
+  ended_at timestamptz,
+  constraint check_different_posts check (post_a_id != post_b_id)
+);
+
+-- Ensure all columns exist for idempotency
+alter table public.battles add column if not exists winner_post_id uuid references public.posts(id) on delete set null;
+alter table public.battles add column if not exists vote_threshold int default 50;
+alter table public.battles add column if not exists ended_at timestamptz;
+
+-- 10.2 Battle Votes Table
+create table if not exists public.battle_votes (
+  id uuid primary key default gen_random_uuid(),
+  battle_id uuid not null references public.battles(id) on delete cascade,
+  voter_id uuid not null references public.profiles(id) on delete cascade,
+  voted_for_post_id uuid not null references public.posts(id) on delete cascade,
+  created_at timestamptz default now(),
+  constraint unique_battle_voter unique (battle_id, voter_id)
+);
+
+-- Indexes for performance
+create index if not exists idx_battles_status on public.battles(status);
+create index if not exists idx_battles_created_at on public.battles(created_at desc);
+create index if not exists idx_battles_created_by on public.battles(created_by);
+create index if not exists idx_battle_votes_battle_id on public.battle_votes(battle_id);
+create index if not exists idx_battle_votes_voter_id on public.battle_votes(voter_id);
+
+-- 10.3 Row Level Security
+alter table public.battles enable row level security;
+alter table public.battle_votes enable row level security;
+
+-- Battles RLS
+drop policy if exists "Battles are viewable by everyone" on public.battles;
+create policy "Battles are viewable by everyone"
+  on public.battles for select
+  using (true);
+
+drop policy if exists "Authenticated users can create battles" on public.battles;
+create policy "Authenticated users can create battles"
+  on public.battles for insert
+  with check (auth.uid() = created_by);
+
+drop policy if exists "Creators can update own battles" on public.battles;
+create policy "Creators can update own battles"
+  on public.battles for update
+  using (auth.uid() = created_by);
+
+-- Battle Votes RLS
+drop policy if exists "Battle votes are viewable by everyone" on public.battle_votes;
+create policy "Battle votes are viewable by everyone"
+  on public.battle_votes for select
+  using (true);
+
+drop policy if exists "Authenticated non-creators can vote once on active battles" on public.battle_votes;
+create policy "Authenticated non-creators can vote once on active battles"
+  on public.battle_votes for insert
+  with check (
+    auth.uid() = voter_id
+    and auth.uid() != (select created_by from public.battles where id = battle_id)
+    and (select status from public.battles where id = battle_id) = 'active'
+  );
+
+-- 10.4 Auto-End Battle Trigger Function
+create or replace function public.check_battle_auto_end()
+returns trigger as $$
+declare
+  b_record record;
+  votes_count int;
+  votes_a int;
+  votes_b int;
+  winner uuid;
+begin
+  select * into b_record from public.battles where id = new.battle_id;
+  if not found or b_record.status = 'ended' then
+    return new;
+  end if;
+
+  select count(*) into votes_count from public.battle_votes where battle_id = new.battle_id;
+  
+  if votes_count >= coalesce(b_record.vote_threshold, 50) then
+    select count(*) into votes_a from public.battle_votes where battle_id = new.battle_id and voted_for_post_id = b_record.post_a_id;
+    select count(*) into votes_b from public.battle_votes where battle_id = new.battle_id and voted_for_post_id = b_record.post_b_id;
+
+    if votes_a > votes_b then
+      winner := b_record.post_a_id;
+    elsif votes_b > votes_a then
+      winner := b_record.post_b_id;
+    else
+      winner := null; -- tie
+    end if;
+
+    update public.battles
+    set status = 'ended',
+        winner_post_id = winner,
+        ended_at = now()
+    where id = new.battle_id;
+  end if;
+
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists tr_check_battle_auto_end on public.battle_votes;
+create trigger tr_check_battle_auto_end
+  after insert on public.battle_votes
+  for each row execute procedure public.check_battle_auto_end();
+
+-- 10.5 Realtime for Battles & Votes
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables 
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'battles'
+  ) then
+    alter publication supabase_realtime add table public.battles;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables 
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'battle_votes'
+  ) then
+    alter publication supabase_realtime add table public.battle_votes;
+  end if;
+exception
+  when others then
+    null;
+end $$;

@@ -75,8 +75,8 @@ export const VersusBattleArena: React.FC = () => {
         if (b.id === activeBattle.id) {
           return {
             ...b,
-            votes_a: choice === "a" ? b.votes_a + 1 : b.votes_a,
-            votes_b: choice === "b" ? b.votes_b + 1 : b.votes_b,
+            votes_a: choice === "a" ? (b.votes_a || 0) + 1 : (b.votes_a || 0),
+            votes_b: choice === "b" ? (b.votes_b || 0) + 1 : (b.votes_b || 0),
           };
         }
         return b;
@@ -98,8 +98,8 @@ export const VersusBattleArena: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [userVote, handleVote]);
 
-  const totalVotes = activeBattle.votes_a + activeBattle.votes_b;
-  const pctA = Math.round((activeBattle.votes_a / totalVotes) * 100);
+  const totalVotes = (activeBattle.votes_a || 0) + (activeBattle.votes_b || 0);
+  const pctA = totalVotes > 0 ? Math.round(((activeBattle.votes_a || 0) / totalVotes) * 100) : 50;
   const pctB = 100 - pctA;
 
   const tierAColor = getTierColor(activeBattle.image_a.author?.tier || "Certified Weird");

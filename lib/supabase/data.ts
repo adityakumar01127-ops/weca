@@ -1,5 +1,5 @@
 import { createClient } from "./client";
-import { Post, Profile, Comment } from "../types";
+import { Post, Profile, Comment, Battle, BattleVote } from "../types";
 
 // In-memory demo store fallback for initial boot or offline testing
 const DEMO_PROFILE: Profile = {
@@ -41,6 +41,8 @@ declare global {
   var __WECA_POSTS: Post[] | undefined;
   var __WECA_COMMENTS: Record<string, Comment[]> | undefined;
   var __WECA_LIKES: Record<string, Set<string>> | undefined;
+  var __WECA_BATTLES: Battle[] | undefined;
+  var __WECA_BATTLE_VOTES: BattleVote[] | undefined;
 }
 
 if (!global.__WECA_POSTS) {
@@ -62,6 +64,12 @@ if (!global.__WECA_COMMENTS) {
 }
 if (!global.__WECA_LIKES) {
   global.__WECA_LIKES = {};
+}
+if (!global.__WECA_BATTLES) {
+  global.__WECA_BATTLES = [];
+}
+if (!global.__WECA_BATTLE_VOTES) {
+  global.__WECA_BATTLE_VOTES = [];
 }
 
 interface PostRow {
@@ -644,3 +652,464 @@ export async function getProfileWithPosts(identifier: string): Promise<{ profile
   const posts = (global.__WECA_POSTS || []).filter((p) => p.user_id === profile?.id);
   return { profile, posts };
 }
+
+// ==============================================================================
+// PHASE 3: VS BATTLES & VOTING ENGINE
+// ==============================================================================
+
+/**
+ * Phase 3: Fetch active or ended battles with post details and vote tallies
+ */
+export async function getBattles(status?: "active" | "ended", currentUserId?: string): Promise<Battle[]> {
+  const supabase = createClient();
+  if (supabase) {
+    try {
+      let query = supabase
+        .from("battles")
+        .select(`
+          id,
+          post_a_id,
+          post_b_id,
+          created_by,
+          status,
+          winner_post_id,
+          vote_threshold,
+          created_at,
+          ended_at,
+          post_a:posts!battles_post_a_id_fkey(
+            id,
+            user_id,
+            image_url,
+            caption,
+            weirdness_score,
+            uniqueness_score,
+            created_at,
+            profiles(id, username, display_name, avatar_url)
+          ),
+          post_b:posts!battles_post_b_id_fkey(
+            id,
+            user_id,
+            image_url,
+            caption,
+            weirdness_score,
+            uniqueness_score,
+            created_at,
+            profiles(id, username, display_name, avatar_url)
+          ),
+          creator:profiles!battles_created_by_fkey(
+            id,
+            username,
+            display_name,
+            avatar_url
+          ),
+          battle_votes(
+            id,
+            voter_id,
+            voted_for_post_id
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (status) {
+        query = query.eq("status", status);
+      }
+
+      const { data, error } = await query;
+      if (!error && data) {
+        const fortyEightHoursAgo = Date.now() - 48 * 3600 * 1000;
+
+        return (data as any[]).map((row) => {
+          const votes = row.battle_votes || [];
+          const votesA = votes.filter((v: any) => v.voted_for_post_id === row.post_a_id).length;
+          const votesB = votes.filter((v: any) => v.voted_for_post_id === row.post_b_id).length;
+          const totalVotes = votes.length;
+
+          // Check if age threshold hit (48h) or vote threshold
+          let battleStatus: "active" | "ended" = row.status;
+          let winnerId = row.winner_post_id;
+          const createdAtTime = new Date(row.created_at).getTime();
+
+          if (battleStatus === "active") {
+            const hitVoteThreshold = totalVotes >= (row.vote_threshold || 50);
+            const hitAgeThreshold = createdAtTime <= fortyEightHoursAgo;
+
+            if (hitVoteThreshold || hitAgeThreshold) {
+              battleStatus = "ended";
+              winnerId = votesA > votesB ? row.post_a_id : votesB > votesA ? row.post_b_id : null;
+              supabase
+                .from("battles")
+                .update({ status: "ended", winner_post_id: winnerId, ended_at: new Date().toISOString() })
+                .eq("id", row.id)
+                .then();
+            }
+          }
+
+          const userVote = currentUserId ? votes.find((v: any) => v.voter_id === currentUserId) : null;
+
+          return {
+            id: row.id,
+            post_a_id: row.post_a_id,
+            post_b_id: row.post_b_id,
+            created_by: row.created_by,
+            status: battleStatus,
+            winner_post_id: winnerId,
+            vote_threshold: row.vote_threshold || 50,
+            created_at: row.created_at,
+            ended_at: row.ended_at,
+            post_a: Array.isArray(row.post_a) ? row.post_a[0] : row.post_a,
+            post_b: Array.isArray(row.post_b) ? row.post_b[0] : row.post_b,
+            creator: Array.isArray(row.creator) ? row.creator[0] : row.creator,
+            votes_a_count: votesA,
+            votes_b_count: votesB,
+            total_votes: totalVotes,
+            user_voted_for_post_id: userVote ? userVote.voted_for_post_id : null,
+            user_has_voted: !!userVote,
+            is_creator: currentUserId === row.created_by,
+          };
+        });
+      }
+    } catch (err) {
+      console.warn("Supabase getBattles query failed:", err);
+    }
+  }
+
+  // In-memory fallback
+  let list = global.__WECA_BATTLES || [];
+  if (status) {
+    list = list.filter((b) => b.status === status);
+  }
+  return list;
+}
+
+/**
+ * Phase 3: Fetch a single battle by ID
+ */
+export async function getBattleById(id: string, currentUserId?: string): Promise<Battle | null> {
+  const supabase = createClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("battles")
+        .select(`
+          id,
+          post_a_id,
+          post_b_id,
+          created_by,
+          status,
+          winner_post_id,
+          vote_threshold,
+          created_at,
+          ended_at,
+          post_a:posts!battles_post_a_id_fkey(
+            id,
+            user_id,
+            image_url,
+            caption,
+            weirdness_score,
+            uniqueness_score,
+            created_at,
+            profiles(id, username, display_name, avatar_url)
+          ),
+          post_b:posts!battles_post_b_id_fkey(
+            id,
+            user_id,
+            image_url,
+            caption,
+            weirdness_score,
+            uniqueness_score,
+            created_at,
+            profiles(id, username, display_name, avatar_url)
+          ),
+          creator:profiles!battles_created_by_fkey(
+            id,
+            username,
+            display_name,
+            avatar_url
+          ),
+          battle_votes(
+            id,
+            voter_id,
+            voted_for_post_id
+          )
+        `)
+        .eq("id", id)
+        .single();
+
+      if (!error && data) {
+        const row = data as any;
+        const votes = row.battle_votes || [];
+        const votesA = votes.filter((v: any) => v.voted_for_post_id === row.post_a_id).length;
+        const votesB = votes.filter((v: any) => v.voted_for_post_id === row.post_b_id).length;
+        const totalVotes = votes.length;
+
+        let battleStatus: "active" | "ended" = row.status;
+        let winnerId = row.winner_post_id;
+        const fortyEightHoursAgo = Date.now() - 48 * 3600 * 1000;
+        const createdAtTime = new Date(row.created_at).getTime();
+
+        if (battleStatus === "active") {
+          const hitVoteThreshold = totalVotes >= (row.vote_threshold || 50);
+          const hitAgeThreshold = createdAtTime <= fortyEightHoursAgo;
+
+          if (hitVoteThreshold || hitAgeThreshold) {
+            battleStatus = "ended";
+            winnerId = votesA > votesB ? row.post_a_id : votesB > votesA ? row.post_b_id : null;
+            supabase
+              .from("battles")
+              .update({ status: "ended", winner_post_id: winnerId, ended_at: new Date().toISOString() })
+              .eq("id", row.id)
+              .then();
+          }
+        }
+
+        const userVote = currentUserId ? votes.find((v: any) => v.voter_id === currentUserId) : null;
+
+        return {
+          id: row.id,
+          post_a_id: row.post_a_id,
+          post_b_id: row.post_b_id,
+          created_by: row.created_by,
+          status: battleStatus,
+          winner_post_id: winnerId,
+          vote_threshold: row.vote_threshold || 50,
+          created_at: row.created_at,
+          ended_at: row.ended_at,
+          post_a: Array.isArray(row.post_a) ? row.post_a[0] : row.post_a,
+          post_b: Array.isArray(row.post_b) ? row.post_b[0] : row.post_b,
+          creator: Array.isArray(row.creator) ? row.creator[0] : row.creator,
+          votes_a_count: votesA,
+          votes_b_count: votesB,
+          total_votes: totalVotes,
+          user_voted_for_post_id: userVote ? userVote.voted_for_post_id : null,
+          user_has_voted: !!userVote,
+          is_creator: currentUserId === row.created_by,
+        };
+      }
+    } catch (err) {
+      console.warn("Supabase getBattleById failed:", err);
+    }
+  }
+
+  return (global.__WECA_BATTLES || []).find((b) => b.id === id) || null;
+}
+
+/**
+ * Phase 3: Check per-user hourly battle creation limit (max 5 battles/hour)
+ */
+export async function checkBattleCreationRateLimit(userId: string): Promise<{
+  allowed: boolean;
+  count: number;
+  remaining: number;
+  max: number;
+}> {
+  const maxBattles = 5;
+  const supabase = createClient();
+
+  if (supabase) {
+    try {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { count, error } = await supabase
+        .from("battles")
+        .select("*", { count: "exact", head: true })
+        .eq("created_by", userId)
+        .gte("created_at", oneHourAgo);
+
+      if (!error && count !== null) {
+        return {
+          allowed: count < maxBattles,
+          count,
+          remaining: Math.max(0, maxBattles - count),
+          max: maxBattles,
+        };
+      }
+    } catch (err) {
+      console.warn("Supabase checkBattleCreationRateLimit failed:", err);
+    }
+  }
+
+  // Fallback check
+  const oneHourAgo = Date.now() - 3600000;
+  const count = (global.__WECA_BATTLES || []).filter(
+    (b) => b.created_by === userId && new Date(b.created_at || Date.now()).getTime() >= oneHourAgo
+  ).length;
+
+  return {
+    allowed: count < maxBattles,
+    count,
+    remaining: Math.max(0, maxBattles - count),
+    max: maxBattles,
+  };
+}
+
+/**
+ * Phase 3: Create a new VS battle between two existing posts
+ */
+export async function createBattle(params: {
+  post_a_id: string;
+  post_b_id: string;
+  created_by: string;
+  vote_threshold?: number;
+}): Promise<{ success: boolean; battle?: Battle; error?: string }> {
+  if (params.post_a_id === params.post_b_id) {
+    return { success: false, error: "A battle must pit two different posts against each other." };
+  }
+
+  // Rate limit check
+  const rateLimit = await checkBattleCreationRateLimit(params.created_by);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: `Hourly battle creation limit reached (${rateLimit.max}/${rateLimit.max}). Please wait before starting more battles.`,
+    };
+  }
+
+  const supabase = createClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("battles")
+        .insert({
+          post_a_id: params.post_a_id,
+          post_b_id: params.post_b_id,
+          created_by: params.created_by,
+          vote_threshold: params.vote_threshold || 50,
+          status: "active",
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      const battle = await getBattleById(data.id, params.created_by);
+      return { success: true, battle: battle || undefined };
+    } catch (err: any) {
+      return { success: false, error: err.message || "Failed to create battle" };
+    }
+  }
+
+  // Fallback in-memory creation
+  const newBattle: Battle = {
+    id: "battle-" + Date.now(),
+    post_a_id: params.post_a_id,
+    post_b_id: params.post_b_id,
+    created_by: params.created_by,
+    status: "active",
+    vote_threshold: params.vote_threshold || 50,
+    created_at: new Date().toISOString(),
+    votes_a_count: 0,
+    votes_b_count: 0,
+    total_votes: 0,
+    is_creator: true,
+  };
+  global.__WECA_BATTLES = [newBattle, ...(global.__WECA_BATTLES || [])];
+  return { success: true, battle: newBattle };
+}
+
+/**
+ * Phase 3: Cast a vote in an active battle
+ * Rules:
+ * 1. One vote per user per battle
+ * 2. Creator cannot vote in their own battle
+ * 3. Battle must be active
+ * 4. Automatically transitions to 'ended' when threshold is reached
+ */
+export async function castBattleVote(params: {
+  battle_id: string;
+  voter_id: string;
+  voted_for_post_id: string;
+}): Promise<{ success: boolean; battle?: Battle | null; error?: string }> {
+  const supabase = createClient();
+
+  if (supabase) {
+    try {
+      // 1. Verify battle exists and is active
+      const { data: battleRow, error: bErr } = await supabase
+        .from("battles")
+        .select("id, post_a_id, post_b_id, created_by, status, vote_threshold")
+        .eq("id", params.battle_id)
+        .single();
+
+      if (bErr || !battleRow) {
+        return { success: false, error: "Battle not found" };
+      }
+
+      if (battleRow.status !== "active") {
+        return { success: false, error: "This battle has ended and is locked for voting." };
+      }
+
+      // 2. Creator cannot vote in their own battle
+      if (battleRow.created_by === params.voter_id) {
+        return { success: false, error: "As the creator of this battle, you cannot vote in it to maintain impartiality." };
+      }
+
+      // 3. Verify vote choice is valid
+      if (params.voted_for_post_id !== battleRow.post_a_id && params.voted_for_post_id !== battleRow.post_b_id) {
+        return { success: false, error: "Invalid post selection for this battle." };
+      }
+
+      // 4. Insert vote (unique constraint will catch duplicate votes)
+      const { error: voteErr } = await supabase
+        .from("battle_votes")
+        .insert({
+          battle_id: params.battle_id,
+          voter_id: params.voter_id,
+          voted_for_post_id: params.voted_for_post_id,
+        });
+
+      if (voteErr) {
+        if (voteErr.code === "23505") {
+          return { success: false, error: "You have already voted in this battle." };
+        }
+        return { success: false, error: voteErr.message };
+      }
+
+      // 5. Fetch updated battle state
+      const updated = await getBattleById(params.battle_id, params.voter_id);
+      return { success: true, battle: updated };
+    } catch (err: any) {
+      return { success: false, error: err.message || "Failed to cast vote" };
+    }
+  }
+
+  // In-memory fallback
+  const battle = (global.__WECA_BATTLES || []).find((b) => b.id === params.battle_id);
+  if (!battle) return { success: false, error: "Battle not found" };
+  if (battle.status !== "active") return { success: false, error: "Battle has ended" };
+  if (battle.created_by === params.voter_id) return { success: false, error: "Creator cannot vote in own battle" };
+
+  const existingVote = (global.__WECA_BATTLE_VOTES || []).find(
+    (v) => v.battle_id === params.battle_id && v.voter_id === params.voter_id
+  );
+  if (existingVote) return { success: false, error: "You have already voted in this battle" };
+
+  const newVote: BattleVote = {
+    id: "vote-" + Date.now(),
+    battle_id: params.battle_id,
+    voter_id: params.voter_id,
+    voted_for_post_id: params.voted_for_post_id,
+    created_at: new Date().toISOString(),
+  };
+  global.__WECA_BATTLE_VOTES = [...(global.__WECA_BATTLE_VOTES || []), newVote];
+
+  if (params.voted_for_post_id === battle.post_a_id) {
+    battle.votes_a_count = (battle.votes_a_count || 0) + 1;
+  } else {
+    battle.votes_b_count = (battle.votes_b_count || 0) + 1;
+  }
+  battle.total_votes = (battle.total_votes || 0) + 1;
+  battle.user_has_voted = true;
+  battle.user_voted_for_post_id = params.voted_for_post_id;
+
+  if (battle.total_votes >= (battle.vote_threshold || 50)) {
+    battle.status = "ended";
+    const aCount = battle.votes_a_count || 0;
+    const bCount = battle.votes_b_count || 0;
+    battle.winner_post_id = aCount > bCount ? battle.post_a_id : battle.post_b_id;
+    battle.ended_at = new Date().toISOString();
+  }
+
+  return { success: true, battle };
+}
+
