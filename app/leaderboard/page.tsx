@@ -13,8 +13,6 @@ export const metadata: Metadata = {
 export default function LeaderboardPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-ink">
-      <SubpageHeader category="Community" currentPage="Leaderboard" />
-
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8">

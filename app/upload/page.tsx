@@ -94,7 +94,7 @@ export default function UploadPage() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link

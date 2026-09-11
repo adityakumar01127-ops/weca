@@ -18,7 +18,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 font-sans">
         <AuthProvider>
           <Navbar />
-          <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8">
+          <main className="flex-1 w-full">
             {children}
           </main>
         </AuthProvider>

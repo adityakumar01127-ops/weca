@@ -99,7 +99,7 @@ export default function PostDetailPage() {
   const hasScores = post.weirdness_score != null && post.uniqueness_score != null;
 
   return (
-    <div className="max-w-xl mx-auto space-y-6">
+    <div className="max-w-xl mx-auto px-4 py-8 space-y-6">
       {/* Back button */}
       <div>
         <Link

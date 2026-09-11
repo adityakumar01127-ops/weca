@@ -117,12 +117,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
       </div>
 
       {/* Image */}
-      <Link href={`/posts/${post.id}`} className="block relative bg-zinc-100 dark:bg-zinc-950">
+      <Link href={`/posts/${post.id}`} className="block relative bg-zinc-100 dark:bg-zinc-950 min-h-[300px] sm:min-h-[360px] overflow-hidden">
         <img
           src={post.image_url}
           alt={post.caption || "Post photo"}
-          className="w-full max-h-[550px] object-cover"
-          loading="lazy"
+          className="w-full h-auto min-h-[300px] sm:min-h-[360px] max-h-[550px] object-cover transition-transform duration-300 hover:scale-[1.01]"
         />
       </Link>
 

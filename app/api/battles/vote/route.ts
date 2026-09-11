@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { castBattleVote } from "@/lib/supabase/data";
 import { createServerClient } from "@supabase/ssr";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
@@ -38,11 +39,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Missing battle_id or voted_for_post_id." }, { status: 400 });
     }
 
-    const result = await castBattleVote({
-      battle_id,
-      voter_id,
-      voted_for_post_id,
-    });
+    const adminSupabase = createAdminClient();
+    const result = await castBattleVote(
+      {
+        battle_id,
+        voter_id,
+        voted_for_post_id,
+      },
+      adminSupabase || supabase
+    );
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 });

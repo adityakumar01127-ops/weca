@@ -49,7 +49,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto py-12 space-y-6">
+    <div className="max-w-sm mx-auto px-4 py-12 space-y-6">
       <div className="space-y-1 text-center">
         <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
           Create a Weca Account

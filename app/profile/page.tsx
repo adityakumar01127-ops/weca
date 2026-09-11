@@ -32,7 +32,7 @@ export default function MyProfilePage() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
         {/* Profile Card */}
         <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 space-y-6">
           <div className="flex items-start justify-between gap-4">

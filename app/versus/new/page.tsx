@@ -105,8 +105,6 @@ export default function NewBattlePage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen flex flex-col bg-[#09090b] text-zinc-100">
-        <SubpageHeader category="Arena" currentPage="Start a VS" />
-
         <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           {/* Back button & Title */}
           <div className="mb-6">

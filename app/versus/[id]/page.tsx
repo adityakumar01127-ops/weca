@@ -148,7 +148,6 @@ export default function BattleDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-[#09090b] text-zinc-100">
-        <SubpageHeader category="Arena" currentPage="Versus Battle" />
         <div className="flex-1 flex items-center justify-center">
           <div className="w-6 h-6 border-2 border-zinc-700 border-t-white rounded-full animate-spin" />
         </div>
@@ -159,7 +158,6 @@ export default function BattleDetailPage() {
   if (!battle) {
     return (
       <div className="min-h-screen flex flex-col bg-[#09090b] text-zinc-100">
-        <SubpageHeader category="Arena" currentPage="Versus Battle" />
         <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
           <Swords className="w-12 h-12 text-zinc-600 mb-3" />
           <h2 className="text-xl font-bold text-white mb-2">Battle Not Found</h2>
@@ -193,8 +191,6 @@ export default function BattleDetailPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#09090b] text-zinc-100 selection:bg-zinc-800">
-      <SubpageHeader category="Arena" currentPage="Versus Battle" />
-
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {/* Navigation Bar */}
         <div className="flex items-center justify-between gap-4 mb-6">

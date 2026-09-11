@@ -50,7 +50,7 @@ export default function FeedPage() {
   }, [user?.id, profile?.id]);
 
   return (
-    <div className="max-w-xl mx-auto space-y-8">
+    <div className="max-w-xl mx-auto px-4 py-8 space-y-8">
       {/* Header bar */}
       <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
         <div>

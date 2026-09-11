@@ -1,4 +1,5 @@
 import { createClient } from "./client";
+import { createAdminClient } from "./admin";
 import { Post, Profile, Comment, Battle, BattleVote } from "../types";
 
 // In-memory demo store fallback for initial boot or offline testing
@@ -112,8 +113,9 @@ export async function getPosts(currentUserId?: string): Promise<Post[]> {
           caption,
           weirdness_score,
           uniqueness_score,
+          scoring_status,
           created_at,
-          profiles (
+          profiles!posts_user_id_fkey (
             id,
             username,
             display_name,
@@ -184,8 +186,9 @@ export async function getPostById(postId: string, currentUserId?: string): Promi
           caption,
           weirdness_score,
           uniqueness_score,
+          scoring_status,
           created_at,
-          profiles (
+          profiles!posts_user_id_fkey (
             id,
             username,
             display_name,
@@ -306,7 +309,7 @@ export async function createPost(params: {
           image_url,
           caption,
           created_at,
-          profiles (
+          profiles!posts_user_id_fkey (
             id,
             username,
             display_name,
@@ -684,7 +687,7 @@ export async function getBattles(status?: "active" | "ended", currentUserId?: st
             weirdness_score,
             uniqueness_score,
             created_at,
-            profiles(id, username, display_name, avatar_url)
+            profiles!posts_user_id_fkey(id, username, display_name, avatar_url)
           ),
           post_b:posts!battles_post_b_id_fkey(
             id,
@@ -694,7 +697,7 @@ export async function getBattles(status?: "active" | "ended", currentUserId?: st
             weirdness_score,
             uniqueness_score,
             created_at,
-            profiles(id, username, display_name, avatar_url)
+            profiles!posts_user_id_fkey(id, username, display_name, avatar_url)
           ),
           creator:profiles!battles_created_by_fkey(
             id,
@@ -808,7 +811,7 @@ export async function getBattleById(id: string, currentUserId?: string): Promise
             weirdness_score,
             uniqueness_score,
             created_at,
-            profiles(id, username, display_name, avatar_url)
+            profiles!posts_user_id_fkey(id, username, display_name, avatar_url)
           ),
           post_b:posts!battles_post_b_id_fkey(
             id,
@@ -818,7 +821,7 @@ export async function getBattleById(id: string, currentUserId?: string): Promise
             weirdness_score,
             uniqueness_score,
             created_at,
-            profiles(id, username, display_name, avatar_url)
+            profiles!posts_user_id_fkey(id, username, display_name, avatar_url)
           ),
           creator:profiles!battles_created_by_fkey(
             id,
@@ -944,12 +947,15 @@ export async function checkBattleCreationRateLimit(userId: string): Promise<{
 /**
  * Phase 3: Create a new VS battle between two existing posts
  */
-export async function createBattle(params: {
-  post_a_id: string;
-  post_b_id: string;
-  created_by: string;
-  vote_threshold?: number;
-}): Promise<{ success: boolean; battle?: Battle; error?: string }> {
+export async function createBattle(
+  params: {
+    post_a_id: string;
+    post_b_id: string;
+    created_by: string;
+    vote_threshold?: number;
+  },
+  clientOverride?: any
+): Promise<{ success: boolean; battle?: Battle; error?: string }> {
   if (params.post_a_id === params.post_b_id) {
     return { success: false, error: "A battle must pit two different posts against each other." };
   }
@@ -963,7 +969,7 @@ export async function createBattle(params: {
     };
   }
 
-  const supabase = createClient();
+  const supabase = clientOverride || (typeof window === "undefined" ? (createAdminClient() || createClient()) : createClient());
   if (supabase) {
     try {
       const { data, error } = await supabase
@@ -1015,12 +1021,15 @@ export async function createBattle(params: {
  * 3. Battle must be active
  * 4. Automatically transitions to 'ended' when threshold is reached
  */
-export async function castBattleVote(params: {
-  battle_id: string;
-  voter_id: string;
-  voted_for_post_id: string;
-}): Promise<{ success: boolean; battle?: Battle | null; error?: string }> {
-  const supabase = createClient();
+export async function castBattleVote(
+  params: {
+    battle_id: string;
+    voter_id: string;
+    voted_for_post_id: string;
+  },
+  clientOverride?: any
+): Promise<{ success: boolean; battle?: Battle | null; error?: string }> {
+  const supabase = clientOverride || (typeof window === "undefined" ? (createAdminClient() || createClient()) : createClient());
 
   if (supabase) {
     try {
