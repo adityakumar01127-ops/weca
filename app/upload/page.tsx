@@ -4,8 +4,8 @@ import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ui/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
-import { uploadPostPhoto, createPost } from "@/lib/supabase/data";
-import { Upload, X, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { uploadPostPhoto, createPost, checkUploadRateLimit } from "@/lib/supabase/data";
+import { Upload, X, ArrowLeft, Image as ImageIcon, ShieldAlert, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function UploadPage() {
@@ -17,8 +17,18 @@ export default function UploadPage() {
   const [caption, setCaption] = useState<string>("");
   const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{ allowed: boolean; remaining: number; max: number } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    const currentUserId = user?.id || profile?.id;
+    if (currentUserId) {
+      checkUploadRateLimit(currentUserId).then((res) => {
+        setRateLimitInfo({ allowed: res.allowed, remaining: res.remaining, max: res.max });
+      });
+    }
+  }, [user?.id, profile?.id]);
 
   const handleFileSelect = (selected: File) => {
     if (!selected.type.startsWith("image/")) {
@@ -52,10 +62,20 @@ export default function UploadPage() {
     setError(null);
 
     try {
+      // 0. Verify hourly upload rate limit
+      const limitCheck = await checkUploadRateLimit(currentUserId);
+      if (!limitCheck.allowed) {
+        setError(
+          `Hourly upload limit reached (${limitCheck.max}/${limitCheck.max}). Please wait before uploading more photos to preserve AI quota.`
+        );
+        setUploading(false);
+        return;
+      }
+
       // 1. Upload to Supabase Storage bucket 'posts'
       const publicUrl = await uploadPostPhoto(file, currentUserId);
 
-      // 2. Insert into 'posts' table
+      // 2. Insert into 'posts' table (triggers asynchronous AI scoring)
       await createPost({
         userId: currentUserId,
         imageUrl: publicUrl,
@@ -63,7 +83,7 @@ export default function UploadPage() {
         authorProfile: profile,
       });
 
-      // 3. Return to home feed
+      // 3. Return to home feed where Realtime will show the score appear live
       router.push("/");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Upload failed";
@@ -75,21 +95,40 @@ export default function UploadPage() {
   return (
     <ProtectedRoute>
       <div className="max-w-xl mx-auto space-y-6">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-              Upload Photograph
-            </h1>
-            <p className="text-xs text-zinc-500 font-mono">
-              Share a candid moment with the feed
-            </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+                Upload Photograph
+              </h1>
+              <p className="text-xs text-zinc-500 font-mono">
+                Share a candid moment with the feed
+              </p>
+            </div>
           </div>
+
+          {rateLimitInfo && (
+            <div className="text-right">
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border ${
+                rateLimitInfo.remaining === 0
+                  ? "bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-950/30 dark:border-rose-900 dark:text-rose-400"
+                  : "bg-zinc-100 border-zinc-200 text-zinc-600 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400"
+              }`}>
+                {rateLimitInfo.remaining === 0 ? (
+                  <ShieldAlert className="w-3 h-3 text-rose-500" />
+                ) : (
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                )}
+                <span>{rateLimitInfo.remaining}/{rateLimitInfo.max} uploads left</span>
+              </span>
+            </div>
+          )}
         </div>
 
         {error && (

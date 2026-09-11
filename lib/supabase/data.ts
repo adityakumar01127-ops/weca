@@ -71,6 +71,7 @@ interface PostRow {
   caption?: string | null;
   weirdness_score?: number | null;
   uniqueness_score?: number | null;
+  scoring_status?: "scoring" | "completed" | "failed";
   created_at: string;
   profiles?: Profile | Profile[] | null;
   likes?: { user_id: string }[];
@@ -103,6 +104,7 @@ export async function getPosts(currentUserId?: string): Promise<Post[]> {
           caption,
           weirdness_score,
           uniqueness_score,
+          scoring_status,
           created_at,
           profiles (
             id,
@@ -130,6 +132,7 @@ export async function getPosts(currentUserId?: string): Promise<Post[]> {
           caption: item.caption,
           weirdness_score: item.weirdness_score,
           uniqueness_score: item.uniqueness_score,
+          scoring_status: item.scoring_status || (item.weirdness_score != null ? "completed" : "scoring"),
           created_at: item.created_at,
           profiles: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles,
           likes_count: item.likes?.length || 0,
@@ -174,6 +177,7 @@ export async function getPostById(postId: string, currentUserId?: string): Promi
           caption,
           weirdness_score,
           uniqueness_score,
+          scoring_status,
           created_at,
           profiles (
             id,
@@ -202,6 +206,7 @@ export async function getPostById(postId: string, currentUserId?: string): Promi
           caption: data.caption,
           weirdness_score: data.weirdness_score,
           uniqueness_score: data.uniqueness_score,
+          scoring_status: data.scoring_status || (data.weirdness_score != null ? "completed" : "scoring"),
           created_at: data.created_at,
           profiles: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles,
           likes_count: data.likes?.length || 0,
@@ -288,12 +293,14 @@ export async function createPost(params: {
           user_id: params.userId,
           image_url: params.imageUrl,
           caption: params.caption || null,
+          scoring_status: "scoring",
         })
         .select(`
           id,
           user_id,
           image_url,
           caption,
+          scoring_status,
           created_at,
           profiles (
             id,
@@ -308,17 +315,33 @@ export async function createPost(params: {
         .single();
 
       if (!error && data) {
-        return {
+        const createdPost: Post = {
           id: data.id,
           user_id: data.user_id,
           image_url: data.image_url,
           caption: data.caption,
+          scoring_status: "scoring",
           created_at: data.created_at,
           profiles: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles,
           likes_count: 0,
           comments_count: 0,
           user_has_liked: false,
         };
+
+        // Fire-and-forget async AI scoring pipeline without blocking upload
+        if (typeof window !== "undefined") {
+          fetch("/api/score-post", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: createdPost.id,
+              image_url: createdPost.image_url,
+              caption: createdPost.caption,
+            }),
+          }).catch((err) => console.warn("Async scoring trigger:", err));
+        }
+
+        return createdPost;
       }
     } catch (err) {
       console.warn("Supabase insert post failed, using local store:", err);
@@ -331,6 +354,7 @@ export async function createPost(params: {
     user_id: params.userId,
     image_url: params.imageUrl,
     caption: params.caption,
+    scoring_status: "scoring",
     created_at: new Date().toISOString(),
     profiles: params.authorProfile || DEMO_PROFILE,
     likes_count: 0,
@@ -340,7 +364,69 @@ export async function createPost(params: {
 
   if (!global.__WECA_POSTS) global.__WECA_POSTS = [];
   global.__WECA_POSTS.unshift(newPost);
+
+  // Trigger scoring in background
+  if (typeof window !== "undefined") {
+    fetch("/api/score-post", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: newPost.id,
+        image_url: newPost.image_url,
+        caption: newPost.caption,
+      }),
+    }).catch((err) => console.warn("Local async scoring trigger:", err));
+  }
+
   return newPost;
+}
+
+export const MAX_UPLOADS_PER_HOUR = 5;
+
+/**
+ * Check upload rate limit for a user (Max 5 uploads per hour)
+ */
+export async function checkUploadRateLimit(userId: string): Promise<{
+  allowed: boolean;
+  remaining: number;
+  max: number;
+  retryAfterMinutes?: number;
+}> {
+  const supabase = createClient();
+  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+
+  if (supabase) {
+    try {
+      const { count, error } = await supabase
+        .from("posts")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("created_at", oneHourAgo);
+
+      if (!error && typeof count === "number") {
+        const remaining = Math.max(0, MAX_UPLOADS_PER_HOUR - count);
+        return {
+          allowed: count < MAX_UPLOADS_PER_HOUR,
+          remaining,
+          max: MAX_UPLOADS_PER_HOUR,
+          retryAfterMinutes: count >= MAX_UPLOADS_PER_HOUR ? 60 : undefined,
+        };
+      }
+    } catch (err) {
+      console.warn("Supabase rate limit query error:", err);
+    }
+  }
+
+  // Local fallback
+  const recentPosts = (global.__WECA_POSTS || []).filter(
+    (p) => p.user_id === userId && new Date(p.created_at).getTime() > Date.now() - 3600000
+  );
+  const count = recentPosts.length;
+  return {
+    allowed: count < MAX_UPLOADS_PER_HOUR,
+    remaining: Math.max(0, MAX_UPLOADS_PER_HOUR - count),
+    max: MAX_UPLOADS_PER_HOUR,
+  };
 }
 
 /**

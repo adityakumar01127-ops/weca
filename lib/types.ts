@@ -21,6 +21,7 @@ export interface Post {
   // Reserved for Phase 2 AI scoring
   weirdness_score?: number | null;
   uniqueness_score?: number | null;
+  scoring_status?: "scoring" | "completed" | "failed";
 
   // Joined author and aggregated stats
   profiles?: Profile | null;

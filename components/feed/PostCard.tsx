@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Post } from "@/lib/types";
 import { LikeButton } from "./LikeButton";
-import { MessageSquare, User as UserIcon } from "lucide-react";
+import { MessageSquare, User as UserIcon, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface PostCardProps {
   post: Post;
@@ -34,6 +35,54 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const author = post.profiles;
   const username = author?.username || "anonymous";
   const avatarUrl = author?.avatar_url;
+
+  const [weirdnessScore, setWeirdnessScore] = useState<number | null | undefined>(post.weirdness_score);
+  const [uniquenessScore, setUniquenessScore] = useState<number | null | undefined>(post.uniqueness_score);
+  const [scoringStatus, setScoringStatus] = useState<string>(
+    post.scoring_status || (post.weirdness_score != null ? "completed" : "scoring")
+  );
+
+  // Subscribe to live post updates via Supabase Realtime
+  useEffect(() => {
+    // If scores already exist and completed, no need to subscribe
+    if (weirdnessScore != null && uniquenessScore != null && scoringStatus === "completed") {
+      return;
+    }
+
+    const supabase = createClient();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel(`post-realtime-${post.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "posts",
+          filter: `id=eq.${post.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as Partial<Post>;
+          if (updated.weirdness_score != null) {
+            setWeirdnessScore(updated.weirdness_score);
+          }
+          if (updated.uniqueness_score != null) {
+            setUniquenessScore(updated.uniqueness_score);
+          }
+          if (updated.scoring_status) {
+            setScoringStatus(updated.scoring_status);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [post.id, weirdnessScore, uniquenessScore, scoringStatus]);
+
+  const hasScores = weirdnessScore != null && uniquenessScore != null;
 
   return (
     <article className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/40 overflow-hidden transition-all">
@@ -77,13 +126,38 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         />
       </Link>
 
-      {/* Caption & Actions */}
+      {/* Caption, AI Scores & Actions */}
       <div className="p-4 space-y-3">
         {post.caption && (
           <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
             {post.caption}
           </p>
         )}
+
+        {/* Phase 2: Live AI Vision Scores Badge */}
+        <div className="flex items-center gap-2 pt-0.5">
+          {hasScores ? (
+            <div className="flex items-center gap-2 text-[11px] font-mono transition-opacity duration-300">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/90 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/80">
+                <span className="text-zinc-400">weird:</span>
+                <span className="font-semibold">{weirdnessScore}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/90 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/80">
+                <span className="text-zinc-400">unique:</span>
+                <span className="font-semibold">{uniquenessScore}</span>
+              </span>
+            </div>
+          ) : scoringStatus === "failed" ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-900 text-zinc-400 text-[11px] font-mono border border-zinc-200 dark:border-zinc-800">
+              unscored
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 text-[11px] font-mono animate-pulse border border-zinc-200 dark:border-zinc-800">
+              <Sparkles className="w-3 h-3 text-amber-500 animate-spin" />
+              <span>scoring…</span>
+            </span>
+          )}
+        </div>
 
         {/* Action Bar */}
         <div className="pt-2 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/60 text-xs">

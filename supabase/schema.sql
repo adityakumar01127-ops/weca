@@ -39,7 +39,7 @@ alter table public.profiles add column if not exists avatar_url text;
 alter table public.profiles add column if not exists bio text;
 alter table public.profiles add column if not exists credits_balance int default 0;
 
--- 2. Posts Table (Weirdness & Uniqueness scores are reserved for Phase 2 AI scoring)
+-- 2. Posts Table (Weirdness & Uniqueness scores calculated asynchronously by Phase 2 AI scoring)
 create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
@@ -47,8 +47,11 @@ create table if not exists public.posts (
   caption text,
   weirdness_score int,
   uniqueness_score int,
+  scoring_status text default 'scoring', -- 'scoring', 'completed', 'failed'
   created_at timestamptz default now()
 );
+
+alter table public.posts add column if not exists scoring_status text default 'scoring';
 
 -- 3. Likes Table (Unique on user_id + post_id)
 create table if not exists public.likes (
@@ -201,4 +204,25 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
-  
+
+-- 8. Enable Supabase Realtime for live score updates on posts
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables 
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'posts'
+  ) then
+    alter publication supabase_realtime add table public.posts;
+  end if;
+exception
+  when others then
+    null;
+end $$;
+
+-- 9. Phase 2 Database Webhook for Asynchronous AI Scoring
+-- To set up the Webhook in Supabase Dashboard:
+-- 1. Go to Database -> Webhooks -> Create a webhook
+-- 2. Name: "score_post_on_insert"
+-- 3. Table: "posts", Events: "Insert"
+-- 4. Type: Supabase Edge Function (or HTTP Request to your deployment /api/score-post)
+-- 5. Method: POST, Function: "score-post"

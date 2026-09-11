@@ -8,7 +8,8 @@ import { getPostById } from "@/lib/supabase/data";
 import { useAuth } from "@/context/AuthContext";
 import { LikeButton } from "@/components/feed/LikeButton";
 import { CommentSection } from "@/components/posts/CommentSection";
-import { ArrowLeft, User as UserIcon } from "lucide-react";
+import { ArrowLeft, User as UserIcon, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -33,6 +34,38 @@ export default function PostDetailPage() {
       ignore = true;
     };
   }, [postId, user?.id, profile?.id]);
+
+  // Realtime subscription for live AI score updates
+  useEffect(() => {
+    if (!post) return;
+    if (post.weirdness_score != null && post.uniqueness_score != null && post.scoring_status === "completed") {
+      return;
+    }
+
+    const supabase = createClient();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel(`post-detail-${post.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "posts",
+          filter: `id=eq.${post.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as Partial<Post>;
+          setPost((prev) => (prev ? { ...prev, ...updated } : prev));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [post?.id, post?.weirdness_score, post?.uniqueness_score, post?.scoring_status]);
 
   if (loading) {
     return (
@@ -63,6 +96,7 @@ export default function PostDetailPage() {
 
   const author = post.profiles;
   const username = author?.username || "anonymous";
+  const hasScores = post.weirdness_score != null && post.uniqueness_score != null;
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
@@ -124,13 +158,55 @@ export default function PostDetailPage() {
           />
         </div>
 
-        {/* Caption & Like */}
+        {/* Caption, AI Vision Scores & Like */}
         <div className="p-5 space-y-4">
           {post.caption && (
             <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
               {post.caption}
             </p>
           )}
+
+          {/* Phase 2: AI Vision Scoring Metrics */}
+          <div>
+            {hasScores ? (
+              <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 font-mono transition-all">
+                <div className="space-y-0.5">
+                  <span className="text-zinc-400 text-[10px] uppercase tracking-wider block">
+                    Weirdness Score
+                  </span>
+                  <div className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                    <span>{post.weirdness_score}</span>
+                    <span className="text-xs text-zinc-400 font-normal">/ 100</span>
+                  </div>
+                  <span className="text-[10px] text-zinc-500 block pt-0.5">
+                    Surrealism & unexpected elements
+                  </span>
+                </div>
+
+                <div className="space-y-0.5 border-l border-zinc-200 dark:border-zinc-800 pl-4">
+                  <span className="text-zinc-400 text-[10px] uppercase tracking-wider block">
+                    Uniqueness Score
+                  </span>
+                  <div className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                    <span>{post.uniqueness_score}</span>
+                    <span className="text-xs text-zinc-400 font-normal">/ 100</span>
+                  </div>
+                  <span className="text-[10px] text-zinc-500 block pt-0.5">
+                    Rarity against typical uploads
+                  </span>
+                </div>
+              </div>
+            ) : post.scoring_status === "failed" ? (
+              <div className="px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-400">
+                AI scoring unavailable for this photo.
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-500 animate-pulse">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+                <span>AI Vision Engine is analyzing weirdness & uniqueness…</span>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
             <LikeButton
