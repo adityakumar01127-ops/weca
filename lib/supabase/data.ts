@@ -104,7 +104,6 @@ export async function getPosts(currentUserId?: string): Promise<Post[]> {
           caption,
           weirdness_score,
           uniqueness_score,
-          scoring_status,
           created_at,
           profiles (
             id,
@@ -177,7 +176,6 @@ export async function getPostById(postId: string, currentUserId?: string): Promi
           caption,
           weirdness_score,
           uniqueness_score,
-          scoring_status,
           created_at,
           profiles (
             id,
@@ -293,14 +291,12 @@ export async function createPost(params: {
           user_id: params.userId,
           image_url: params.imageUrl,
           caption: params.caption || null,
-          scoring_status: "scoring",
         })
         .select(`
           id,
           user_id,
           image_url,
           caption,
-          scoring_status,
           created_at,
           profiles (
             id,

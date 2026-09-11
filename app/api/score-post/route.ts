@@ -288,7 +288,8 @@ export async function POST(req: NextRequest) {
       const scores = await runVisionScoring(imageUrl, caption);
 
       if (supabase) {
-        await supabase
+        // Try updating with scoring_status, and fall back to core scores if column does not exist
+        const { error: updateErr } = await supabase
           .from("posts")
           .update({
             weirdness_score: scores.weirdness,
@@ -296,6 +297,16 @@ export async function POST(req: NextRequest) {
             scoring_status: "completed",
           })
           .eq("id", postId);
+
+        if (updateErr) {
+          await supabase
+            .from("posts")
+            .update({
+              weirdness_score: scores.weirdness,
+              uniqueness_score: scores.uniqueness,
+            })
+            .eq("id", postId);
+        }
       }
 
       // Also update in-memory fallback store if active
