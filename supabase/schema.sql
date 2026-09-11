@@ -1,194 +1,196 @@
 -- ==============================================================================
--- WICA DATABASE SCHEMA (v0.2.0 Structured Architecture - Idempotent)
--- Run this in your Supabase SQL Editor.
--- Safe to run repeatedly on both fresh and existing databases!
+-- WECA DATABASE SCHEMA (Phase 1: Foundation & Core Feed)
+-- Tables: profiles, posts, likes, comments, storage.buckets('posts')
+-- Fully idempotent: safe to run repeatedly in the Supabase SQL Editor.
 -- ==============================================================================
 
--- 1. Enable pgvector extension for vision embeddings
-create extension if not exists vector;
+-- 0. Clean Migration: If legacy prototype tables exist with image_id, drop them
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns 
+    where table_schema = 'public' and table_name = 'likes' and column_name = 'image_id'
+  ) then
+    drop table if exists public.likes cascade;
+  end if;
 
--- 2. Users table (synced or standalone profile)
-create table if not exists users (
-  id uuid primary key default gen_random_uuid(),
+  if exists (
+    select 1 from information_schema.columns 
+    where table_schema = 'public' and table_name = 'comments' and column_name = 'image_id'
+  ) then
+    drop table if exists public.comments cascade;
+  end if;
+end $$;
+
+-- 1. Profiles Table
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
   username text unique not null,
   display_name text,
-  country text,
   avatar_url text,
   bio text,
-  website text,
-  gender text,
-  is_ai_profile boolean default false,
-  show_suggestions boolean default true,
-  note text,
-  followers_count int default 0,
-  following_count int default 0,
-  total_wc bigint default 0,
-  tier text default 'Mildly Odd',
+  credits_balance int default 0,
   created_at timestamptz default now()
 );
 
--- Backward-compatible column migration for existing databases
-alter table users add column if not exists display_name text;
-alter table users add column if not exists bio text;
-alter table users add column if not exists website text;
-alter table users add column if not exists gender text;
-alter table users add column if not exists is_ai_profile boolean default false;
-alter table users add column if not exists show_suggestions boolean default true;
-alter table users add column if not exists note text;
-alter table users add column if not exists followers_count int default 0;
-alter table users add column if not exists following_count int default 0;
+-- Ensure all columns exist if table was already created
+alter table public.profiles add column if not exists display_name text;
+alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists bio text;
+alter table public.profiles add column if not exists credits_balance int default 0;
 
--- 3. Images table
-create table if not exists images (
+-- 2. Posts Table (Weirdness & Uniqueness scores are reserved for Phase 2 AI scoring)
+create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  storage_path text not null,
-  category text not null,
-  country text,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  image_url text not null,
   caption text,
-  embedding vector(512),
-  wica_score int,
-  absurdity int,
-  rarity int,
-  craft int,
-  cultural_novelty int,
-  wit int,
-  ai_verdict text,
-  moderation_status text default 'approved', -- 'approved', 'pending_review', 'rejected'
+  weirdness_score int,
+  uniqueness_score int,
   created_at timestamptz default now()
 );
 
--- 4. Likes table
-create table if not exists likes (
-  user_id uuid references users(id) on delete cascade,
-  image_id uuid references images(id) on delete cascade,
+-- 3. Likes Table (Unique on user_id + post_id)
+create table if not exists public.likes (
+  post_id uuid not null references public.posts(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
   created_at timestamptz default now(),
-  primary key (user_id, image_id)
+  primary key (post_id, user_id)
 );
 
--- 5. Comments table
-create table if not exists comments (
+-- 4. Comments Table
+create table if not exists public.comments (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  image_id uuid references images(id) on delete cascade,
+  post_id uuid not null references public.posts(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
   body text not null,
   created_at timestamptz default now()
 );
 
--- 6. Battles table (Versus Arena)
-create table if not exists battles (
-  id uuid primary key default gen_random_uuid(),
-  category text,
-  image_a uuid references images(id) on delete cascade,
-  image_b uuid references images(id) on delete cascade,
-  votes_a int default 0,
-  votes_b int default 0,
-  ends_at timestamptz,
-  status text default 'active',
-  created_at timestamptz default now()
-);
+-- Indexes for optimal feed performance
+create index if not exists idx_posts_created_at on public.posts (created_at desc);
+create index if not exists idx_posts_user_id on public.posts (user_id);
+create index if not exists idx_likes_post_id on public.likes (post_id);
+create index if not exists idx_likes_user_id on public.likes (user_id);
+create index if not exists idx_comments_post_id on public.comments (post_id);
+create index if not exists idx_comments_created_at on public.comments (created_at asc);
 
--- 7. Credit ledger table
-create table if not exists credit_ledger (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  amount int not null,
-  reason text,
-  created_at timestamptz default now()
-);
-
--- Indexes for optimal query performance
-create index if not exists idx_images_wica_score on images (wica_score desc nulls last);
-create index if not exists idx_images_category on images (category);
-create index if not exists idx_images_created_at on images (created_at desc);
-create index if not exists idx_images_moderation on images (moderation_status);
-create index if not exists idx_comments_image_id on comments (image_id);
-create index if not exists idx_likes_image_id on likes (image_id);
-create index if not exists idx_users_username on users (username);
-
--- Storage bucket setup (publicly readable bucket)
+-- 5. Storage Bucket for Post Images
 insert into storage.buckets (id, name, public)
-values ('wica-images', 'wica-images', true)
+values ('posts', 'posts', true)
 on conflict (id) do update set public = true;
 
--- Storage policies: Drop existing if any, then recreate
-drop policy if exists "Public images are viewable by everyone" on storage.objects;
-create policy "Public images are viewable by everyone"
+-- Storage Policies (Drop then recreate for idempotency)
+drop policy if exists "Public post photos are viewable by everyone" on storage.objects;
+create policy "Public post photos are viewable by everyone"
   on storage.objects for select
-  using ( bucket_id = 'wica-images' );
+  using ( bucket_id = 'posts' );
 
-drop policy if exists "Authenticated users can upload images" on storage.objects;
-create policy "Authenticated users can upload images"
+drop policy if exists "Authenticated users can upload post photos" on storage.objects;
+create policy "Authenticated users can upload post photos"
   on storage.objects for insert
-  with check ( bucket_id = 'wica-images' );
+  with check ( bucket_id = 'posts' and auth.role() = 'authenticated' );
 
--- RLS Policies for Tables
-alter table users enable row level security;
-alter table images enable row level security;
-alter table likes enable row level security;
-alter table comments enable row level security;
-alter table battles enable row level security;
-alter table credit_ledger enable row level security;
+drop policy if exists "Users can delete own post photos" on storage.objects;
+create policy "Users can delete own post photos"
+  on storage.objects for delete
+  using ( bucket_id = 'posts' and auth.uid()::text = (storage.foldername(name))[1] );
 
--- Users: Read public, update own
-drop policy if exists "Users are viewable by everyone" on users;
-create policy "Users are viewable by everyone" on users for select using (true);
+-- 6. Row Level Security (RLS)
+alter table public.profiles enable row level security;
+alter table public.posts enable row level security;
+alter table public.likes enable row level security;
+alter table public.comments enable row level security;
 
-drop policy if exists "Users can update own profile" on users;
-create policy "Users can update own profile" on users for update using (auth.uid() = id);
+-- Profiles Policies
+drop policy if exists "Profiles are viewable by everyone" on public.profiles;
+create policy "Profiles are viewable by everyone"
+  on public.profiles for select
+  using (true);
 
-drop policy if exists "Users can insert own profile" on users;
-create policy "Users can insert own profile" on users for insert with check (auth.uid() = id or true);
+drop policy if exists "Users can insert own profile" on public.profiles;
+create policy "Users can insert own profile"
+  on public.profiles for insert
+  with check (auth.uid() = id);
 
--- Images: Approved images are viewable by everyone
-drop policy if exists "Approved images viewable by everyone" on images;
-create policy "Approved images viewable by everyone" on images for select
-  using (moderation_status = 'approved' or auth.uid() = user_id);
+drop policy if exists "Users can update own profile" on public.profiles;
+create policy "Users can update own profile"
+  on public.profiles for update
+  using (auth.uid() = id);
 
-drop policy if exists "Users can insert images" on images;
-create policy "Users can insert images" on images for insert with check (true);
+-- Posts Policies
+drop policy if exists "Posts are viewable by everyone" on public.posts;
+create policy "Posts are viewable by everyone"
+  on public.posts for select
+  using (true);
 
-drop policy if exists "Users can update own images" on images;
-create policy "Users can update own images" on images for update using (auth.uid() = user_id);
+drop policy if exists "Authenticated users can create posts" on public.posts;
+create policy "Authenticated users can create posts"
+  on public.posts for insert
+  with check (auth.uid() = user_id);
 
--- Likes: Public view, authenticated toggle
-drop policy if exists "Likes viewable by everyone" on likes;
-create policy "Likes viewable by everyone" on likes for select using (true);
+drop policy if exists "Users can update own posts" on public.posts;
+create policy "Users can update own posts"
+  on public.posts for update
+  using (auth.uid() = user_id);
 
-drop policy if exists "Users can like" on likes;
-create policy "Users can like" on likes for insert with check (true);
+drop policy if exists "Users can delete own posts" on public.posts;
+create policy "Users can delete own posts"
+  on public.posts for delete
+  using (auth.uid() = user_id);
 
-drop policy if exists "Users can unlike" on likes;
-create policy "Users can unlike" on likes for delete using (auth.uid() = user_id or true);
+-- Likes Policies
+drop policy if exists "Likes are viewable by everyone" on public.likes;
+create policy "Likes are viewable by everyone"
+  on public.likes for select
+  using (true);
 
--- Comments: Public view, insertable
-drop policy if exists "Comments viewable by everyone" on comments;
-create policy "Comments viewable by everyone" on comments for select using (true);
+drop policy if exists "Authenticated users can like posts" on public.likes;
+create policy "Authenticated users can like posts"
+  on public.likes for insert
+  with check (auth.uid() = user_id);
 
-drop policy if exists "Users can comment" on comments;
-create policy "Users can comment" on comments for insert with check (true);
+drop policy if exists "Users can remove own like" on public.likes;
+create policy "Users can remove own like"
+  on public.likes for delete
+  using (auth.uid() = user_id);
 
--- Battles: Public view, authenticated vote
-drop policy if exists "Battles are viewable by everyone" on battles;
-create policy "Battles are viewable by everyone" on battles for select using (true);
+-- Comments Policies
+drop policy if exists "Comments are viewable by everyone" on public.comments;
+create policy "Comments are viewable by everyone"
+  on public.comments for select
+  using (true);
 
--- Credit Ledger: Viewable by owner
-drop policy if exists "Ledger viewable by owner" on credit_ledger;
-create policy "Ledger viewable by owner" on credit_ledger for select using (auth.uid() = user_id);
+drop policy if exists "Authenticated users can post comments" on public.comments;
+create policy "Authenticated users can post comments"
+  on public.comments for insert
+  with check (auth.uid() = user_id);
 
-drop policy if exists "Users can insert ledger entries" on credit_ledger;
-create policy "Users can insert ledger entries" on credit_ledger for insert with check (auth.uid() = user_id or true);
+drop policy if exists "Users can delete own comments" on public.comments;
+create policy "Users can delete own comments"
+  on public.comments for delete
+  using (auth.uid() = user_id);
 
--- Trigger to sync auth.users with public.users
+-- 7. Automatic Profile Creation Trigger on Auth Sign-Up
 create or replace function public.handle_new_user()
 returns trigger as $$
+declare
+  raw_username text;
 begin
-  insert into public.users (id, username, display_name, avatar_url)
+  raw_username := coalesce(
+    new.raw_user_meta_data->>'username',
+    split_part(new.email, '@', 1)
+  );
+
+  insert into public.profiles (id, username, display_name, avatar_url)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)),
-    coalesce(new.raw_user_meta_data->>'display_name', new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
-    coalesce(new.raw_user_meta_data->>'avatar_url', 'https://api.dicebear.com/7.x/bottts/svg?seed=' || new.id)
+    raw_username,
+    coalesce(new.raw_user_meta_data->>'display_name', raw_username),
+    coalesce(
+      new.raw_user_meta_data->>'avatar_url',
+      'https://api.dicebear.com/7.x/initials/svg?seed=' || raw_username
+    )
   )
   on conflict (id) do nothing;
   return new;
@@ -199,3 +201,4 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+  

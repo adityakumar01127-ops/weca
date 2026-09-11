@@ -1,3 +1,60 @@
+// ==============================================================================
+// WECA PHASE 1 DATA MODELS
+// ==============================================================================
+
+export interface Profile {
+  id: string;
+  username: string;
+  display_name?: string | null;
+  avatar_url?: string | null;
+  bio?: string | null;
+  credits_balance: number;
+  created_at: string;
+}
+
+export interface Post {
+  id: string;
+  user_id: string;
+  image_url: string;
+  caption?: string | null;
+  created_at: string;
+  // Reserved for Phase 2 AI scoring
+  weirdness_score?: number | null;
+  uniqueness_score?: number | null;
+
+  // Joined author and aggregated stats
+  profiles?: Profile | null;
+  likes_count?: number;
+  comments_count?: number;
+  user_has_liked?: boolean;
+}
+
+export interface Like {
+  post_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  post_id?: string;
+  user_id: string;
+  body: string;
+  created_at: string;
+  profiles?: Profile | null;
+  // Compatibility
+  image_id?: string;
+  author?: {
+    id: string;
+    username: string;
+    avatar_url?: string | null;
+  };
+}
+
+// ==============================================================================
+// COMPATIBILITY & PHASE 2 RESERVED TYPES
+// ==============================================================================
+
 export type Category = 
   | "Nature" 
   | "Food" 
@@ -40,6 +97,7 @@ export interface User {
   total_wc: number;
   tier: Tier;
   created_at: string;
+  email?: string | null;
 }
 
 export interface WicaImage {
@@ -60,7 +118,6 @@ export interface WicaImage {
   moderation_status: "approved" | "pending_review" | "rejected";
   created_at: string;
   
-  // Joined or calculated fields
   author?: {
     id: string;
     username: string;
@@ -70,19 +127,6 @@ export interface WicaImage {
   likes_count?: number;
   comments_count?: number;
   user_has_liked?: boolean;
-}
-
-export interface Comment {
-  id: string;
-  user_id: string;
-  image_id: string;
-  body: string;
-  created_at: string;
-  author?: {
-    id: string;
-    username: string;
-    avatar_url?: string | null;
-  };
 }
 
 export interface ScoreBreakdown {
@@ -115,14 +159,14 @@ export function getTierColor(tier: Tier): { text: string; bg: string; border: st
       };
     case "Reality-Breaking":
       return {
-        text: "text-magenta",
+        text: "text-pink-500",
         bg: "bg-pink-50",
         border: "border-pink-200",
         glow: "shadow-[0_0_15px_rgba(255,77,141,0.3)]",
       };
     case "Certified Weird":
       return {
-        text: "text-violet",
+        text: "text-purple-600",
         bg: "bg-purple-50",
         border: "border-purple-200",
         glow: "shadow-[0_0_15px_rgba(124,92,252,0.3)]",
@@ -130,7 +174,7 @@ export function getTierColor(tier: Tier): { text: string; bg: string; border: st
     case "Mildly Odd":
     default:
       return {
-        text: "text-cyan",
+        text: "text-cyan-600",
         bg: "bg-cyan-50",
         border: "border-cyan-200",
         glow: "shadow-[0_0_15px_rgba(34,211,238,0.3)]",
@@ -198,4 +242,3 @@ export interface Achievement {
   unlocked: boolean;
   progress: number;
 }
-
