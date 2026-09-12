@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/ui/ProtectedRoute";
-import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { Post } from "@/lib/types";
@@ -104,13 +103,14 @@ export default function NewBattlePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen flex flex-col bg-[#09090b] text-zinc-100">
+      <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+
         <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           {/* Back button & Title */}
           <div className="mb-6">
             <Link
               href="/versus"
-              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors mb-4"
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors mb-4"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Arena</span>
@@ -118,16 +118,16 @@ export default function NewBattlePage() {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
                   Start a VS Battle
                 </h1>
-                <p className="text-sm text-zinc-400 mt-1">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
                   Pit any two photos head-to-head. The community votes blindly until 50 votes are cast.
                 </p>
               </div>
 
               {rateLimit && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 self-start sm:self-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-700 dark:text-zinc-300 self-start sm:self-auto">
                   <Clock className="w-3.5 h-3.5 text-zinc-400" />
                   <span>
                     {rateLimit.remaining}/{rateLimit.max} battles left this hour
@@ -138,25 +138,25 @@ export default function NewBattlePage() {
           </div>
 
           {/* Stepper & Selected Pair Preview */}
-          <div className="mb-8 p-4 rounded-xl bg-zinc-900/70 border border-zinc-800">
+          <div className="mb-8 p-4 rounded-xl bg-white dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Challenger A Preview Card */}
               <div
                 onClick={() => setStep("pick-a")}
                 className={`relative p-3 rounded-lg border cursor-pointer transition-all ${
                   step === "pick-a"
-                    ? "border-zinc-300 bg-zinc-800/60"
+                    ? "border-zinc-900 dark:border-zinc-300 bg-zinc-100 dark:bg-zinc-800/60"
                     : selectedPostA
-                    ? "border-zinc-700 bg-zinc-900/60"
-                    : "border-dashed border-zinc-800 bg-zinc-950/40"
+                    ? "border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/60"
+                    : "border-dashed border-zinc-300 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
+                  <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                     Challenger A
                   </span>
                   {selectedPostA && (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
+                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-500 dark:text-emerald-400">
                       <Check className="w-3 h-3" /> Selected
                     </span>
                   )}
@@ -167,10 +167,10 @@ export default function NewBattlePage() {
                     <img
                       src={selectedPostA.image_url}
                       alt={selectedPostA.caption || "Challenger A"}
-                      className="w-16 h-16 rounded object-cover border border-zinc-700/60"
+                      className="w-16 h-16 rounded object-cover border border-zinc-200 dark:border-zinc-700/60"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-zinc-200 font-medium truncate">
+                      <p className="text-xs text-zinc-800 dark:text-zinc-200 font-medium truncate">
                         {selectedPostA.caption || "Untitled"}
                       </p>
                       <p className="text-[11px] text-zinc-500 font-mono mt-0.5">
@@ -179,7 +179,7 @@ export default function NewBattlePage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="py-4 text-center text-xs text-zinc-500">
+                  <div className="py-4 text-center text-xs text-zinc-400">
                     Click to select Challenger A below
                   </div>
                 )}
@@ -190,18 +190,18 @@ export default function NewBattlePage() {
                 onClick={() => selectedPostA && setStep("pick-b")}
                 className={`relative p-3 rounded-lg border cursor-pointer transition-all ${
                   step === "pick-b"
-                    ? "border-zinc-300 bg-zinc-800/60"
+                    ? "border-zinc-900 dark:border-zinc-300 bg-zinc-100 dark:bg-zinc-800/60"
                     : selectedPostB
-                    ? "border-zinc-700 bg-zinc-900/60"
-                    : "border-dashed border-zinc-800 bg-zinc-950/40"
+                    ? "border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/60"
+                    : "border-dashed border-zinc-300 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40"
                 } ${!selectedPostA ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
+                  <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                     Challenger B
                   </span>
                   {selectedPostB && (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
+                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-500 dark:text-emerald-400">
                       <Check className="w-3 h-3" /> Selected
                     </span>
                   )}
@@ -212,10 +212,10 @@ export default function NewBattlePage() {
                     <img
                       src={selectedPostB.image_url}
                       alt={selectedPostB.caption || "Challenger B"}
-                      className="w-16 h-16 rounded object-cover border border-zinc-700/60"
+                      className="w-16 h-16 rounded object-cover border border-zinc-200 dark:border-zinc-700/60"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-zinc-200 font-medium truncate">
+                      <p className="text-xs text-zinc-800 dark:text-zinc-200 font-medium truncate">
                         {selectedPostB.caption || "Untitled"}
                       </p>
                       <p className="text-[11px] text-zinc-500 font-mono mt-0.5">
@@ -224,7 +224,7 @@ export default function NewBattlePage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="py-4 text-center text-xs text-zinc-500">
+                  <div className="py-4 text-center text-xs text-zinc-400">
                     {selectedPostA ? "Now click to select Challenger B" : "Select Challenger A first"}
                   </div>
                 )}
@@ -233,14 +233,14 @@ export default function NewBattlePage() {
 
             {/* Launch CTA bar */}
             {selectedPostA && selectedPostB && (
-              <div className="mt-4 pt-4 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="text-xs text-zinc-400">
+              <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="text-xs text-zinc-600 dark:text-zinc-400">
                   Ready to launch battle. Blind voting will be enabled automatically.
                 </div>
                 <button
                   onClick={handleCreateBattle}
                   disabled={submitting}
-                  className="px-6 py-2 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 font-medium text-sm transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                  className="px-6 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-medium text-sm transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   <Swords className="w-4 h-4" />
                   <span>{submitting ? "Launching..." : "Launch Battle"}</span>
@@ -260,7 +260,7 @@ export default function NewBattlePage() {
           {/* Selection Gallery */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-zinc-200">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-200">
                 {step === "pick-a"
                   ? "Step 1: Choose Challenger A"
                   : step === "pick-b"
@@ -275,13 +275,13 @@ export default function NewBattlePage() {
             {loadingPosts ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <div key={n} className="h-44 rounded-lg bg-zinc-900 animate-pulse" />
+                  <div key={n} className="h-44 rounded-lg bg-zinc-200 dark:bg-zinc-900 animate-pulse" />
                 ))}
               </div>
             ) : posts.length < 2 ? (
-              <div className="py-12 text-center text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
+              <div className="py-12 text-center text-zinc-500 text-sm border border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900/20">
                 You need at least 2 uploaded photos to start a battle.{" "}
-                <Link href="/upload" className="text-white underline underline-offset-4">
+                <Link href="/upload" className="text-zinc-900 dark:text-white underline underline-offset-4">
                   Upload a photo first
                 </Link>
               </div>
@@ -298,8 +298,8 @@ export default function NewBattlePage() {
                       onClick={() => handleSelect(post)}
                       className={`group relative rounded-lg border overflow-hidden cursor-pointer transition-all aspect-square bg-zinc-950 ${
                         isSelected
-                          ? "ring-2 ring-white border-white"
-                          : "border-zinc-800 hover:border-zinc-600"
+                          ? "ring-2 ring-zinc-900 border-zinc-900 dark:ring-white dark:border-white"
+                          : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600"
                       }`}
                     >
                       <img
@@ -311,7 +311,7 @@ export default function NewBattlePage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
                       {isSelected && (
-                        <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-white text-zinc-950 text-[10px] font-bold font-mono">
+                        <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 text-[10px] font-bold font-mono">
                           {isA ? "CHALLENGER A" : "CHALLENGER B"}
                         </div>
                       )}

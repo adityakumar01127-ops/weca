@@ -27,14 +27,19 @@ import {
   HelpCircle,
   Clock,
   Wallet,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { getTierColor, getTierFromScore } from "@/lib/types";
+import { useTheme } from "@/context/ThemeContext";
 
-type SettingsTab = "profile" | "ai-vision" | "wallet" | "account";
+type SettingsTab = "profile" | "appearance" | "ai-vision" | "wallet" | "account";
 
 export const SettingsView: React.FC = () => {
   const router = useRouter();
   const { user, profile, updateProfile, updateUserWC, signOut } = useAuth();
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -240,48 +245,48 @@ export const SettingsView: React.FC = () => {
   const tierColors = getTierColor(tier);
 
   return (
-    <div className="relative min-h-screen bg-[#09090b] text-zinc-100 selection:bg-violet/30 font-sans pb-20">
+    <div className="relative min-h-screen bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/30 font-sans pb-20 transition-colors duration-200">
       {/* Radial Ambient Glows */}
       <div
-        className="pointer-events-none absolute -top-32 left-1/3 -translate-x-1/2 w-[700px] h-[400px] bg-violet/10 rounded-full blur-[140px] opacity-70"
+        className="pointer-events-none absolute -top-32 left-1/3 -translate-x-1/2 w-[700px] h-[400px] bg-violet/10 rounded-full blur-[140px] opacity-70 dark:opacity-70 opacity-40"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute top-96 -right-24 w-[500px] h-[450px] bg-cyan/8 rounded-full blur-[160px] opacity-60"
+        className="pointer-events-none absolute top-96 -right-24 w-[500px] h-[450px] bg-cyan/8 rounded-full blur-[160px] opacity-60 dark:opacity-60 opacity-30"
         aria-hidden="true"
       />
 
       {/* Floating Success Notification */}
       {toastMessage && (
-        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-5 py-3 rounded-full bg-zinc-900/95 border border-violet/60 text-xs font-mono text-white shadow-2xl shadow-violet/25 animate-in fade-in slide-in-from-top-3 backdrop-blur-xl">
-          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-5 py-3 rounded-full bg-white/95 dark:bg-zinc-900/95 border border-violet/40 dark:border-violet/60 text-xs font-mono text-zinc-900 dark:text-white shadow-2xl shadow-violet/25 animate-in fade-in slide-in-from-top-3 backdrop-blur-xl">
+          <Check className="w-4 h-4 text-emerald-500 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Top Console Navigation Bar */}
-      <header className="sticky top-0 z-40 w-full bg-[#09090b]/80 backdrop-blur-xl border-b border-zinc-800/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      {/* In-Page Console Title & Breadcrumb (Sits cleanly below primary Navbar) */}
+      <div className="w-full border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/40 dark:bg-zinc-900/20 backdrop-blur-md transition-colors py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => router.push(`/profile/${user?.username || ""}`)}
-              className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer"
               title="Return to Profile"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-display font-bold text-sm sm:text-base text-white">
+                <h1 className="font-display font-bold text-sm sm:text-base text-zinc-900 dark:text-white">
                   Console Settings
                 </h1>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet/15 text-violet border border-violet/30">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet/10 dark:bg-violet/15 text-violet border border-violet/30">
                   Obsidian v2.4
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-zinc-400 hidden sm:block">
-                Configure identity, sensory AI vision models, credits vault, and sessions
+              <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 hidden sm:block">
+                Configure identity, appearance theme, sensory AI vision models, and credits vault
               </p>
             </div>
           </div>
@@ -289,19 +294,19 @@ export const SettingsView: React.FC = () => {
           <div className="flex items-center gap-3">
             <Link
               href={`/profile/${user?.username || ""}`}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-all cursor-pointer"
             >
               <img
                 src={avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=explorer`}
                 alt="Avatar"
-                className="w-5 h-5 rounded-full object-cover bg-zinc-950"
+                className="w-5 h-5 rounded-full object-cover bg-zinc-200 dark:bg-zinc-950"
               />
               <span className="hidden sm:inline">@{user?.username || "explorer"}</span>
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-500" />
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
             </Link>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Settings Console Layout */}
       <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
@@ -311,8 +316,8 @@ export const SettingsView: React.FC = () => {
           {/* LEFT COLUMN: NAVIGATION TABS                                 */}
           {/* ============================================================ */}
           <aside className="lg:col-span-4 space-y-4">
-            <div className="p-4 rounded-3xl bg-zinc-900/60 backdrop-blur-2xl border border-zinc-800/80 shadow-xl space-y-2">
-              <div className="px-3 py-2 text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+            <div className="p-4 rounded-3xl bg-white/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-xl space-y-2">
+              <div className="px-3 py-2 text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                 System Control Panels
               </div>
 
@@ -321,24 +326,50 @@ export const SettingsView: React.FC = () => {
                 onClick={() => setActiveTab("profile")}
                 className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-medium transition-all cursor-pointer ${
                   activeTab === "profile"
-                    ? "bg-violet/15 border border-violet/40 text-white shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent"
+                    ? "bg-violet/10 dark:bg-violet/15 border border-violet/30 dark:border-violet/40 text-violet-900 dark:text-white shadow-sm"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/40 border border-transparent"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-2 rounded-xl ${
-                      activeTab === "profile" ? "bg-violet text-white" : "bg-zinc-800/60 text-zinc-400"
+                      activeTab === "profile" ? "bg-violet text-white" : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400"
                     }`}
                   >
                     <UserIcon className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-white">Profile & Identity</div>
-                    <div className="text-[10px] font-mono text-zinc-400">Bio, handle, note & badges</div>
+                    <div className="font-semibold text-zinc-900 dark:text-white">Profile & Identity</div>
+                    <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Bio, handle, note & badges</div>
                   </div>
                 </div>
-                <ChevronRight className={`w-4 h-4 ${activeTab === "profile" ? "text-violet" : "text-zinc-600"}`} />
+                <ChevronRight className={`w-4 h-4 ${activeTab === "profile" ? "text-violet" : "text-zinc-400 dark:text-zinc-600"}`} />
+              </button>
+
+              {/* Tab 2: Appearance & Theme */}
+              <button
+                type="button"
+                onClick={() => setActiveTab("appearance")}
+                className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === "appearance"
+                    ? "bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 dark:border-amber-500/40 text-amber-950 dark:text-white shadow-sm"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/40 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`p-2 rounded-xl ${
+                      activeTab === "appearance" ? "bg-amber-500 text-zinc-950" : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400"
+                    }`}
+                  >
+                    <Sun className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold text-zinc-900 dark:text-white">Appearance & Theme</div>
+                    <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Light (Default), Dark & Auto</div>
+                  </div>
+                </div>
+                <ChevronRight className={`w-4 h-4 ${activeTab === "appearance" ? "text-amber-500" : "text-zinc-400 dark:text-zinc-600"}`} />
               </button>
 
               <button
@@ -346,24 +377,24 @@ export const SettingsView: React.FC = () => {
                 onClick={() => setActiveTab("ai-vision")}
                 className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-medium transition-all cursor-pointer ${
                   activeTab === "ai-vision"
-                    ? "bg-cyan/15 border border-cyan/40 text-white shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent"
+                    ? "bg-cyan/10 dark:bg-cyan/15 border border-cyan/30 dark:border-cyan/40 text-cyan-950 dark:text-white shadow-sm"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/40 border border-transparent"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-2 rounded-xl ${
-                      activeTab === "ai-vision" ? "bg-cyan text-zinc-950" : "bg-zinc-800/60 text-zinc-400"
+                      activeTab === "ai-vision" ? "bg-cyan text-zinc-950" : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400"
                     }`}
                   >
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-white">AI Vision & Scoring</div>
-                    <div className="text-[10px] font-mono text-zinc-400">Model engine & strictness</div>
+                    <div className="font-semibold text-zinc-900 dark:text-white">AI Vision & Scoring</div>
+                    <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Model engine & strictness</div>
                   </div>
                 </div>
-                <ChevronRight className={`w-4 h-4 ${activeTab === "ai-vision" ? "text-cyan" : "text-zinc-600"}`} />
+                <ChevronRight className={`w-4 h-4 ${activeTab === "ai-vision" ? "text-cyan" : "text-zinc-400 dark:text-zinc-600"}`} />
               </button>
 
               <button
@@ -371,24 +402,24 @@ export const SettingsView: React.FC = () => {
                 onClick={() => setActiveTab("wallet")}
                 className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-medium transition-all cursor-pointer ${
                   activeTab === "wallet"
-                    ? "bg-amber-500/15 border border-amber-500/40 text-white shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent"
+                    ? "bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 dark:border-amber-500/40 text-amber-950 dark:text-white shadow-sm"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/40 border border-transparent"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-2 rounded-xl ${
-                      activeTab === "wallet" ? "bg-amber-500 text-zinc-950" : "bg-zinc-800/60 text-zinc-400"
+                      activeTab === "wallet" ? "bg-amber-500 text-zinc-950" : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400"
                     }`}
                   >
                     <Coins className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-white">Weird Credits & Vault</div>
-                    <div className="text-[10px] font-mono text-zinc-400">{currentWC} WC balance & faucet</div>
+                    <div className="font-semibold text-zinc-900 dark:text-white">Weird Credits & Vault</div>
+                    <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">{currentWC} WC balance & faucet</div>
                   </div>
                 </div>
-                <ChevronRight className={`w-4 h-4 ${activeTab === "wallet" ? "text-amber-400" : "text-zinc-600"}`} />
+                <ChevronRight className={`w-4 h-4 ${activeTab === "wallet" ? "text-amber-400" : "text-zinc-400 dark:text-zinc-600"}`} />
               </button>
 
               <button
@@ -396,42 +427,42 @@ export const SettingsView: React.FC = () => {
                 onClick={() => setActiveTab("account")}
                 className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-medium transition-all cursor-pointer ${
                   activeTab === "account"
-                    ? "bg-magenta/15 border border-magenta/40 text-white shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent"
+                    ? "bg-magenta/10 dark:bg-magenta/15 border border-magenta/30 dark:border-magenta/40 text-magenta-950 dark:text-white shadow-sm"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/40 border border-transparent"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-2 rounded-xl ${
-                      activeTab === "account" ? "bg-magenta text-white" : "bg-zinc-800/60 text-zinc-400"
+                      activeTab === "account" ? "bg-magenta text-white" : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400"
                     }`}
                   >
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-white">Account & Session</div>
-                    <div className="text-[10px] font-mono text-zinc-400">Privacy, reset & logout</div>
+                    <div className="font-semibold text-zinc-900 dark:text-white">Account & Session</div>
+                    <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Appearance, privacy & logout</div>
                   </div>
                 </div>
-                <ChevronRight className={`w-4 h-4 ${activeTab === "account" ? "text-magenta" : "text-zinc-600"}`} />
+                <ChevronRight className={`w-4 h-4 ${activeTab === "account" ? "text-magenta" : "text-zinc-400 dark:text-zinc-600"}`} />
               </button>
             </div>
 
             {/* Quick Status Pill */}
-            <div className="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 text-xs font-mono space-y-2">
-              <div className="flex items-center justify-between text-zinc-400">
+            <div className="p-4 rounded-2xl bg-white/80 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/60 text-xs font-mono space-y-2 shadow-sm">
+              <div className="flex items-center justify-between text-zinc-600 dark:text-zinc-400">
                 <span>Hunter Tier:</span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] border ${tierColors.bg} ${tierColors.text} ${tierColors.border}`}>
                   {tier}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-zinc-400">
+              <div className="flex items-center justify-between text-zinc-600 dark:text-zinc-400">
                 <span>Vault Balance:</span>
-                <span className="text-amber-400 font-bold">{currentWC} WC</span>
+                <span className="text-amber-500 dark:text-amber-400 font-bold">{currentWC} WC</span>
               </div>
-              <div className="flex items-center justify-between text-zinc-400">
+              <div className="flex items-center justify-between text-zinc-600 dark:text-zinc-400">
                 <span>State Engine:</span>
-                <span className="text-emerald-400">Connected</span>
+                <span className="text-emerald-500 dark:text-emerald-400">Connected</span>
               </div>
             </div>
           </aside>
@@ -440,7 +471,7 @@ export const SettingsView: React.FC = () => {
           {/* RIGHT COLUMN: ACTIVE PANEL CONTENT                           */}
           {/* ============================================================ */}
           <section className="lg:col-span-8">
-            <div className="p-6 sm:p-8 rounded-3xl bg-zinc-900/60 backdrop-blur-2xl border border-zinc-800/80 shadow-2xl space-y-8">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-xl space-y-8">
               
               {/* ========================================================== */}
               {/* PANEL 1: PROFILE & IDENTITY                                */}
@@ -448,22 +479,22 @@ export const SettingsView: React.FC = () => {
               {activeTab === "profile" && (
                 <form onSubmit={handleSaveProfile} className="space-y-6">
                   <div>
-                    <h2 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                    <h2 className="font-display font-bold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
                       <span>Public Identity & Field Dossier</span>
                     </h2>
-                    <p className="text-xs text-zinc-400 font-mono mt-0.5">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
                       This information represents your researcher persona across the Weca anomaly index.
                     </p>
                   </div>
 
                   {/* Avatar Picker Section */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/60 border border-zinc-800 flex flex-col sm:flex-row items-center gap-5">
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center gap-5">
                     <div className="relative group shrink-0">
                       <div className="w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-cyan via-violet to-magenta ring-2 ring-violet/30 overflow-hidden">
                         <img
                           src={avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=explorer`}
                           alt="Avatar"
-                          className="w-full h-full rounded-full object-cover bg-zinc-950"
+                          className="w-full h-full rounded-full object-cover bg-zinc-200 dark:bg-zinc-950"
                         />
                       </div>
                       <button
@@ -479,16 +510,16 @@ export const SettingsView: React.FC = () => {
 
                     <div className="flex-1 min-w-0 space-y-2 text-center sm:text-left">
                       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                        <span className="text-xs font-semibold text-white">Avatar Holo-Lens</span>
+                        <span className="text-xs font-semibold text-zinc-900 dark:text-white">Avatar Holo-Lens</span>
                         <button
                           type="button"
                           onClick={() => setShowPhotoPicker(!showPhotoPicker)}
-                          className="px-3 py-1 rounded-xl bg-violet/15 hover:bg-violet/25 text-violet border border-violet/30 text-xs font-mono transition-colors cursor-pointer"
+                          className="px-3 py-1 rounded-xl bg-violet/10 dark:bg-violet/15 hover:bg-violet/20 dark:hover:bg-violet/25 text-violet border border-violet/30 text-xs font-mono transition-colors cursor-pointer"
                         >
                           {showPhotoPicker ? "Close Presets" : "Select Preset / Custom URL"}
                         </button>
                       </div>
-                      <p className="text-[11px] font-mono text-zinc-400">
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                         Supports SVG Bottts, Dicebear initial seeds, or custom hosted HTTPS images.
                       </p>
                     </div>
@@ -496,8 +527,8 @@ export const SettingsView: React.FC = () => {
 
                   {/* Preset Avatar Selector Drawer */}
                   {showPhotoPicker && (
-                    <div className="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 space-y-3 animate-in fade-in">
-                      <div className="text-xs font-mono text-zinc-300">Choose an anomaly researcher icon:</div>
+                    <div className="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 space-y-3 animate-in fade-in">
+                      <div className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Choose an anomaly researcher icon:</div>
                       <div className="flex items-center gap-3 overflow-x-auto pb-2">
                         {avatarPresets.map((preset, idx) => (
                           <button
@@ -507,22 +538,22 @@ export const SettingsView: React.FC = () => {
                               setAvatarUrl(preset);
                             }}
                             className={`w-12 h-12 rounded-full p-0.5 border-2 transition-transform hover:scale-105 shrink-0 ${
-                              avatarUrl === preset ? "border-cyan ring-2 ring-cyan/30" : "border-zinc-700"
+                              avatarUrl === preset ? "border-cyan ring-2 ring-cyan/30" : "border-zinc-300 dark:border-zinc-700"
                             }`}
                           >
-                            <img src={preset} alt="preset" className="w-full h-full rounded-full object-cover bg-zinc-900" />
+                            <img src={preset} alt="preset" className="w-full h-full rounded-full object-cover bg-zinc-200 dark:bg-zinc-900" />
                           </button>
                         ))}
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-zinc-400">Or enter image URL:</label>
+                        <label className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">Or enter image URL:</label>
                         <input
                           type="url"
                           value={avatarUrl}
                           onChange={(e) => setAvatarUrl(e.target.value)}
                           placeholder="https://..."
-                          className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-cyan"
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-cyan"
                         />
                       </div>
                     </div>
@@ -532,28 +563,28 @@ export const SettingsView: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Display Name */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono text-zinc-300">Display Name</label>
+                      <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Display Name</label>
                       <input
                         type="text"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         placeholder="e.g. Aditya Kaushik"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                         required
                       />
                     </div>
 
                     {/* Username Handle */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono text-zinc-300">Username Handle</label>
+                      <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Username Handle</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-xs text-zinc-500 font-mono">@</span>
+                        <span className="absolute left-3 top-2.5 text-xs text-zinc-400 dark:text-zinc-500 font-mono">@</span>
                         <input
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           placeholder="weca_explorer"
-                          className="w-full pl-7 pr-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
+                          className="w-full pl-7 pr-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                           required
                         />
                       </div>
@@ -561,58 +592,58 @@ export const SettingsView: React.FC = () => {
 
                     {/* Pronouns */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono text-zinc-300">Pronouns</label>
+                      <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Pronouns</label>
                       <input
                         type="text"
                         value={pronouns}
                         onChange={(e) => setPronouns(e.target.value)}
                         placeholder="they/them, he/him, she/her"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                       />
                     </div>
 
                     {/* Status Note / Thought Bubble */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono text-zinc-300">Status Note (Thought Bubble)</label>
+                      <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Status Note (Thought Bubble)</label>
                       <input
                         type="text"
                         value={note}
                         maxLength={40}
                         onChange={(e) => setNote(e.target.value)}
                         placeholder="e.g. Just curious..."
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                       />
                     </div>
 
                     {/* Role / Tag */}
                     <div className="space-y-1.5 sm:col-span-2">
-                      <label className="text-xs font-mono text-zinc-300">Observer Specialty / Role Tag</label>
+                      <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Observer Specialty / Role Tag</label>
                       <input
                         type="text"
                         value={gender}
                         onChange={(e) => setGender(e.target.value)}
                         placeholder="e.g. Entrepreneur / Anomaly Investigator"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                       />
                     </div>
 
                     {/* Website Link */}
                     <div className="space-y-1.5 sm:col-span-2">
-                      <label className="text-xs font-mono text-zinc-300">Website or Expedition Log Link</label>
+                      <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Website or Expedition Log Link</label>
                       <input
                         type="text"
                         value={website}
                         onChange={(e) => setWebsite(e.target.value)}
                         placeholder="https://weca.ai"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                       />
                     </div>
 
                     {/* Bio */}
                     <div className="space-y-1.5 sm:col-span-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-mono text-zinc-300">Field Bio</label>
-                        <span className="text-[10px] font-mono text-zinc-500">{bio.length}/200</span>
+                        <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Field Bio</label>
+                        <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">{bio.length}/200</span>
                       </div>
                       <textarea
                         value={bio}
@@ -620,19 +651,19 @@ export const SettingsView: React.FC = () => {
                         rows={3}
                         onChange={(e) => setBio(e.target.value)}
                         placeholder="Documenting anomalies..."
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all leading-relaxed"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all leading-relaxed"
                       />
                     </div>
                   </div>
 
-                  {/* AI Creator Toggle Switch (Matching Reference Image 1) */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/90 flex items-center justify-between gap-4">
+                  {/* AI Creator Toggle Switch */}
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-violet" />
                         <span>AI Vision Creator Mode</span>
                       </div>
-                      <p className="text-[11px] font-mono text-zinc-400">
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                         Displays the luminous AI Vision Creator badge on your public anomaly profile.
                       </p>
                     </div>
@@ -641,7 +672,7 @@ export const SettingsView: React.FC = () => {
                       type="button"
                       onClick={() => setIsAiProfile(!isAiProfile)}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        isAiProfile ? "bg-violet shadow-lg shadow-violet/30" : "bg-zinc-800"
+                        isAiProfile ? "bg-violet shadow-lg shadow-violet/30" : "bg-zinc-300 dark:bg-zinc-800"
                       }`}
                     >
                       <span
@@ -657,11 +688,11 @@ export const SettingsView: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-6 py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shadow-md flex items-center gap-2"
+                      className="px-6 py-2.5 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shadow-md flex items-center gap-2"
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                          <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                           <span>Saving Changes...</span>
                         </>
                       ) : (
@@ -676,23 +707,181 @@ export const SettingsView: React.FC = () => {
               )}
 
               {/* ========================================================== */}
-              {/* PANEL 2: AI VISION & SCORING                               */}
+              {/* PANEL 2: APPEARANCE & THEME (EXCLUSIVE SETTING)             */}
+              {/* ========================================================== */}
+              {activeTab === "appearance" && (
+                <div className="space-y-6">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] font-mono mb-2">
+                      <Sun className="w-3 h-3" />
+                      <span>Display Customization</span>
+                    </div>
+                    <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white flex items-center gap-2">
+                      <span>Interface Appearance & Theme</span>
+                    </h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-1">
+                      Customize how Wica looks on your screen. Light Mode is the platform default.
+                    </p>
+                  </div>
+
+                  {/* 3 Interactive Theme Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* 1. Light Mode (Default) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTheme("light");
+                        showToast("Theme switched to Light Mode (Default)");
+                      }}
+                      className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-4 ${
+                        theme === "light"
+                          ? "bg-amber-500/10 dark:bg-amber-500/20 border-amber-500 text-zinc-900 dark:text-white ring-2 ring-amber-500/40 shadow-lg shadow-amber-500/10"
+                          : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                          <Sun className="w-5 h-5" />
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                            Default
+                          </span>
+                          {theme === "light" && (
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold shadow-xs">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-zinc-900 dark:text-white mb-1 flex items-center gap-1.5">
+                          <span>Light Mode</span>
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+                          Bright, pristine canvas with high-contrast typography and clear borders.
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* 2. Dark Mode */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTheme("dark");
+                        showToast("Theme switched to Dark Mode");
+                      }}
+                      className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-4 ${
+                        theme === "dark"
+                          ? "bg-violet/10 dark:bg-violet/20 border-violet text-zinc-900 dark:text-white ring-2 ring-violet/40 shadow-lg shadow-violet/10"
+                          : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="p-2.5 rounded-xl bg-zinc-900 text-zinc-100 border border-zinc-700">
+                          <Moon className="w-5 h-5 text-violet-400" />
+                        </div>
+                        {theme === "dark" && (
+                          <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-violet text-white font-bold shadow-xs">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-zinc-900 dark:text-white mb-1">
+                          Dark Mode
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+                          Deep obsidian background with glowing neon anomaly meters and low glare.
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* 3. System Auto */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTheme("system");
+                        showToast(`Theme set to System (${resolvedTheme})`);
+                      }}
+                      className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-4 ${
+                        theme === "system"
+                          ? "bg-cyan/10 dark:bg-cyan/20 border-cyan text-zinc-900 dark:text-white ring-2 ring-cyan/40 shadow-lg shadow-cyan/10"
+                          : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                          <Monitor className="w-5 h-5 text-cyan-500" />
+                        </div>
+                        {theme === "system" && (
+                          <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan text-zinc-950 font-bold shadow-xs">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-zinc-900 dark:text-white mb-1">
+                          System Auto
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+                          Follows your device operating system setting in real time. (Currently: {resolvedTheme})
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Live Surface Preview */}
+                  <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-zinc-900 dark:text-white font-mono">
+                        Active Surface Preview ({resolvedTheme.toUpperCase()} MODE)
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                        Live Preview
+                      </span>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="text-xs font-semibold text-zinc-900 dark:text-white">
+                          Sample Anomaly Card UI
+                        </div>
+                        <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
+                          94 Wica Score • Rarity Tier: Glitch In Matrix
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs">
+                          Primary Action
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                          Secondary
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ========================================================== */}
+              {/* PANEL 3: AI VISION & SCORING                               */}
               {/* ========================================================== */}
               {activeTab === "ai-vision" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                    <h2 className="font-display font-bold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-cyan" />
                       <span>Sensory Vision & Anomaly Appraisal Engine</span>
                     </h2>
-                    <p className="text-xs text-zinc-400 font-mono mt-0.5">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
                       Configure the multi-modal neural models that evaluate absurdity, rarity, craft, novelty, and wit.
                     </p>
                   </div>
 
                   {/* Model Selector Cards */}
                   <div className="space-y-3">
-                    <label className="text-xs font-mono text-zinc-300">Active Vision Inference Provider</label>
+                    <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">Active Vision Inference Provider</label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       
                       {/* Gemini 2.5 Flash */}
@@ -700,22 +889,22 @@ export const SettingsView: React.FC = () => {
                         onClick={() => setVisionEngine("gemini-2.5-flash")}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                           visionEngine === "gemini-2.5-flash"
-                            ? "bg-violet/15 border-violet shadow-lg shadow-violet/20"
-                            : "bg-zinc-950/70 border-zinc-800 hover:border-zinc-700"
+                            ? "bg-violet/10 dark:bg-violet/15 border-violet shadow-lg shadow-violet/10 dark:shadow-violet/20"
+                            : "bg-zinc-50 dark:bg-zinc-950/70 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                         }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">Gemini 2.5 Flash</span>
-                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan/20 text-cyan">
+                            <span className="text-xs font-bold text-zinc-900 dark:text-white">Gemini 2.5 Flash</span>
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan/15 dark:bg-cyan/20 text-cyan-700 dark:text-cyan">
                               Recommended
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-400 font-mono">
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
                             Multi-modal visual tensors with high dynamic sensitivity.
                           </p>
                         </div>
-                        <div className="text-[10px] font-mono text-zinc-500">Latency: ~420ms</div>
+                        <div className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">Latency: ~420ms</div>
                       </div>
 
                       {/* Claude 3.5 Sonnet */}
@@ -723,22 +912,22 @@ export const SettingsView: React.FC = () => {
                         onClick={() => setVisionEngine("claude-3.5-sonnet")}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                           visionEngine === "claude-3.5-sonnet"
-                            ? "bg-cyan/15 border-cyan shadow-lg shadow-cyan/20"
-                            : "bg-zinc-950/70 border-zinc-800 hover:border-zinc-700"
+                            ? "bg-cyan/10 dark:bg-cyan/15 border-cyan shadow-lg shadow-cyan/10 dark:shadow-cyan/20"
+                            : "bg-zinc-50 dark:bg-zinc-950/70 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                         }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">Claude 3.5 Sonnet</span>
-                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                            <span className="text-xs font-bold text-zinc-900 dark:text-white">Claude 3.5 Sonnet</span>
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400">
                               Deep
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-400 font-mono">
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
                             Semantic reasoning on cultural absurdity and wit metrics.
                           </p>
                         </div>
-                        <div className="text-[10px] font-mono text-zinc-500">Latency: ~680ms</div>
+                        <div className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">Latency: ~680ms</div>
                       </div>
 
                       {/* Local Neural Mock */}
@@ -746,34 +935,34 @@ export const SettingsView: React.FC = () => {
                         onClick={() => setVisionEngine("local-neural")}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                           visionEngine === "local-neural"
-                            ? "bg-magenta/15 border-magenta shadow-lg shadow-magenta/20"
-                            : "bg-zinc-950/70 border-zinc-800 hover:border-zinc-700"
+                            ? "bg-magenta/10 dark:bg-magenta/15 border-magenta shadow-lg shadow-magenta/10 dark:shadow-magenta/20"
+                            : "bg-zinc-50 dark:bg-zinc-950/70 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                         }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">Local Neural Engine</span>
-                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                            <span className="text-xs font-bold text-zinc-900 dark:text-white">Local Neural Engine</span>
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400">
                               Offline
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-400 font-mono">
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
                             Deterministic heuristic simulator for test environments.
                           </p>
                         </div>
-                        <div className="text-[10px] font-mono text-zinc-500">Latency: ~15ms</div>
+                        <div className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">Latency: ~15ms</div>
                       </div>
 
                     </div>
                   </div>
 
                   {/* Strictness Slider */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 space-y-3">
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-mono text-zinc-300">
+                      <label className="text-xs font-mono text-zinc-700 dark:text-zinc-300">
                         Authenticity & Reality-Break Strictness
                       </label>
-                      <span className="text-xs font-mono font-bold text-cyan">{strictness}%</span>
+                      <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan">{strictness}%</span>
                     </div>
 
                     <input
@@ -792,16 +981,16 @@ export const SettingsView: React.FC = () => {
                       <span>100% Reality Audit</span>
                     </div>
 
-                    <p className="text-[11px] text-zinc-400 font-mono leading-relaxed">
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono leading-relaxed">
                       Higher strictness penalizes synthetic generative artifacts, stock photo cues, and unverified post-processing filters.
                     </p>
                   </div>
 
                   {/* Auto-Score Toggle */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 flex items-center justify-between gap-4">
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-white">Instant Upload Auto-Appraisal</div>
-                      <p className="text-[11px] font-mono text-zinc-400">
+                      <div className="text-xs font-bold text-zinc-900 dark:text-white">Instant Upload Auto-Appraisal</div>
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                         Automatically dispatch newly uploaded anomalies to the vision pipeline upon upload.
                       </p>
                     </div>
@@ -810,11 +999,11 @@ export const SettingsView: React.FC = () => {
                       type="button"
                       onClick={() => setAutoScore(!autoScore)}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        autoScore ? "bg-cyan shadow-lg shadow-cyan/30" : "bg-zinc-800"
+                        autoScore ? "bg-cyan shadow-lg shadow-cyan/30" : "bg-zinc-300 dark:bg-zinc-800"
                       }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-zinc-950 shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-zinc-950 shadow-lg ring-0 transition duration-200 ease-in-out ${
                           autoScore ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
@@ -826,7 +1015,7 @@ export const SettingsView: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleSaveAiSettings}
-                      className="px-6 py-2.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer shadow-md flex items-center gap-2"
+                      className="px-6 py-2.5 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-200 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer shadow-md flex items-center gap-2"
                     >
                       <Check className="w-3.5 h-3.5" />
                       <span>Save Vision Parameters</span>
@@ -841,27 +1030,27 @@ export const SettingsView: React.FC = () => {
               {activeTab === "wallet" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="font-display font-bold text-lg text-white flex items-center gap-2">
-                      <Coins className="w-4 h-4 text-amber-400" />
+                    <h2 className="font-display font-bold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
+                      <Coins className="w-4 h-4 text-amber-500 dark:text-amber-400" />
                       <span>Weird Credits (WC) Vault & Rewards</span>
                     </h2>
-                    <p className="text-xs text-zinc-400 font-mono mt-0.5">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
                       Weird Credits are the utility currency earned by uncovering rare sightings and winning community Versus battles.
                     </p>
                   </div>
 
                   {/* Balance Display Card */}
-                  <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-500/15 via-zinc-900 to-zinc-950 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-500/15 dark:via-zinc-900 dark:to-zinc-950 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
                     <div className="space-y-1 text-center sm:text-left">
-                      <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
+                      <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                         Available Balance
                       </span>
-                      <div className="text-3xl sm:text-4xl font-black font-mono text-white flex items-center justify-center sm:justify-start gap-2">
-                        <Coins className="w-7 h-7 text-amber-400" />
+                      <div className="text-3xl sm:text-4xl font-black font-mono text-zinc-900 dark:text-white flex items-center justify-center sm:justify-start gap-2">
+                        <Coins className="w-7 h-7 text-amber-500 dark:text-amber-400" />
                         <span>{currentWC}</span>
-                        <span className="text-sm font-bold text-amber-400">WC</span>
+                        <span className="text-sm font-bold text-amber-500 dark:text-amber-400">WC</span>
                       </div>
-                      <p className="text-xs font-mono text-zinc-400">
+                      <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
                         ≈ ${(currentWC * 0.1).toFixed(2)} USD Anomaly Sighting Valuation
                       </p>
                     </div>
@@ -873,7 +1062,7 @@ export const SettingsView: React.FC = () => {
                         disabled={dailyClaimed}
                         className={`px-5 py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
                           dailyClaimed
-                            ? "bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed"
+                            ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-300 dark:border-zinc-700 cursor-not-allowed"
                             : "bg-amber-400 hover:bg-amber-300 text-zinc-950 shadow-lg shadow-amber-400/20 active:scale-95"
                         }`}
                       >
@@ -883,7 +1072,7 @@ export const SettingsView: React.FC = () => {
 
                       <Link
                         href="/wallet"
-                        className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-1.5"
+                        className="px-5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-all flex items-center justify-center gap-1.5 shadow-sm"
                       >
                         <Wallet className="w-3.5 h-3.5" />
                         <span>Open Full Quantum Vault</span>
@@ -892,20 +1081,20 @@ export const SettingsView: React.FC = () => {
                   </div>
 
                   {/* Cashout Threshold Status */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 space-y-3">
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 space-y-3">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-zinc-300">Cashout Threshold Progress</span>
-                      <span className="text-cyan">{Math.min(100, Math.round((currentWC / 500) * 100))}% (500 WC Required)</span>
+                      <span className="text-zinc-700 dark:text-zinc-300">Cashout Threshold Progress</span>
+                      <span className="text-cyan-600 dark:text-cyan">{Math.min(100, Math.round((currentWC / 500) * 100))}% (500 WC Required)</span>
                     </div>
 
-                    <div className="w-full h-2 rounded-full bg-zinc-900 overflow-hidden border border-zinc-800">
+                    <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-900 overflow-hidden border border-zinc-200 dark:border-zinc-800">
                       <div
                         className="h-full bg-gradient-to-r from-cyan via-violet to-amber-400 rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(100, (currentWC / 500) * 100)}%` }}
                       />
                     </div>
 
-                    <p className="text-[11px] font-mono text-zinc-400">
+                    <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                       Upon reaching 500 WC, you can redeem credits for physical anomaly prints, verified Hunter NFT stamps, or crypto transfers.
                     </p>
                   </div>
@@ -918,23 +1107,116 @@ export const SettingsView: React.FC = () => {
               {activeTab === "account" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="font-display font-bold text-lg text-white flex items-center gap-2">
+                    <h2 className="font-display font-bold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
                       <ShieldCheck className="w-4 h-4 text-magenta" />
                       <span>Account Privacy & Session Management</span>
                     </h2>
-                    <p className="text-xs text-zinc-400 font-mono mt-0.5">
-                      Control visibility, clear demo overrides, or end your authenticated explorer session.
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
+                      Control appearance theme, public visibility, clear demo overrides, or end your session.
                     </p>
                   </div>
 
-                  {/* Privacy & Visibility Toggle */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 flex items-center justify-between gap-4">
+                  {/* Appearance & Theme Selector */}
+                  <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 space-y-4">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                        {publicVisibility ? <Eye className="w-3.5 h-3.5 text-cyan" /> : <EyeOff className="w-3.5 h-3.5 text-zinc-500" />}
+                      <div className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                        <Sun className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                        <span>Interface Appearance</span>
+                      </div>
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
+                        Choose your visual experience. Light mode is the platform default.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {/* Dark Mode */}
+                      <button
+                        type="button"
+                        onClick={() => setTheme("dark")}
+                        className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col gap-2 ${
+                          theme === "dark"
+                            ? "bg-violet/10 dark:bg-violet/20 border-violet text-zinc-900 dark:text-white ring-1 ring-violet/50 shadow-md shadow-violet/10"
+                            : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="p-1.5 rounded-lg bg-zinc-900 text-zinc-100 border border-zinc-700">
+                            <Moon className="w-4 h-4 text-violet-400" />
+                          </div>
+                          {theme === "dark" && (
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-violet/20 text-violet font-semibold">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-zinc-900 dark:text-white">Dark Mode</div>
+                          <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Deep obsidian</div>
+                        </div>
+                      </button>
+
+                      {/* Light Mode */}
+                      <button
+                        type="button"
+                        onClick={() => setTheme("light")}
+                        className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col gap-2 ${
+                          theme === "light"
+                            ? "bg-amber-500/10 dark:bg-amber-500/20 border-amber-500 text-zinc-900 dark:text-white ring-1 ring-amber-500/50 shadow-md shadow-amber-500/10"
+                            : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-200">
+                            <Sun className="w-4 h-4 text-amber-500" />
+                          </div>
+                          {theme === "light" && (
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-semibold">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-zinc-900 dark:text-white">Light Mode</div>
+                          <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Bright clean canvas (Default)</div>
+                        </div>
+                      </button>
+
+                      {/* System Match */}
+                      <button
+                        type="button"
+                        onClick={() => setTheme("system")}
+                        className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col gap-2 ${
+                          theme === "system"
+                            ? "bg-cyan/10 dark:bg-cyan/20 border-cyan text-zinc-900 dark:text-white ring-1 ring-cyan/50 shadow-md shadow-cyan/10"
+                            : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                            <Monitor className="w-4 h-4 text-cyan-500" />
+                          </div>
+                          {theme === "system" && (
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan/20 text-cyan font-semibold">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-zinc-900 dark:text-white">System Auto</div>
+                          <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Syncs with OS ({resolvedTheme})</div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Privacy & Visibility Toggle */}
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                        {publicVisibility ? <Eye className="w-3.5 h-3.5 text-cyan" /> : <EyeOff className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />}
                         <span>Public Discovery Ledger</span>
                       </div>
-                      <p className="text-[11px] font-mono text-zinc-400">
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                         Allow your anomaly captures to be featured on the global feed and interactive radar map.
                       </p>
                     </div>
@@ -943,11 +1225,11 @@ export const SettingsView: React.FC = () => {
                       type="button"
                       onClick={() => setPublicVisibility(!publicVisibility)}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        publicVisibility ? "bg-cyan shadow-lg shadow-cyan/30" : "bg-zinc-800"
+                        publicVisibility ? "bg-cyan shadow-lg shadow-cyan/30" : "bg-zinc-300 dark:bg-zinc-800"
                       }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-zinc-950 shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-zinc-950 shadow-lg ring-0 transition duration-200 ease-in-out ${
                           publicVisibility ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
@@ -955,13 +1237,13 @@ export const SettingsView: React.FC = () => {
                   </div>
 
                   {/* Micro-animations Toggle */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 flex items-center justify-between gap-4">
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-violet" />
                         <span>Haptic Micro-Animations & Confetti</span>
                       </div>
-                      <p className="text-[11px] font-mono text-zinc-400">
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                         Enable canvas particles and celebratory visual feedback when saving sightings or earning credits.
                       </p>
                     </div>
@@ -970,7 +1252,7 @@ export const SettingsView: React.FC = () => {
                       type="button"
                       onClick={() => setMicroAnimations(!microAnimations)}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        microAnimations ? "bg-violet shadow-lg shadow-violet/30" : "bg-zinc-800"
+                        microAnimations ? "bg-violet shadow-lg shadow-violet/30" : "bg-zinc-300 dark:bg-zinc-800"
                       }`}
                     >
                       <span
@@ -982,14 +1264,14 @@ export const SettingsView: React.FC = () => {
                   </div>
 
                   {/* Reset Demo State */}
-                  <div className="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 space-y-3">
+                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                          <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                        <div className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                          <RotateCcw className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                           <span>Reset Demo Overrides</span>
                         </div>
-                        <p className="text-[11px] font-mono text-zinc-400">
+                        <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                           Restores profile bio, custom avatar, and AI parameters back to initial showcase baseline.
                         </p>
                       </div>
@@ -999,14 +1281,14 @@ export const SettingsView: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setShowResetConfirm(false)}
-                            className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 text-xs font-mono hover:bg-zinc-700"
+                            className="px-3 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400 text-xs font-mono hover:bg-zinc-300 dark:hover:bg-zinc-700 cursor-pointer"
                           >
                             Cancel
                           </button>
                           <button
                             type="button"
                             onClick={handleResetDemo}
-                            className="px-3 py-1.5 rounded-lg bg-amber-500 text-zinc-950 text-xs font-semibold hover:bg-amber-400"
+                            className="px-3 py-1.5 rounded-lg bg-amber-500 text-zinc-950 text-xs font-semibold hover:bg-amber-400 cursor-pointer"
                           >
                             Confirm Reset
                           </button>
@@ -1015,7 +1297,7 @@ export const SettingsView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setShowResetConfirm(true)}
-                          className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-mono text-amber-400 transition-colors cursor-pointer"
+                          className="px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-xs font-mono text-amber-600 dark:text-amber-400 transition-colors cursor-pointer"
                         >
                           Reset Demo
                         </button>
@@ -1026,11 +1308,11 @@ export const SettingsView: React.FC = () => {
                   {/* Sign Out Section */}
                   <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
                         <LogOut className="w-3.5 h-3.5" />
                         <span>Terminate Session</span>
                       </div>
-                      <p className="text-[11px] font-mono text-zinc-400">
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                         Sign out of this workstation and return to login screen.
                       </p>
                     </div>
@@ -1040,14 +1322,14 @@ export const SettingsView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setShowLogoutConfirm(false)}
-                          className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 text-xs font-mono hover:bg-zinc-700"
+                          className="px-3 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400 text-xs font-mono hover:bg-zinc-300 dark:hover:bg-zinc-700 cursor-pointer"
                         >
                           Cancel
                         </button>
                         <button
                           type="button"
                           onClick={handleSignOut}
-                          className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold"
+                          className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold cursor-pointer"
                         >
                           Log Out Now
                         </button>
@@ -1056,7 +1338,7 @@ export const SettingsView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setShowLogoutConfirm(true)}
-                        className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-xs font-semibold text-rose-300 transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 dark:bg-rose-500/20 dark:hover:bg-rose-500/30 border border-rose-500/30 dark:border-rose-500/40 text-xs font-semibold text-rose-600 dark:text-rose-300 transition-colors cursor-pointer"
                       >
                         Sign Out
                       </button>

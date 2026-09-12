@@ -52,14 +52,14 @@ export const ChallengesView: React.FC = () => {
   return (
     <div className="w-full space-y-8">
       {/* Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
+      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab("active")}
             className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === "active"
-                ? "bg-ink text-white shadow-sm"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs"
+                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
             }`}
           >
             <Flame className="w-3.5 h-3.5 text-orange-400" />
@@ -70,8 +70,8 @@ export const ChallengesView: React.FC = () => {
             onClick={() => setActiveTab("archive")}
             className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === "archive"
-                ? "bg-ink text-white shadow-sm"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs"
+                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
             }`}
           >
             <Trophy className="w-3.5 h-3.5 text-amber-500" />
@@ -79,7 +79,7 @@ export const ChallengesView: React.FC = () => {
           </button>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500">
+        <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400">
           <Clock className="w-3.5 h-3.5 text-violet" />
           <span>New challenge every Monday 00:00 UTC</span>
         </div>
@@ -152,10 +152,10 @@ export const ChallengesView: React.FC = () => {
           <div className="pt-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-display font-bold text-xl text-ink tracking-tight">
+                <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white tracking-tight">
                   Contending Submissions for {activeChallenge.hashtag}
                 </h3>
-                <p className="text-xs text-zinc-500 font-mono">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                   Upvote candidates to decide who splits the 500 WC prize bounty.
                 </p>
               </div>
@@ -169,17 +169,17 @@ export const ChallengesView: React.FC = () => {
                 return (
                   <div
                     key={img.id}
-                    className="rounded-3xl border border-zinc-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                    className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
                   >
                     <div>
-                      <div className="relative aspect-16/10 bg-zinc-100 overflow-hidden">
+                      <div className="relative aspect-16/10 bg-zinc-100 dark:bg-zinc-950 overflow-hidden">
                         <img
                           src={getSafeImageUrl(img.storage_path)}
                           alt={img.caption || "Challenge Entry"}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute top-3 left-3 flex items-center gap-2">
-                          <span className="px-2.5 py-1 rounded-full bg-ink/80 backdrop-blur-md text-white text-[11px] font-mono">
+                          <span className="px-2.5 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-white text-[11px] font-mono">
                             {img.country}
                           </span>
                           <span className="px-2.5 py-1 rounded-full bg-cyan/20 border border-cyan/40 text-cyan text-[11px] font-mono backdrop-blur-md">
@@ -189,21 +189,21 @@ export const ChallengesView: React.FC = () => {
                       </div>
 
                       <div className="p-5">
-                        <div className="flex items-center justify-between text-xs text-zinc-500 font-mono mb-2">
+                        <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-2">
                           <span>By @{img.author?.username}</span>
                           <span>{img.created_at}</span>
                         </div>
-                        <h4 className="font-display font-bold text-base text-ink mb-2">
+                        <h4 className="font-display font-bold text-base text-zinc-900 dark:text-white mb-2">
                           {img.caption}
                         </h4>
-                        <p className="text-xs text-zinc-600 italic bg-zinc-50 p-3 rounded-xl border border-zinc-100">
+                        <p className="text-xs text-zinc-600 dark:text-zinc-300 italic bg-zinc-50 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800">
                           &ldquo;{img.ai_verdict}&rdquo;
                         </p>
                       </div>
                     </div>
 
-                    <div className="p-5 pt-0 flex items-center justify-between border-t border-zinc-100 mt-2">
-                      <div className="flex items-center gap-2 text-xs font-mono text-zinc-600">
+                    <div className="p-5 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 mt-2">
+                      <div className="flex items-center gap-2 text-xs font-mono text-zinc-600 dark:text-zinc-300">
                         <Sparkles className="w-3.5 h-3.5 text-cyan" />
                         <span>{likes} Community Endorsements</span>
                       </div>
@@ -213,8 +213,8 @@ export const ChallengesView: React.FC = () => {
                         disabled={isVoted}
                         className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
                           isVoted
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
-                            : "bg-ink hover:bg-zinc-800 text-white cursor-pointer active:scale-95"
+                            ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 cursor-default"
+                            : "bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 cursor-pointer active:scale-95"
                         }`}
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />
@@ -232,11 +232,11 @@ export const ChallengesView: React.FC = () => {
       {/* ARCHIVED WINNERS TAB */}
       {activeTab === "archive" && (
         <div className="space-y-6">
-          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
-            <h3 className="font-display font-bold text-lg text-ink">
+          <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800">
+            <h3 className="font-display font-bold text-lg text-zinc-900 dark:text-white">
               Archived Bounty Hall of Fame
             </h3>
-            <p className="text-xs text-zinc-500 font-mono">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
               Past challenge prompts and their winning anomaly submissions as crowned by community vote.
             </p>
           </div>
@@ -245,25 +245,25 @@ export const ChallengesView: React.FC = () => {
             {pastChallenges.map((ch) => (
               <div
                 key={ch.id}
-                className="p-6 rounded-3xl border border-zinc-200 bg-white hover:border-zinc-300 transition-all flex flex-col justify-between"
+                className="p-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 text-xs font-mono">
+                    <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-mono">
                       #{ch.id.toUpperCase()} • {ch.category}
                     </span>
-                    <span className="text-xs font-mono text-emerald-600 font-semibold flex items-center gap-1">
+                    <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Concluded</span>
                     </span>
                   </div>
 
-                  <h4 className="font-display font-bold text-lg text-ink mb-1">{ch.title}</h4>
-                  <p className="text-xs text-zinc-500 font-mono mb-4">{ch.theme}</p>
+                  <h4 className="font-display font-bold text-lg text-zinc-900 dark:text-white mb-1">{ch.title}</h4>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-4">{ch.theme}</p>
 
                   {ch.winner && (
-                    <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 mb-4">
-                      <div className="flex items-center gap-2 text-xs font-mono text-amber-700 font-bold mb-2">
+                    <div className="p-4 rounded-2xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 mb-4">
+                      <div className="flex items-center gap-2 text-xs font-mono text-amber-700 dark:text-amber-400 font-bold mb-2">
                         <Trophy className="w-3.5 h-3.5 text-amber-500" />
                         <span>Crowned Winner: @{ch.winner.hunter_name}</span>
                       </div>
@@ -271,16 +271,16 @@ export const ChallengesView: React.FC = () => {
                         <img
                           src={ch.winner.image_url}
                           alt={ch.winner.anomaly_title}
-                          className="w-16 h-16 rounded-xl object-cover bg-zinc-100 shrink-0"
+                          className="w-16 h-16 rounded-xl object-cover bg-zinc-100 dark:bg-zinc-800 shrink-0"
                         />
                         <div>
-                          <h5 className="font-display font-bold text-xs text-ink line-clamp-1">
+                          <h5 className="font-display font-bold text-xs text-zinc-900 dark:text-zinc-100 line-clamp-1">
                             {ch.winner.anomaly_title}
                           </h5>
                           <span className="text-[11px] font-mono text-cyan font-bold block mt-1">
                             Wica Score: {ch.winner.wica_score}/100
                           </span>
-                          <span className="text-[10px] font-mono text-zinc-400">
+                          <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
                             Awarded +{ch.reward_wc} Weird Credits
                           </span>
                         </div>
@@ -289,7 +289,7 @@ export const ChallengesView: React.FC = () => {
                   )}
                 </div>
 
-                <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-400">
+                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs font-mono text-zinc-400 dark:text-zinc-500">
                   <span>{ch.submissions_count} total entries</span>
                   <span>Ended on {ch.ends_at.slice(0, 10)}</span>
                 </div>

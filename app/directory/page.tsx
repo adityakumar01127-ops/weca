@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { Footer } from "@/components/layout/Footer";
 import { AnomalyDirectoryClient } from "@/components/directory/AnomalyDirectoryClient";
 import { BookOpen, Sparkles } from "lucide-react";
@@ -12,9 +11,7 @@ export const metadata: Metadata = {
 
 export default function DirectoryPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-ink">
-      <SubpageHeader category="Archive" currentPage="Anomaly Directory" />
-
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
       <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* Header */}
         <div className="mb-10">
@@ -23,11 +20,11 @@ export default function DirectoryPage() {
             <span>Standard Taxonomy v1.0</span>
           </div>
 
-          <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-ink tracking-tight leading-[1.08] mb-6">
+          <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-zinc-900 dark:text-white tracking-tight leading-[1.08] mb-6">
             The Anomaly <span className="underline decoration-cyan decoration-wavy underline-offset-8">Directory.</span>
           </h1>
 
-          <p className="text-zinc-600 text-lg sm:text-xl leading-relaxed max-w-3xl">
+          <p className="text-zinc-600 dark:text-zinc-300 text-lg sm:text-xl leading-relaxed max-w-3xl">
             Explore the categorized master catalog of real-world anomalies. Filter by classification codes, geographic coordinates, and rarity tiers.
           </p>
         </div>

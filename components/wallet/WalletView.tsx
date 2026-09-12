@@ -203,7 +203,7 @@ export const WalletView: React.FC = () => {
       {/* Financial Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main Balance Card */}
-        <div className="md:col-span-2 p-8 rounded-3xl bg-zinc-950 text-white border border-zinc-800 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+        <div className="md:col-span-2 p-8 rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-950 to-zinc-900 text-white border border-zinc-800 shadow-2xl relative overflow-hidden flex flex-col justify-between">
           <div className="absolute -top-16 -right-16 w-60 h-60 rounded-full bg-cyan/15 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-16 left-1/4 w-60 h-60 rounded-full bg-violet/20 blur-3xl pointer-events-none" />
 
@@ -256,36 +256,36 @@ export const WalletView: React.FC = () => {
         </div>
 
         {/* Lifetime Earnings Quick Stat & Quick Action */}
-        <div className="p-6 rounded-3xl bg-zinc-900/60 border border-zinc-800 flex flex-col justify-between">
+        <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 shadow-xs flex flex-col justify-between">
           <div>
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
+            <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-2">
               Lifetime Yield
             </span>
-            <h3 className="font-display font-black text-3xl text-white mb-1">
+            <h3 className="font-display font-black text-3xl text-zinc-900 dark:text-white mb-1">
               {(currentBalance + 285).toLocaleString()} WC
             </h3>
-            <span className="text-xs text-emerald-400 font-mono flex items-center gap-1 font-semibold">
+            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1 font-semibold">
               <ArrowUpRight className="w-3.5 h-3.5" />
               <span>+{(currentBalance).toLocaleString()} WC accumulated</span>
             </span>
 
-            <div className="mt-6 space-y-3 font-mono text-xs text-zinc-400">
-              <div className="flex justify-between border-b border-zinc-800 pb-2">
+            <div className="mt-6 space-y-3 font-mono text-xs text-zinc-600 dark:text-zinc-400">
+              <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                 <span>Scored Uploads:</span>
-                <strong className="text-white">Active</strong>
+                <strong className="text-zinc-900 dark:text-white">Active</strong>
               </div>
-              <div className="flex justify-between border-b border-zinc-800 pb-2">
+              <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                 <span>Versus Victor Bonus:</span>
-                <strong className="text-white">+50 WC / win</strong>
+                <strong className="text-zinc-900 dark:text-white">+50 WC / win</strong>
               </div>
               <div className="flex justify-between">
                 <span>Cash-out Threshold:</span>
-                <strong className="text-cyan font-bold">{MIN_CASHOUT_THRESHOLD_WC} WC</strong>
+                <strong className="text-cyan-700 dark:text-cyan font-bold">{MIN_CASHOUT_THRESHOLD_WC} WC</strong>
               </div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-zinc-800 space-y-2">
+          <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
             <button
               onClick={handleOpenModal}
               disabled={currentBalance < MIN_CASHOUT_THRESHOLD_WC}
@@ -296,7 +296,7 @@ export const WalletView: React.FC = () => {
             </button>
             <Link
               href="/upload"
-              className="w-full py-2 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-mono text-xs font-semibold transition-all text-center block"
+              className="w-full py-2 px-4 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-mono text-xs font-semibold transition-all text-center block"
             >
               Upload Photo to Earn +WC
             </Link>
@@ -305,44 +305,44 @@ export const WalletView: React.FC = () => {
       </div>
 
       {/* RAZORPAYX PAYOUTS CASH-OUT GATEWAY */}
-      <div className="p-8 rounded-3xl bg-zinc-900/80 text-white border border-zinc-800 relative overflow-hidden">
+      <div className="p-8 rounded-3xl bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 shadow-xs relative overflow-hidden">
         <div className="max-w-3xl">
-          <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs uppercase tracking-wider mb-2">
+          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-mono text-xs uppercase tracking-wider mb-2">
             <DollarSign className="w-4 h-4" />
             <span>Monetization & RazorpayX Payouts Direct Deposit</span>
           </div>
 
-          <h3 className="font-display font-bold text-2xl text-white mb-2">
+          <h3 className="font-display font-bold text-2xl text-zinc-900 dark:text-white mb-2">
             Creator Cash-Out Gate
           </h3>
 
-          <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mb-6">
+          <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm leading-relaxed mb-6">
             Observers who uncover rare phenomena can convert Weird Credits to real currency via RazorpayX Payouts (UPI ID or Direct Bank Transfer) once multi-vector abuse guards and threshold validation are satisfied.
           </p>
 
           {/* Anti-fraud requirement checklist */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 mb-6 text-xs font-mono">
-            <div className="flex items-center gap-2 text-zinc-300">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 mb-6 text-xs font-mono">
+            <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
               <span>Account Age &gt; 7 Days</span>
             </div>
-            <div className="flex items-center gap-2 text-zinc-300">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
               <span>1+ Verified Scored Post</span>
             </div>
-            <div className={`flex items-center gap-2 ${currentBalance >= MIN_CASHOUT_THRESHOLD_WC ? "text-zinc-300" : "text-zinc-500"}`}>
+            <div className={`flex items-center gap-2 ${currentBalance >= MIN_CASHOUT_THRESHOLD_WC ? "text-zinc-700 dark:text-zinc-300" : "text-zinc-400 dark:text-zinc-500"}`}>
               {currentBalance >= MIN_CASHOUT_THRESHOLD_WC ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
               ) : (
-                <Lock className="w-4 h-4 text-zinc-500 shrink-0" />
+                <Lock className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
               )}
               <span>Min. {MIN_CASHOUT_THRESHOLD_WC} WC Balance ({currentBalance}/{MIN_CASHOUT_THRESHOLD_WC})</span>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-zinc-950 border border-zinc-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
             <div>
-              <div className="text-xs font-mono text-zinc-300 font-semibold mb-1">
+              <div className="text-xs font-mono text-zinc-800 dark:text-zinc-300 font-semibold mb-1">
                 Payout Channels: RazorpayX UPI & NEFT/IMPS
               </div>
               <div className="text-[11px] font-mono text-zinc-500">
@@ -353,7 +353,7 @@ export const WalletView: React.FC = () => {
             <button
               onClick={handleOpenModal}
               disabled={currentBalance < MIN_CASHOUT_THRESHOLD_WC}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer shrink-0"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs"
             >
               {currentBalance >= MIN_CASHOUT_THRESHOLD_WC ? "Initiate Payout Request" : `Requires ${MIN_CASHOUT_THRESHOLD_WC} WC to Cash Out`}
             </button>
@@ -366,47 +366,47 @@ export const WalletView: React.FC = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-display font-bold text-xl text-white tracking-tight">
+              <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white tracking-tight">
                 Cash-Out Requests
               </h3>
-              <p className="text-xs text-zinc-400 font-mono">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                 Real-time review status of your submitted payout requests.
               </p>
             </div>
             <button
               onClick={fetchData}
-              className="p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
               title="Refresh status"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoadingData ? "animate-spin" : ""}`} />
             </button>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden divide-y divide-zinc-800/80 font-mono text-xs">
+          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/80 font-mono text-xs shadow-xs">
             {payouts.map((p) => {
               const statusConfig = {
-                pending: { label: "Under Human Review", color: "bg-amber-500/10 text-amber-400 border-amber-500/30", icon: Clock },
+                pending: { label: "Under Human Review", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30", icon: Clock },
                 approved: { label: "Approved", color: "bg-violet/10 text-violet border-violet/30", icon: ShieldCheck },
-                paid: { label: "Paid via RazorpayX", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30", icon: CheckCircle2 },
-                rejected: { label: "Rejected (Refunded)", color: "bg-red-500/10 text-red-400 border-red-500/30", icon: AlertTriangle },
-              }[p.status] || { label: p.status, color: "bg-zinc-800 text-zinc-400 border-zinc-700", icon: Clock };
+                paid: { label: "Paid via RazorpayX", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30", icon: CheckCircle2 },
+                rejected: { label: "Rejected (Refunded)", color: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30", icon: AlertTriangle },
+              }[p.status] || { label: p.status, color: "bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700", icon: Clock };
 
               const StatusIcon = statusConfig.icon;
 
               return (
-                <div key={p.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-zinc-800/30 transition-colors">
+                <div key={p.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-white text-sm">{p.amount} WC</span>
-                      <span className="text-zinc-500">→</span>
-                      <span className="text-emerald-400 font-bold text-sm">₹{(p.amount * WC_TO_INR_RATE).toFixed(0)} INR</span>
+                      <span className="font-bold text-zinc-900 dark:text-white text-sm">{p.amount} WC</span>
+                      <span className="text-zinc-400">→</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">₹{(p.amount * WC_TO_INR_RATE).toFixed(0)} INR</span>
                       <span className="text-zinc-500 text-[10px]">(${(p.amount * WC_TO_USD_RATE).toFixed(2)} USD)</span>
                     </div>
-                    <div className="text-[11px] text-zinc-400">
-                      Destination: <strong className="text-zinc-300">{p.payout_details.method.toUpperCase()}</strong> ({p.payout_details.upi_id || `Acc ...${p.payout_details.account_number?.slice(-4)}`}) • Requested: {new Date(p.requested_at).toLocaleDateString()}
+                    <div className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      Destination: <strong className="text-zinc-800 dark:text-zinc-300">{p.payout_details.method.toUpperCase()}</strong> ({p.payout_details.upi_id || `Acc ...${p.payout_details.account_number?.slice(-4)}`}) • Requested: {new Date(p.requested_at).toLocaleDateString()}
                     </div>
                     {p.admin_notes && (
-                      <div className="mt-1 text-[11px] text-zinc-400 bg-zinc-950/80 px-2 py-1 rounded border border-zinc-800 inline-block">
+                      <div className="mt-1 text-[11px] text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/80 px-2 py-1 rounded border border-zinc-200 dark:border-zinc-800 inline-block">
                         Note: {p.admin_notes}
                       </div>
                     )}
@@ -429,10 +429,10 @@ export const WalletView: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-display font-bold text-xl text-white tracking-tight">
+            <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white tracking-tight">
               Credit Ledger Audit Trail
             </h3>
-            <p className="text-xs text-zinc-400 font-mono">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
               Immutable log of every credit earned, battle victory, and cash-out.
             </p>
           </div>
@@ -441,9 +441,9 @@ export const WalletView: React.FC = () => {
           </span>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden divide-y divide-zinc-800/80 font-mono text-xs">
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/80 font-mono text-xs shadow-xs">
           {transactions.length === 0 ? (
-            <div className="p-8 text-center text-zinc-500 font-mono">
+            <div className="p-8 text-center text-zinc-400 dark:text-zinc-500 font-mono">
               No credit transactions recorded yet. Upload a photo or participate in a VS Battle!
             </div>
           ) : (
@@ -452,28 +452,28 @@ export const WalletView: React.FC = () => {
               return (
                 <div
                   key={tx.id}
-                  className="p-4 flex items-center justify-between hover:bg-zinc-800/40 transition-colors"
+                  className="p-4 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                         isPositive
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-red-500/10 text-red-400 border border-red-500/20"
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                          : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
                       }`}
                     >
                       {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                     </div>
                     <div>
-                      <div className="font-semibold text-white text-xs">{tx.reason}</div>
-                      <div className="text-[10px] text-zinc-500">
+                      <div className="font-semibold text-zinc-900 dark:text-white text-xs">{tx.reason}</div>
+                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500">
                         {new Date(tx.created_at).toLocaleDateString()} {new Date(tx.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • Tx #{tx.id.slice(0, 8)}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right shrink-0">
-                    <span className={`font-bold text-sm ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
+                    <span className={`font-bold text-sm ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
                       {isPositive ? `+${tx.amount}` : tx.amount} WC
                     </span>
                   </div>
@@ -488,10 +488,10 @@ export const WalletView: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-display font-bold text-xl text-white tracking-tight">
+            <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white tracking-tight">
               Hunter Achievements & Milestones
             </h3>
-            <p className="text-xs text-zinc-400 font-mono">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
               Complete observational challenges to unlock prestigious badges and credit bounties.
             </p>
           </div>
@@ -506,36 +506,36 @@ export const WalletView: React.FC = () => {
               key={ach.id}
               className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
                 ach.unlocked
-                  ? "bg-zinc-900/80 border-violet/40 shadow-sm"
-                  : "bg-zinc-900/40 border-zinc-800 opacity-80"
+                  ? "bg-white dark:bg-zinc-900/80 border-violet/30 dark:border-violet/40 shadow-xs"
+                  : "bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 opacity-80"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
                     {getIcon(ach.iconName)}
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-cyan/10 text-cyan text-xs font-mono font-bold">
+                  <span className="px-2.5 py-0.5 rounded-full bg-cyan/10 text-cyan-700 dark:text-cyan text-xs font-mono font-bold">
                     +{ach.reward_wc} WC
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-display font-bold text-sm text-white">{ach.title}</h4>
-                  {ach.unlocked && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
+                  <h4 className="font-display font-bold text-sm text-zinc-900 dark:text-white">{ach.title}</h4>
+                  {ach.unlocked && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />}
                 </div>
 
-                <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
                   {ach.description}
                 </p>
               </div>
 
               <div>
-                <div className="flex justify-between text-[10px] font-mono text-zinc-500 mb-1">
+                <div className="flex justify-between text-[10px] font-mono text-zinc-400 dark:text-zinc-500 mb-1">
                   <span>{ach.unlocked ? "Completed" : "In Progress"}</span>
                   <span>{ach.progress}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
                       ach.unlocked ? "bg-emerald-500" : "bg-violet"
@@ -551,35 +551,35 @@ export const WalletView: React.FC = () => {
 
       {/* REQUEST PAYOUT MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg bg-[#09090b] border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
                   <DollarSign className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-lg text-white">Request Cash-Out Payout</h3>
-                  <p className="text-[11px] font-mono text-zinc-400">RazorpayX Direct Deposit</p>
+                  <h3 className="font-display font-bold text-lg text-zinc-900 dark:text-white">Request Cash-Out Payout</h3>
+                  <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">RazorpayX Direct Deposit</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {submitError && (
-              <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono flex items-start gap-2">
+              <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-mono flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{submitError}</span>
               </div>
             )}
 
             {submitSuccess && (
-              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-mono flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{submitSuccess}</span>
               </div>
@@ -588,15 +588,15 @@ export const WalletView: React.FC = () => {
             <form onSubmit={handleSubmitPayout} className="space-y-4 font-mono text-xs">
               {/* Payment Method Selector */}
               <div>
-                <label className="text-zinc-400 block mb-1.5">Payout Method</label>
+                <label className="text-zinc-600 dark:text-zinc-400 block mb-1.5">Payout Method</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setPayoutMethod("upi")}
                     className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 cursor-pointer transition-all ${
                       payoutMethod === "upi"
-                        ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-400 font-bold"
-                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-850"
+                        ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     }`}
                   >
                     <Send className="w-3.5 h-3.5" />
@@ -607,8 +607,8 @@ export const WalletView: React.FC = () => {
                     onClick={() => setPayoutMethod("bank_account")}
                     className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 cursor-pointer transition-all ${
                       payoutMethod === "bank_account"
-                        ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-400 font-bold"
-                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-850"
+                        ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     }`}
                   >
                     <Building2 className="w-3.5 h-3.5" />
@@ -619,13 +619,13 @@ export const WalletView: React.FC = () => {
 
               {/* Recipient Full Name */}
               <div>
-                <label className="text-zinc-400 block mb-1">Account Holder / Recipient Name</label>
+                <label className="text-zinc-600 dark:text-zinc-400 block mb-1">Account Holder / Recipient Name</label>
                 <input
                   type="text"
                   value={payoutName}
                   onChange={(e) => setPayoutName(e.target.value)}
                   placeholder="e.g. Alex Hunter"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-emerald-500/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-emerald-500/60"
                   required
                 />
               </div>
@@ -633,13 +633,13 @@ export const WalletView: React.FC = () => {
               {/* Method-specific inputs */}
               {payoutMethod === "upi" ? (
                 <div>
-                  <label className="text-zinc-400 block mb-1">UPI ID (Virtual Payment Address)</label>
+                  <label className="text-zinc-600 dark:text-zinc-400 block mb-1">UPI ID (Virtual Payment Address)</label>
                   <input
                     type="text"
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="e.g. alex@okhdfcbank"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-emerald-500/60"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-emerald-500/60"
                     required
                   />
                   <span className="text-[10px] text-zinc-500 mt-1 block">Supports Google Pay, PhonePe, Paytm, BHIM.</span>
@@ -647,24 +647,24 @@ export const WalletView: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   <div>
-                    <label className="text-zinc-400 block mb-1">Bank Account Number</label>
+                    <label className="text-zinc-600 dark:text-zinc-400 block mb-1">Bank Account Number</label>
                     <input
                       type="text"
                       value={accountNumber}
                       onChange={(e) => setAccountNumber(e.target.value)}
                       placeholder="e.g. 50100234567890"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-emerald-500/60"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-emerald-500/60"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-zinc-400 block mb-1">IFSC Code</label>
+                    <label className="text-zinc-600 dark:text-zinc-400 block mb-1">IFSC Code</label>
                     <input
                       type="text"
                       value={ifsc}
                       onChange={(e) => setIfsc(e.target.value.toUpperCase())}
                       placeholder="e.g. HDFC0001234"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 uppercase focus:outline-hidden focus:border-emerald-500/60"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 uppercase focus:outline-hidden focus:border-emerald-500/60"
                       required
                     />
                   </div>
@@ -672,17 +672,17 @@ export const WalletView: React.FC = () => {
               )}
 
               {/* Amount Slider / Selector */}
-              <div className="pt-2 border-t border-zinc-800">
+              <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
                 <div className="flex justify-between items-center mb-2">
-                  <label className="text-zinc-400">Withdraw Amount (WC)</label>
-                  <span className="font-bold text-white text-sm">{payoutAmount} WC</span>
+                  <label className="text-zinc-600 dark:text-zinc-400">Withdraw Amount (WC)</label>
+                  <span className="font-bold text-zinc-900 dark:text-white text-sm">{payoutAmount} WC</span>
                 </div>
 
                 <input
                   type="range"
                   min={MIN_CASHOUT_THRESHOLD_WC}
                   max={Math.max(MIN_CASHOUT_THRESHOLD_WC, currentBalance)}
-                  step="50"
+                  step="5"
                   value={payoutAmount}
                   onChange={(e) => setPayoutAmount(Number(e.target.value))}
                   className="w-full accent-emerald-500 cursor-pointer"
@@ -694,17 +694,17 @@ export const WalletView: React.FC = () => {
                 </div>
 
                 {/* Conversion Summary Banner */}
-                <div className="mt-3 p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
-                  <span className="text-zinc-400">Estimated Cashout:</span>
+                <div className="mt-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <span className="text-zinc-600 dark:text-zinc-400">Estimated Cashout:</span>
                   <div className="text-right">
-                    <span className="text-emerald-400 font-bold text-sm">₹{(payoutAmount * WC_TO_INR_RATE).toFixed(0)} INR</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">₹{(payoutAmount * WC_TO_INR_RATE).toFixed(0)} INR</span>
                     <span className="text-zinc-500 text-[10px] ml-1.5">(${(payoutAmount * WC_TO_USD_RATE).toFixed(2)} USD)</span>
                   </div>
                 </div>
               </div>
 
               {/* Abuse Guards Confirmation Note */}
-              <div className="text-[10px] text-zinc-500 leading-relaxed bg-zinc-950/60 p-2.5 rounded-lg border border-zinc-800/80">
+              <div className="text-[10px] text-zinc-500 leading-relaxed bg-zinc-50 dark:bg-zinc-950/60 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800/80">
                 Notice: All payout requests are subject to anti-sybil cluster verification and manual human authorization before disbursement.
               </div>
 
@@ -712,7 +712,7 @@ export const WalletView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 py-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                  className="w-1/2 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors"
                 >
                   Cancel
                 </button>

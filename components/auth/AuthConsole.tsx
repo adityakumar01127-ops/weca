@@ -161,7 +161,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-3.5rem)] flex flex-col justify-between bg-[#09090b] text-zinc-100 selection:bg-violet/30 overflow-hidden font-sans">
+    <div className="relative min-h-[calc(100vh-3.5rem)] flex flex-col justify-between bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/30 overflow-hidden font-sans">
       {/* Dynamic Ambient Background Glows */}
       <div 
         className="pointer-events-none absolute -top-40 left-1/4 w-[600px] h-[500px] bg-violet/10 rounded-full blur-[140px] opacity-70"
@@ -186,25 +186,25 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
           <section className="hidden lg:flex lg:col-span-7 flex-col items-start text-left select-none pr-4">
             
             {/* Telemetry live status tag */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-zinc-300 backdrop-blur-md mb-5 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-700 dark:text-zinc-300 backdrop-blur-md mb-5 shadow-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span>Weca Global Grid Active</span>
-              <span className="text-zinc-600">•</span>
-              <span className="text-zinc-400">Network Active</span>
+              <span className="text-zinc-400 dark:text-zinc-600">•</span>
+              <span className="text-zinc-500 dark:text-zinc-400">Network Active</span>
             </div>
 
             {/* Punchy Headline with Chromatic Gradient */}
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-[54px] text-white tracking-tight leading-[1.12] mb-4 max-w-xl">
+            <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-[54px] text-zinc-900 dark:text-white tracking-tight leading-[1.12] mb-4 max-w-xl">
               See everyday moments from the{" "}
               <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-violet-400 bg-clip-text text-transparent">
                 weird world.
               </span>
             </h1>
 
-            <p className="text-sm text-zinc-400 font-sans max-w-lg mb-8 leading-relaxed">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 font-sans max-w-lg mb-8 leading-relaxed">
               Join thousands of observers cataloging rare anomalies, environmental glitches,
               and curiosities scored dynamically by AI Vision.
             </p>
@@ -318,7 +318,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
               </div>
 
               {/* Floating Reaction Bubbles (Interactive) */}
-              <div className="absolute -top-3 z-30 flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900/90 backdrop-blur-md border border-zinc-700/80 shadow-xl text-base">
+              <div className="absolute -top-3 z-30 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-700/80 shadow-xl text-base">
                 <button
                   type="button"
                   onClick={() => handleReactionClick("orb")}
@@ -352,9 +352,9 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
             </div>
 
             {/* Bottom feature bullets */}
-            <div className="grid grid-cols-3 gap-3 w-full max-w-lg mt-6 pt-6 border-t border-zinc-800/80 text-xs font-mono text-zinc-400">
+            <div className="grid grid-cols-3 gap-3 w-full max-w-lg mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-800/80 text-xs font-mono text-zinc-500 dark:text-zinc-400">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
                 <span>AI Verified</span>
               </div>
               <div className="flex items-center gap-2">
@@ -372,20 +372,20 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
           {/* RIGHT COLUMN: Auth Console Card (Cols 8-12)                               */}
           {/* ========================================================================= */}
           <section className="lg:col-span-5 flex flex-col items-center justify-center w-full">
-            <div className="w-full max-w-[420px] bg-zinc-900/70 backdrop-blur-2xl border border-zinc-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/80 relative">
+            <div className="w-full max-w-[420px] bg-white/85 dark:bg-zinc-900/70 backdrop-blur-2xl border border-zinc-200 dark:border-zinc-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
               
               {/* Subtle Ambient Card Top Glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-violet/50 to-transparent rounded-full" />
 
               {/* Card Header & Brand */}
               <div className="flex flex-col items-center text-center mb-6">
-                <div className="p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 shadow-inner mb-3">
+                <div className="p-3 rounded-2xl bg-zinc-100 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800/80 shadow-inner mb-3">
                   <Logo size={36} showWordmark={false} />
                 </div>
-                <h2 className="font-display font-bold text-2xl text-white tracking-tight">
+                <h2 className="font-display font-bold text-2xl text-zinc-900 dark:text-white tracking-tight">
                   {mode === "signin" ? "Welcome back" : "Join the Foundation"}
                 </h2>
-                <p className="text-xs text-zinc-400 font-sans mt-1">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-sans mt-1">
                   {mode === "signin"
                     ? "Enter your credentials to access the classification index."
                     : "Create your researcher identity and begin logging sightings."}
@@ -393,7 +393,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
               </div>
 
               {/* Mode Switcher Tabs */}
-              <div className="grid grid-cols-2 p-1 rounded-xl bg-zinc-950/80 border border-zinc-800/80 mb-6">
+              <div className="grid grid-cols-2 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800/80 mb-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -402,8 +402,8 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                   }}
                   className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     mode === "signin"
-                      ? "bg-zinc-800 text-white shadow-xs border border-zinc-700/60"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-white text-zinc-900 shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:text-white dark:border-zinc-700/60"
+                      : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
                   }`}
                 >
                   Sign In
@@ -416,8 +416,8 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                   }}
                   className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     mode === "signup"
-                      ? "bg-zinc-800 text-white shadow-xs border border-zinc-700/60"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-white text-zinc-900 shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:text-white dark:border-zinc-700/60"
+                      : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
                   }`}
                 >
                   Create Account
@@ -426,8 +426,8 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
 
               {/* Error Alert Banner */}
               {error && (
-                <div className="mb-4 p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-xs text-rose-300 flex items-start gap-2 animate-in fade-in">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <div className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                   <span className="leading-relaxed">{error}</span>
                 </div>
               )}
@@ -446,19 +446,19 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                 {/* Sign Up: Username Field */}
                 {mode === "signup" && (
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+                    <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                       <span>Username</span>
-                      <span className="text-[10px] text-zinc-500 font-mono">Unique handle</span>
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Unique handle</span>
                     </label>
                     <div className="relative">
-                      <UserIcon className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
+                      <UserIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                       <input
                         type="text"
                         required
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="anomaly_scout"
-                        className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800/90 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
+                        className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
                       />
                     </div>
                   </div>
@@ -467,18 +467,18 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                 {/* Sign Up: Display Name (Optional) */}
                 {mode === "signup" && (
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+                    <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                       <span>Display Name</span>
-                      <span className="text-[10px] text-zinc-500 font-mono">Optional</span>
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Optional</span>
                     </label>
                     <div className="relative">
-                      <Sparkles className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
+                      <Sparkles className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                       <input
                         type="text"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         placeholder="Dr. Elena Vance"
-                        className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800/90 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
+                        className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
                       />
                     </div>
                   </div>
@@ -486,18 +486,18 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
 
                 {/* Email / Identifier Field */}
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-zinc-300">
+                  <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     {mode === "signin" ? "Email or Username" : "Email Address"}
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
+                    <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                     <input
                       type={mode === "signup" ? "email" : "text"}
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={mode === "signup" ? "you@organization.org" : "you@example.com"}
-                      className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800/90 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
                     />
                   </div>
                 </div>
@@ -505,7 +505,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                 {/* Password Field */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-medium text-zinc-300">
+                    <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                       Password
                     </label>
                     {mode === "signin" && (
@@ -519,19 +519,19 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                     )}
                   </div>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
+                    <Lock className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                     <input
                       type={showPassword ? "text" : "password"}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full pl-10 pr-10 py-2.5 bg-zinc-950/70 border border-zinc-800/90 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
+                      className="w-full pl-10 pr-10 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-2.5 text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+                      className="absolute right-3.5 top-2.5 text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors cursor-pointer"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -543,13 +543,13 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                     <div className="pt-1.5 space-y-1 animate-in fade-in">
                       <div className="flex items-center justify-between text-[10px] font-mono">
                         <span className="text-zinc-500">Security Rating:</span>
-                        <span className="text-zinc-300 font-semibold">{strength.label}</span>
+                        <span className="text-zinc-700 dark:text-zinc-300 font-semibold">{strength.label}</span>
                       </div>
-                      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden flex gap-0.5">
-                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 1 ? strength.color : "bg-zinc-800"}`} />
-                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 2 ? strength.color : "bg-zinc-800"}`} />
-                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 3 ? strength.color : "bg-zinc-800"}`} />
-                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 4 ? strength.color : "bg-zinc-800"}`} />
+                      <div className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden flex gap-0.5">
+                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 1 ? strength.color : "bg-zinc-200 dark:bg-zinc-800"}`} />
+                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 2 ? strength.color : "bg-zinc-200 dark:bg-zinc-800"}`} />
+                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 3 ? strength.color : "bg-zinc-200 dark:bg-zinc-800"}`} />
+                        <div className={`h-full flex-1 rounded-full transition-all duration-300 ${strength.score >= 4 ? strength.color : "bg-zinc-200 dark:bg-zinc-800"}`} />
                       </div>
                     </div>
                   )}
@@ -559,10 +559,10 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full mt-3 py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs shadow-lg shadow-white/5 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full mt-3 py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-semibold text-xs shadow-md transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {loading ? (
-                    <div className="w-4 h-4 border-2 border-zinc-900/30 border-t-zinc-900 rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-white/30 dark:border-zinc-900/30 border-t-white dark:border-t-zinc-900 rounded-full animate-spin" />
                   ) : (
                     <>
                       <span>{mode === "signin" ? "Sign In to Weca" : "Complete Registration"}</span>
@@ -574,8 +574,8 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
 
               {/* Divider */}
               <div className="relative my-5 flex items-center justify-center">
-                <div className="border-t border-zinc-800 w-full" />
-                <span className="bg-[#121215] px-2.5 text-[10px] font-mono uppercase tracking-wider text-zinc-500 relative">
+                <div className="border-t border-zinc-200 dark:border-zinc-800 w-full" />
+                <span className="bg-white dark:bg-[#121215] px-2.5 text-[10px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 relative">
                   Quick Access
                 </span>
               </div>
@@ -584,20 +584,20 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
               <button
                 type="button"
                 onClick={handleDemoSignIn}
-                className="w-full py-2.5 px-4 rounded-xl bg-zinc-950/80 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-800 hover:border-zinc-700 text-xs font-mono font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+                className="w-full py-2.5 px-4 rounded-xl bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 hover:border-zinc-300 dark:bg-zinc-950/80 dark:hover:bg-zinc-800/80 dark:text-zinc-200 dark:border-zinc-800 dark:hover:border-zinc-700 text-xs font-mono font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
               >
-                <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
                 <span>Instant Explorer Pass (Guest Mode)</span>
               </button>
 
               {/* Terms & Footer */}
               <div className="mt-5 text-center text-[11px] text-zinc-500 leading-relaxed">
                 By accessing Weca, you agree to our{" "}
-                <Link href="/community-guidelines" className="text-zinc-400 hover:underline">
+                <Link href="/community-guidelines" className="text-zinc-600 dark:text-zinc-400 hover:underline">
                   Guidelines
                 </Link>{" "}
                 and{" "}
-                <Link href="/terms" className="text-zinc-400 hover:underline">
+                <Link href="/terms" className="text-zinc-600 dark:text-zinc-400 hover:underline">
                   Terms
                 </Link>
                 .
@@ -609,14 +609,14 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
       </main>
 
       {/* Subtle Bottom Global Footer */}
-      <footer className="relative z-10 w-full py-5 text-xs text-zinc-500 border-t border-zinc-800/80 bg-[#09090b]/80 backdrop-blur-md">
+      <footer className="relative z-10 w-full py-5 text-xs text-zinc-500 border-t border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1.5 text-[11px] font-mono">
-            <Link href="/" className="hover:text-zinc-300 transition-colors">World Feed</Link>
-            <Link href="/scoring-engine" className="hover:text-zinc-300 transition-colors">Scoring Engine</Link>
-            <Link href="/rarity-tiers" className="hover:text-zinc-300 transition-colors">Rarity Tiers</Link>
-            <Link href="/challenges" className="hover:text-zinc-300 transition-colors">Challenges</Link>
-            <Link href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy</Link>
+            <Link href="/" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">World Feed</Link>
+            <Link href="/scoring-engine" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Scoring Engine</Link>
+            <Link href="/rarity-tiers" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Rarity Tiers</Link>
+            <Link href="/challenges" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Challenges</Link>
+            <Link href="/privacy" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Privacy</Link>
           </div>
           <div className="text-[11px] font-mono text-zinc-500">
             © 2026 Weca Platform • Powered by Gemini Vision AI

@@ -82,18 +82,18 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-lg max-h-[92vh] flex flex-col bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-800/90 shadow-2xl shadow-black/90 overflow-hidden text-zinc-100 animate-in zoom-in-95 duration-200 font-sans"
+        className="relative w-full max-w-lg max-h-[92vh] flex flex-col bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl overflow-hidden text-zinc-900 dark:text-zinc-100 animate-in zoom-in-95 duration-200 font-sans"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Subtle Ambient Top Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-violet/70 to-transparent rounded-full" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/80 bg-zinc-950/40 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/40 shrink-0">
           <div className="flex items-center gap-2">
-            <h2 className="font-display font-bold text-lg text-white">Edit profile</h2>
+            <h2 className="font-display font-bold text-lg text-zinc-900 dark:text-white">Edit profile</h2>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet/10 text-violet border border-violet/20">
               Identity & Settings
             </span>
@@ -102,7 +102,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             aria-label="Close edit profile"
           >
             <X className="w-5 h-5" />
@@ -123,7 +123,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.id}`
                   }
                   alt={displayName || currentUser.username}
-                  className="w-full h-full rounded-full object-cover bg-zinc-950"
+                  className="w-full h-full rounded-full object-cover bg-zinc-100 dark:bg-zinc-950"
                 />
               </div>
 
@@ -131,7 +131,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsAvatarPickerOpen(!isAvatarPickerOpen)}
-                className="absolute bottom-0 right-0 p-2 rounded-full bg-violet hover:bg-violet/90 text-white shadow-lg border-2 border-zinc-900 transition-transform active:scale-95 cursor-pointer"
+                className="absolute bottom-0 right-0 p-2 rounded-full bg-violet hover:bg-violet/90 text-white shadow-lg border-2 border-white dark:border-zinc-900 transition-transform active:scale-95 cursor-pointer"
                 title="Change picture"
               >
                 <Camera className="w-3.5 h-3.5" />
@@ -148,8 +148,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
             {/* Expandable Avatar Editor */}
             {isAvatarPickerOpen && (
-              <div className="mt-3 w-full p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800 space-y-2 animate-in fade-in">
-                <label className="text-[11px] font-mono text-zinc-400 block text-left">
+              <div className="mt-3 w-full p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 space-y-2 animate-in fade-in">
+                <label className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 block text-left">
                   Image URL or Avatar Seed:
                 </label>
                 <div className="flex gap-2">
@@ -158,12 +158,12 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
                     placeholder="https://... or unsplash link"
-                    className="flex-1 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700/80 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-violet"
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet"
                   />
                   <button
                     type="button"
                     onClick={handleShuffleAvatar}
-                    className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-mono text-zinc-300 flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-xs font-mono text-zinc-700 dark:text-zinc-300 flex items-center gap-1 cursor-pointer border border-zinc-200 dark:border-zinc-700"
                     title="Generate random DiceBear bot avatar"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
@@ -179,7 +179,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             
             {/* Name */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <UserIcon className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Name</span>
@@ -192,13 +192,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Aditya Kaushik"
-                className="w-full px-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
+                className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
               />
             </div>
 
             {/* Username */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <AtSign className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Username</span>
@@ -211,13 +211,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="mr_adityakaushik"
-                className="w-full px-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
+                className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
               />
             </div>
 
             {/* Pronouns */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Pronouns</span>
@@ -229,13 +229,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={pronouns}
                 onChange={(e) => setPronouns(e.target.value)}
                 placeholder="he/him/his"
-                className="w-full px-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
+                className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
               />
             </div>
 
             {/* Bio */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span>Bio</span>
                 <span className="text-[10px] font-mono text-zinc-500">{bio.length}/150</span>
               </label>
@@ -245,13 +245,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Anomaly investigator, photographer, researcher..."
-                className="w-full px-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all resize-none leading-relaxed"
+                className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all resize-none leading-relaxed"
               />
             </div>
 
             {/* Links */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Website / Links</span>
@@ -263,13 +263,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 placeholder="https://agirheo.com"
-                className="w-full px-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
+                className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
               />
             </div>
 
             {/* Status Note (Thought Bubble) */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Status Note</span>
@@ -282,13 +282,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={statusNote}
                 onChange={(e) => setStatusNote(e.target.value)}
                 placeholder="Just curious..."
-                className="w-full px-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
+                className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
               />
             </div>
 
             {/* Gender / Specialization */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Specialization / Role</span>
@@ -300,19 +300,19 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
                 placeholder="Entrepreneur / Anomaly Scout"
-                className="w-full px-3.5 py-2.5 bg-zinc-950/70 border border-zinc-800 rounded-xl text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
+                className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
               />
             </div>
 
             {/* AI Creator Toggle (Reference Image 1 Highlight) */}
             <div className="pt-2">
-              <div className="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 flex items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-cyan" />
-                    <span className="text-xs font-semibold text-white">AI creator</span>
+                    <Sparkles className="w-4 h-4 text-cyan-600 dark:text-cyan" />
+                    <span className="text-xs font-semibold text-zinc-900 dark:text-white">AI creator</span>
                   </div>
-                  <p className="text-[11px] text-zinc-400 leading-snug">
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug">
                     Add this label to your profile if your content often uses AI.
                   </p>
                 </div>
@@ -324,7 +324,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     onChange={(e) => setIsAiProfile(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet"></div>
+                  <div className="w-11 h-6 bg-zinc-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet"></div>
                 </label>
               </div>
             </div>
@@ -332,11 +332,11 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 border-t border-zinc-800 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-zinc-800 hover:bg-zinc-800/60 text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -344,13 +344,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             <button
               type="submit"
               disabled={saving}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs transition-all shadow-lg shadow-white/5 active:scale-[0.98] disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 font-semibold text-xs transition-all shadow-xs dark:hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
               {saving ? (
-                <div className="w-3.5 h-3.5 border-2 border-zinc-900/30 border-t-zinc-900 rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : savedSuccess ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-600" />
+                  <Check className="w-4 h-4 text-emerald-500" />
                   <span>Saved!</span>
                 </>
               ) : (

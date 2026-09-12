@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Scale, FileText, ArrowRight, ShieldCheck } from "lucide-react";
 
@@ -12,31 +11,29 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-ink">
-      <SubpageHeader category="Legal" currentPage="Terms of Service" />
-
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
-        <div className="mb-12 border-b border-zinc-200 pb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-600 text-xs font-mono mb-4">
+        <div className="mb-12 border-b border-zinc-200 dark:border-zinc-800 pb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono mb-4">
             <Scale className="w-3.5 h-3.5 text-cyan" />
             <span>Effective Date: January 1, 2026</span>
           </div>
 
-          <h1 className="font-display font-black text-4xl sm:text-5xl text-ink tracking-tight mb-4">
+          <h1 className="font-display font-black text-4xl sm:text-5xl text-zinc-900 dark:text-white tracking-tight mb-4">
             Wica Terms of Service
           </h1>
 
-          <p className="text-zinc-600 text-base sm:text-lg leading-relaxed">
+          <p className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg leading-relaxed">
             Welcome to Wica. These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Wica&apos;s website, mobile applications, and AI vision scoring services.
           </p>
         </div>
 
         {/* Content */}
-        <div className="space-y-10 text-sm text-zinc-700 leading-relaxed">
+        <div className="space-y-10 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
           {/* Section 1 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               1. Acceptance & Eligibility
             </h2>
             <p>
@@ -46,10 +43,10 @@ export default function TermsPage() {
 
           {/* Section 2 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               2. Your Content & Intellectual Property Ownership
             </h2>
-            <p className="font-semibold text-ink">
+            <p className="font-semibold text-zinc-900 dark:text-white">
               You own your photos. Wica does not claim ownership over the images you capture.
             </p>
             <p>
@@ -62,11 +59,11 @@ export default function TermsPage() {
 
           {/* Section 3 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               3. Acceptable Use & Banned Conduct
             </h2>
             <p>You agree not to engage in any of the following prohibited behaviors:</p>
-            <ul className="list-disc pl-5 space-y-2 text-zinc-600">
+            <ul className="list-disc pl-5 space-y-2 text-zinc-600 dark:text-zinc-400">
               <li>
                 <strong>Synthetic Deception:</strong> Uploading AI-generated, deepfaked, or heavily Photoshopped imagery disguised as candid physical occurrences.
               </li>
@@ -84,13 +81,13 @@ export default function TermsPage() {
 
           {/* Section 4 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               4. Weird Credits (WC) & Virtual Items
             </h2>
             <p>
               Weird Credits (WC) are virtual platform recognition points awarded for discovering anomalies. Weird Credits:
             </p>
-            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs font-mono space-y-1 text-zinc-600">
+            <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-xs font-mono space-y-1 text-zinc-600 dark:text-zinc-400">
               <p>• Have no cash, monetary, or fiat value.</p>
               <p>• Cannot be sold, transferred, or exchanged for real currency.</p>
               <p>• May be revoked or recalibrated at Wica&apos;s sole discretion in cases of fraudulent submissions.</p>
@@ -99,7 +96,7 @@ export default function TermsPage() {
 
           {/* Section 5 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               5. Disclaimer of Warranties & AI Verdicts
             </h2>
             <p>
@@ -112,7 +109,7 @@ export default function TermsPage() {
 
           {/* Section 6 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               6. Limitation of Liability
             </h2>
             <p>
@@ -121,21 +118,21 @@ export default function TermsPage() {
           </section>
 
           {/* Section 7 */}
-          <section className="space-y-3 pt-6 border-t border-zinc-200">
-            <h2 className="font-display font-bold text-xl text-ink">
+          <section className="space-y-3 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               7. Legal Contact
             </h2>
-            <p className="text-zinc-600">
+            <p className="text-zinc-600 dark:text-zinc-400">
               If you have questions regarding these terms, contact our legal counsel at:
             </p>
-            <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 font-mono text-xs text-ink inline-block">
+            <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-900 dark:text-zinc-100 inline-block">
               legal@wica.io • Subject: Terms Inquiry
             </div>
           </section>
         </div>
 
         {/* Footer Navigation */}
-        <section className="mt-16 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <section className="mt-16 pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link
             href="/privacy"
             className="flex items-center gap-1.5 text-xs font-semibold text-violet hover:underline"
@@ -146,7 +143,7 @@ export default function TermsPage() {
 
           <Link
             href="/community-guidelines"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-ink"
+            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
           >
             <span>Review Community Guidelines</span>
             <ArrowRight className="w-4 h-4" />

@@ -86,7 +86,7 @@ def score_anomaly(image_bytes: bytes, category: str):
           <Terminal className="w-3.5 h-3.5 text-zinc-400" />
           <button
             onClick={() => setActiveTab("ts")}
-            className={`px-2.5 py-1 rounded transition-colors ${
+            className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
               activeTab === "ts" ? "bg-zinc-800 text-cyan" : "text-zinc-400 hover:text-white"
             }`}
           >
@@ -94,7 +94,7 @@ def score_anomaly(image_bytes: bytes, category: str):
           </button>
           <button
             onClick={() => setActiveTab("curl")}
-            className={`px-2.5 py-1 rounded transition-colors ${
+            className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
               activeTab === "curl" ? "bg-zinc-800 text-cyan" : "text-zinc-400 hover:text-white"
             }`}
           >
@@ -102,7 +102,7 @@ def score_anomaly(image_bytes: bytes, category: str):
           </button>
           <button
             onClick={() => setActiveTab("py")}
-            className={`px-2.5 py-1 rounded transition-colors ${
+            className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
               activeTab === "py" ? "bg-zinc-800 text-cyan" : "text-zinc-400 hover:text-white"
             }`}
           >
@@ -112,7 +112,7 @@ def score_anomaly(image_bytes: bytes, category: str):
 
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white transition-colors"
+          className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer"
         >
           {copied ? (
             <>

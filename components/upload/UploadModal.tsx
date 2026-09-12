@@ -142,14 +142,14 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-xl bg-white rounded-3xl border border-zinc-200 shadow-2xl overflow-hidden p-6 sm:p-7 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-xl bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden p-6 sm:p-7 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 rounded-full text-zinc-400 hover:text-ink hover:bg-zinc-100 transition-colors"
+          className="absolute top-5 right-5 p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -159,16 +159,16 @@ export const UploadModal: React.FC<UploadModalProps> = ({
           <span className="text-[11px] font-mono uppercase tracking-widest text-violet font-semibold block mb-0.5">
             Submit Real Anomaly
           </span>
-          <h2 className="font-display font-bold text-2xl text-ink tracking-tight">
+          <h2 className="font-display font-bold text-2xl text-zinc-900 dark:text-white tracking-tight">
             Score Your Strange Find
           </h2>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
             Real photos only. Scored on Absurdity, Rarity, Craft, Cultural Novelty, and Wit.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-xs text-red-600">
+          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 flex items-center gap-2 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -181,15 +181,15 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-zinc-200 hover:border-violet rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:bg-zinc-50/60 group"
+              className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 hover:border-violet dark:hover:border-violet rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 group"
             >
-              <div className="w-12 h-12 rounded-full bg-zinc-100 group-hover:bg-purple-50 flex items-center justify-center text-zinc-600 group-hover:text-violet transition-colors mb-3">
+              <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 group-hover:bg-purple-50 dark:group-hover:bg-purple-950/50 flex items-center justify-center text-zinc-600 dark:text-zinc-300 group-hover:text-violet transition-colors mb-3">
                 <UploadCloud className="w-6 h-6" />
               </div>
-              <span className="text-sm font-semibold text-ink group-hover:text-violet transition-colors">
+              <span className="text-sm font-semibold text-zinc-900 dark:text-white group-hover:text-violet transition-colors">
                 Drop your photo here, or click to browse
               </span>
-              <span className="text-xs text-zinc-400 mt-1">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                 JPEG, PNG, WebP up to 10MB
               </span>
 
@@ -200,9 +200,9 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                     e.stopPropagation();
                     cameraInputRef.current?.click();
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-ink text-xs font-medium transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-medium transition-colors cursor-pointer"
                 >
-                  <Camera className="w-3.5 h-3.5 text-zinc-600" />
+                  <Camera className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
                   <span>Take Photo</span>
                 </button>
               </div>
@@ -225,7 +225,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               />
             </div>
           ) : (
-            <div className="relative rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-950 flex items-center justify-center max-h-72">
+            <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-950 flex items-center justify-center max-h-72">
               <img
                 src={previewUrl}
                 alt="Upload preview"
@@ -237,7 +237,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                   setFile(null);
                   setPreviewUrl(null);
                 }}
-                className="absolute top-3 right-3 p-1.5 rounded-full bg-ink/70 hover:bg-ink text-white backdrop-blur-sm transition-colors"
+                className="absolute top-3 right-3 p-1.5 rounded-full bg-black/70 hover:bg-black text-white backdrop-blur-sm transition-colors cursor-pointer"
                 title="Remove photo"
               >
                 <X className="w-4 h-4" />
@@ -247,7 +247,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
 
           {/* Category Selector */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">
               Category (Required)
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -256,10 +256,10 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                     category === cat
-                      ? "bg-ink text-white shadow-sm ring-1 ring-ink"
-                      : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700"
+                      ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-sm ring-1 ring-zinc-900 dark:ring-white"
+                      : "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300"
                   }`}
                 >
                   {cat}
@@ -270,7 +270,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
 
           {/* Optional Caption */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
               Caption (Optional)
             </label>
             <input
@@ -278,13 +278,13 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               placeholder="What makes this weird? e.g. 'Found in an abandoned rail yard'"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-colors placeholder:text-zinc-400"
+              className="w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-lg focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-colors placeholder:text-zinc-400"
             />
           </div>
 
           {/* Optional Location */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
               Location / Country (Optional)
             </label>
             <input
@@ -292,7 +292,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               placeholder="e.g. Iceland, Kyoto, Portland"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-colors placeholder:text-zinc-400"
+              className="w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-lg focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-colors placeholder:text-zinc-400"
             />
           </div>
 
@@ -300,7 +300,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
           <button
             type="submit"
             disabled={!file || loading}
-            className="w-full py-3 px-4 rounded-xl bg-ink hover:bg-zinc-800 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.99] disabled:opacity-50"
+            className="w-full py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.99] disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <>

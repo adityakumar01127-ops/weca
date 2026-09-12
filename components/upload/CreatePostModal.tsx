@@ -505,26 +505,26 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   if (!isOpen || !mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-zinc-100 shadow-2xl relative flex flex-col my-auto max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/70 dark:bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-zinc-900 dark:text-zinc-100 shadow-2xl relative flex flex-col my-auto max-h-[92vh] overflow-hidden">
         {/* Ambient Glows */}
-        <div className="absolute -top-24 -right-24 w-52 h-52 bg-violet/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-cyan/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-52 h-52 bg-violet/15 dark:bg-violet/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-cyan/10 dark:bg-cyan/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-800/80 shrink-0 gap-2">
+        <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800/80 shrink-0 gap-2">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet/20 to-cyan/20 border border-violet/30 flex items-center justify-center text-violet shadow-md shadow-violet/10">
               <Sparkles className="w-5 h-5 text-cyan" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
                 <span>Create Anomaly Sighting</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet/15 text-violet border border-violet/30">
                   Studio
                 </span>
               </h2>
-              <p className="text-xs text-zinc-400 font-mono">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                 Capture, document, or schedule anomaly reports
               </p>
             </div>
@@ -534,14 +534,14 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             type="button"
             id="close-create-post-modal-btn"
             onClick={handleClose}
-            className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Studio Tabs: Create Sighting, Drafts, Scheduled */}
-        <div className="flex items-center gap-1.5 p-1 bg-zinc-950 rounded-xl border border-zinc-800 my-3 shrink-0 text-xs">
+        <div className="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 my-3 shrink-0 text-xs">
           <button
             type="button"
             id="tab-create-sighting"
@@ -549,7 +549,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
               activeTab === "create"
                 ? "bg-violet text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200"
+                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -562,13 +562,13 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
               activeTab === "drafts"
                 ? "bg-violet text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200"
+                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
             <FolderOpen className="w-3.5 h-3.5" />
             <span>Drafts</span>
             {drafts.length > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-zinc-800 text-zinc-300">
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 {drafts.length}
               </span>
             )}
@@ -580,13 +580,13 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
               activeTab === "scheduled"
                 ? "bg-violet text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200"
+                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Scheduled</span>
             {scheduledPosts.length > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-zinc-800 text-zinc-300">
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 {scheduledPosts.length}
               </span>
             )}
@@ -595,16 +595,16 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
         {/* Toast Alert */}
         {toastMessage && (
-          <div className="p-2.5 mb-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-mono flex items-center gap-2 animate-in fade-in">
-            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="p-2.5 mb-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-mono flex items-center gap-2 animate-in fade-in">
+            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>{toastMessage}</span>
           </div>
         )}
 
         {/* Error Alert */}
         {error && (
-          <div className="p-2.5 mb-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-mono flex items-center gap-2 animate-in fade-in">
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+          <div className="p-2.5 mb-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-mono flex items-center gap-2 animate-in fade-in">
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -615,10 +615,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             onSubmit={handleSubmit}
             className="flex flex-col flex-1 min-h-0 overflow-hidden"
           >
-            <div className="space-y-4 overflow-y-auto pr-1 py-1 scrollbar-thin scrollbar-thumb-zinc-800 flex-1 min-h-0">
+            <div className="space-y-4 overflow-y-auto pr-1 py-1 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 flex-1 min-h-0">
               {/* SOURCE SELECTOR: LIVE CAMERA VS FILE UPLOAD */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span>Anomaly Photograph</span>
                 {previewUrl && (
                   <button
@@ -628,7 +628,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       setPreviewUrl(null);
                       setIsCameraActive(false);
                     }}
-                    className="text-[11px] text-zinc-400 hover:text-rose-400 transition-colors"
+                    className="text-[11px] text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 transition-colors"
                   >
                     Clear photo
                   </button>
@@ -722,7 +722,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 </div>
               ) : previewUrl ? (
                 /* View 2: Image Preview */
-                <div className="relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 max-h-64 flex items-center justify-center group">
+                <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 max-h-64 flex items-center justify-center group">
                   <img
                     src={previewUrl}
                     alt="Anomaly Preview"
@@ -754,15 +754,15 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   <div
                     id="open-live-camera-btn"
                     onClick={() => setIsCameraActive(true)}
-                    className="p-6 rounded-2xl bg-zinc-950/70 border-2 border-dashed border-zinc-800 hover:border-violet/60 hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
+                    className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-violet/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
                   >
                     <div className="w-12 h-12 rounded-2xl bg-violet/10 border border-violet/20 flex items-center justify-center text-violet group-hover:scale-110 transition-transform mb-2.5">
                       <Camera className="w-6 h-6" />
                     </div>
-                    <span className="text-xs font-bold text-white group-hover:text-violet transition-colors">
+                    <span className="text-xs font-bold text-zinc-900 dark:text-white group-hover:text-violet transition-colors">
                       Open Camera
                     </span>
-                    <span className="text-[11px] text-zinc-400 mt-0.5">
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                       Snap live anomaly photo
                     </span>
                   </div>
@@ -771,15 +771,15 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   <div
                     id="open-file-upload-btn"
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-6 rounded-2xl bg-zinc-950/70 border-2 border-dashed border-zinc-800 hover:border-cyan/60 hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
+                    className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-cyan/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
                   >
                     <div className="w-12 h-12 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center text-cyan group-hover:scale-110 transition-transform mb-2.5">
                       <Upload className="w-6 h-6" />
                     </div>
-                    <span className="text-xs font-bold text-white group-hover:text-cyan transition-colors">
+                    <span className="text-xs font-bold text-zinc-900 dark:text-white group-hover:text-cyan transition-colors">
                       Browse Files
                     </span>
-                    <span className="text-[11px] text-zinc-400 mt-0.5">
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                       JPEG, PNG, WebP up to 15MB
                     </span>
                   </div>
@@ -815,10 +815,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             {/* CAPTION & QUICK EMOJIS */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-zinc-300">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                   Anomaly Notes & Caption
                 </label>
-                <span className="text-[10px] font-mono text-zinc-500">{caption.length}/280</span>
+                <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">{caption.length}/280</span>
               </div>
               <textarea
                 id="create-post-caption-input"
@@ -827,18 +827,18 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="Describe the strange visual occurrence or optical glitch..."
-                className="w-full p-3 bg-zinc-950/80 border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-all resize-none"
+                className="w-full p-3 bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-all resize-none"
               />
 
               {/* Vibe Emoji Quick Bar */}
               <div className="flex items-center gap-1.5 pt-1 overflow-x-auto pb-1 scrollbar-none">
-                <span className="text-[10px] text-zinc-400 font-mono shrink-0 mr-1">Vibe:</span>
+                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono shrink-0 mr-1">Vibe:</span>
                 {VIBE_EMOJIS.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => setCaption((prev) => (prev ? `${prev} ${emoji}` : emoji))}
-                    className="p-1 text-xs rounded-lg hover:bg-zinc-800 transition-colors shrink-0"
+                    className="p-1 text-xs rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
                   >
                     {emoji}
                   </button>
@@ -848,7 +848,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
             {/* CATEGORY SELECTOR */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300">Anomaly Classification</label>
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Anomaly Classification</label>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                 {(["Objects", "Nature", "Human-Made", "Animals", "Coincidences", "Food"] as Category[]).map(
                   (cat) => (
@@ -859,7 +859,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       className={`py-1.5 px-2 rounded-xl text-[11px] font-medium transition-all ${
                         category === cat
                           ? "bg-violet text-white font-semibold shadow-sm border border-violet/50"
-                          : "bg-zinc-950/70 text-zinc-400 hover:text-zinc-200 border border-zinc-800 hover:border-zinc-700"
+                          : "bg-zinc-100 dark:bg-zinc-950/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                       }`}
                     >
                       {cat}
@@ -870,15 +870,15 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </div>
 
             {/* SCHEDULE POSTING PANEL */}
-            <div className="p-3.5 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 space-y-3">
+            <div className="p-3.5 rounded-2xl bg-zinc-50/80 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800/80 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-cyan" />
                   <div>
-                    <span className="text-xs font-semibold text-white block">
+                    <span className="text-xs font-semibold text-zinc-900 dark:text-white block">
                       Scheduled Release
                     </span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">
                       Queue anomaly report for future community drop
                     </span>
                   </div>
@@ -892,21 +892,21 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                     onChange={(e) => setIsScheduled(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan" />
+                  <div className="w-9 h-5 bg-zinc-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan" />
                 </label>
               </div>
 
               {isScheduled && (
-                <div className="space-y-2.5 pt-2 border-t border-zinc-800/60 animate-in fade-in">
+                <div className="space-y-2.5 pt-2 border-t border-zinc-200 dark:border-zinc-800/60 animate-in fade-in">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <input
                       id="schedule-datetime-picker"
                       type="datetime-local"
                       value={scheduledDateTime}
                       onChange={(e) => setScheduledDateTime(e.target.value)}
-                      className="px-3 py-1.5 bg-zinc-900 border border-zinc-700 rounded-xl text-xs text-zinc-200 font-mono focus:outline-none focus:border-cyan"
+                      className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-zinc-200 font-mono focus:outline-none focus:border-cyan"
                     />
-                    <span className="text-[11px] text-cyan font-mono">
+                    <span className="text-[11px] text-cyan font-mono font-semibold">
                       Will publish automatically
                     </span>
                   </div>
@@ -916,28 +916,28 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                     <button
                       type="button"
                       onClick={() => applySchedulePreset("2h")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
                     >
                       +2 Hours
                     </button>
                     <button
                       type="button"
                       onClick={() => applySchedulePreset("tomorrow-am")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
                     >
                       Tomorrow 9:00 AM
                     </button>
                     <button
                       type="button"
                       onClick={() => applySchedulePreset("tomorrow-pm")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
                     >
                       Tomorrow 8:00 PM
                     </button>
                     <button
                       type="button"
                       onClick={() => applySchedulePreset("friday")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
                     >
                       Friday Peak
                     </button>
@@ -948,12 +948,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           </div>
 
             {/* ACTION FOOTER */}
-            <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between gap-3 shrink-0">
+            <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 id="save-draft-btn"
                 onClick={handleSaveDraft}
-                className="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-900 border border-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 dark:hover:text-white dark:border-zinc-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Save className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Save Draft</span>
@@ -963,7 +963,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="px-4 py-2 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1002,9 +1002,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
         {/* TAB 2: DRAFTS MANAGER */}
         {activeTab === "drafts" && (
-          <div className="space-y-3 overflow-y-auto pr-1 py-2 flex-1 min-h-0 scrollbar-thin scrollbar-thumb-zinc-800">
+          <div className="space-y-3 overflow-y-auto pr-1 py-2 flex-1 min-h-0 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-300">
+              <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-300">
                 Saved Anomaly Drafts ({drafts.length})
               </span>
               <button
@@ -1017,10 +1017,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </div>
 
             {drafts.length === 0 ? (
-              <div className="p-8 text-center rounded-2xl bg-zinc-950/60 border border-zinc-800 text-zinc-500 space-y-2">
-                <FolderOpen className="w-8 h-8 mx-auto text-zinc-600" />
-                <p className="text-xs font-medium text-zinc-400">No saved drafts</p>
-                <p className="text-[11px]">
+              <div className="p-8 text-center rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-zinc-500 space-y-2">
+                <FolderOpen className="w-8 h-8 mx-auto text-zinc-400 dark:text-zinc-600" />
+                <p className="text-xs font-medium text-zinc-700 dark:text-zinc-400">No saved drafts</p>
+                <p className="text-[11px] text-zinc-500">
                   When capturing anomalies, click &ldquo;Save Draft&rdquo; to resume anytime.
                 </p>
               </div>
@@ -1029,16 +1029,16 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 {drafts.map((d) => (
                   <div
                     key={d.id}
-                    className="p-3 rounded-xl bg-zinc-950/70 border border-zinc-800/80 hover:border-zinc-700 flex items-center justify-between gap-3 transition-all"
+                    className="p-3 rounded-xl bg-zinc-50/80 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 flex items-center justify-between gap-3 transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <img
                         src={d.image_url}
                         alt="Draft"
-                        className="w-12 h-12 rounded-lg object-cover border border-zinc-800 shrink-0"
+                        className="w-12 h-12 rounded-lg object-cover border border-zinc-200 dark:border-zinc-800 shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="text-xs font-semibold text-zinc-200 truncate">
+                        <div className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">
                           {d.caption || "Untitled Draft"}
                         </div>
                         <div className="text-[10px] font-mono text-zinc-500">
@@ -1051,14 +1051,14 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleResumeDraft(d)}
-                        className="px-3 py-1.5 rounded-lg bg-violet/20 hover:bg-violet/30 text-violet border border-violet/30 text-xs font-semibold transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-violet/15 hover:bg-violet/25 text-violet border border-violet/30 text-xs font-semibold transition-colors cursor-pointer"
                       >
                         Resume
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteDraft(d.id)}
-                        className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                         title="Delete Draft"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1073,9 +1073,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
         {/* TAB 3: SCHEDULED POSTS QUEUE */}
         {activeTab === "scheduled" && (
-          <div className="space-y-3 overflow-y-auto pr-1 py-2 flex-1 min-h-0 scrollbar-thin scrollbar-thumb-zinc-800">
+          <div className="space-y-3 overflow-y-auto pr-1 py-2 flex-1 min-h-0 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-300">
+              <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-300">
                 Scheduled Anomaly Drops ({scheduledPosts.length})
               </span>
               <button
@@ -1091,10 +1091,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </div>
 
             {scheduledPosts.length === 0 ? (
-              <div className="p-8 text-center rounded-2xl bg-zinc-950/60 border border-zinc-800 text-zinc-500 space-y-2">
-                <Calendar className="w-8 h-8 mx-auto text-zinc-600" />
-                <p className="text-xs font-medium text-zinc-400">No scheduled anomaly releases</p>
-                <p className="text-[11px]">
+              <div className="p-8 text-center rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-zinc-500 space-y-2">
+                <Calendar className="w-8 h-8 mx-auto text-zinc-400 dark:text-zinc-600" />
+                <p className="text-xs font-medium text-zinc-700 dark:text-zinc-400">No scheduled anomaly releases</p>
+                <p className="text-[11px] text-zinc-500">
                   Toggle &ldquo;Scheduled Release&rdquo; in the editor to queue future sightings.
                 </p>
               </div>
@@ -1103,16 +1103,16 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 {scheduledPosts.map((s) => (
                   <div
                     key={s.id}
-                    className="p-3 rounded-xl bg-zinc-950/70 border border-zinc-800/80 hover:border-zinc-700 flex items-center justify-between gap-3 transition-all"
+                    className="p-3 rounded-xl bg-zinc-50/80 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 flex items-center justify-between gap-3 transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <img
                         src={s.image_url}
                         alt="Scheduled"
-                        className="w-12 h-12 rounded-lg object-cover border border-zinc-800 shrink-0"
+                        className="w-12 h-12 rounded-lg object-cover border border-zinc-200 dark:border-zinc-800 shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="text-xs font-semibold text-zinc-200 truncate">
+                        <div className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">
                           {s.caption}
                         </div>
                         <div className="text-[10px] font-mono text-cyan flex items-center gap-1 mt-0.5">
@@ -1126,14 +1126,14 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handlePublishNowScheduled(s)}
-                        className="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold transition-colors cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold transition-colors cursor-pointer"
                       >
                         Publish Now
                       </button>
                       <button
                         type="button"
                         onClick={() => handleCancelScheduled(s.id)}
-                        className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                         title="Cancel Schedule"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

@@ -75,9 +75,9 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-white text-ink selection:bg-violet/20 font-sans">
+    <div className="min-h-screen flex flex-col justify-between bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/20 font-sans transition-colors duration-200">
       {/* Top Mobile Bar (Visible only on small mobile screens) */}
-      <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+      <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
         <Logo size={28} showWordmark={true} />
         {onExploreFeed && (
           <button
@@ -101,7 +101,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
             </div>
 
             {/* Punchy Headline matching reference aesthetic */}
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-[56px] text-ink tracking-tight leading-[1.12] mb-8 max-w-xl">
+            <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-[56px] text-zinc-900 dark:text-white tracking-tight leading-[1.12] mb-8 max-w-xl">
               See everyday moments from the{" "}
               <span className="bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 bg-clip-text text-transparent">
                 weird world.
@@ -272,10 +272,10 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
               
               {/* Header */}
               <div className="mb-6 text-left">
-                <h2 className="font-display font-bold text-2xl sm:text-[26px] text-ink tracking-tight">
+                <h2 className="font-display font-bold text-2xl sm:text-[26px] text-zinc-900 dark:text-white tracking-tight">
                   {isSignUp ? "Join the Weirdness Index" : "Log in to Wica"}
                 </h2>
-                <p className="text-xs text-zinc-500 mt-1">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                   {isSignUp 
                     ? "Score rare real-world anomalies with Gemini AI." 
                     : "Welcome back to the global rarity community."}
@@ -284,7 +284,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
 
               {/* Error Banner */}
               {error && (
-                <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600">
+                <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-xs text-red-600 dark:text-red-400">
                   {error}
                 </div>
               )}
@@ -307,7 +307,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
                       placeholder="Choose username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full px-4 py-3.5 text-sm bg-zinc-50/80 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 font-sans"
+                      className="w-full px-4 py-3.5 text-sm bg-zinc-50/80 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl focus:outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-zinc-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 font-sans"
                     />
                   </div>
                 )}
@@ -319,7 +319,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
                     placeholder="Username or email address"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    className="w-full px-4 py-3.5 text-sm bg-zinc-50/80 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 font-sans"
+                    className="w-full px-4 py-3.5 text-sm bg-zinc-50/80 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl focus:outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-zinc-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 font-sans"
                   />
                 </div>
 
@@ -330,12 +330,12 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-4 pr-11 py-3.5 text-sm bg-zinc-50/80 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 font-sans"
+                    className="w-full pl-4 pr-11 py-3.5 text-sm bg-zinc-50/80 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-xl focus:outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-zinc-400 dark:focus:border-zinc-500 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 font-sans"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-3.5 text-zinc-400 hover:text-zinc-700 transition-colors"
+                    className="absolute right-3.5 top-3.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -361,18 +361,18 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
                 <button
                   type="button"
                   onClick={() => setForgotSent(true)}
-                  className="text-xs text-zinc-600 hover:text-ink hover:underline transition-colors"
+                  className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:underline transition-colors"
                 >
                   Forgotten password?
                 </button>
               </div>
 
               {/* Instant Demo Sign-In (Replaces Facebook Login in reference) */}
-              <div className="mt-6 pt-5 border-t border-zinc-100 flex flex-col gap-3">
+              <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800 flex flex-col gap-3">
                 <button
                   type="button"
                   onClick={handleDemoSignIn}
-                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-zinc-200/90 text-ink font-semibold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                 >
                   <Zap className="w-4 h-4 text-violet fill-violet" />
                   <span>Instant Demo Explorer Sign In</span>
@@ -381,7 +381,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
                 {/* Create New Account Button (Navigates to full Instagram-style Signup page) */}
                 <Link
                   href="/signup"
-                  className="w-full py-2.5 px-4 rounded-full border border-zinc-300 hover:border-violet text-ink hover:text-violet font-semibold text-xs text-center transition-all active:scale-[0.98] block"
+                  className="w-full py-2.5 px-4 rounded-full border border-zinc-300 dark:border-zinc-700 hover:border-violet text-zinc-900 dark:text-zinc-100 hover:text-violet dark:hover:text-violet font-semibold text-xs text-center transition-all active:scale-[0.98] block"
                 >
                   Create new account
                 </Link>
@@ -389,11 +389,11 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
 
               {/* Explore Feed as Guest Link */}
               {onExploreFeed && (
-                <div className="mt-4 pt-3 text-center border-t border-zinc-100">
+                <div className="mt-4 pt-3 text-center border-t border-zinc-100 dark:border-zinc-800">
                   <button
                     type="button"
                     onClick={onExploreFeed}
-                    className="text-xs text-zinc-500 hover:text-ink font-medium inline-flex items-center gap-1 transition-colors group"
+                    className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-medium inline-flex items-center gap-1 transition-colors group"
                   >
                     <span>Explore World Feed without logging in</span>
                     <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform text-violet" />
@@ -416,27 +416,27 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
       </main>
 
       {/* Subtle Bottom Footer matching Instagram layout */}
-      <footer className="w-full py-8 text-xs text-zinc-400 border-t border-zinc-100">
+      <footer className="w-full py-8 text-xs text-zinc-400 border-t border-zinc-100 dark:border-zinc-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 flex flex-col items-center gap-4 text-center">
           {/* Navigation Links */}
-          <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-[11px] text-zinc-500">
-            <button onClick={onExploreFeed} className="hover:text-ink transition-colors">World Feed</button>
-            <Link href="/about" className="hover:text-ink transition-colors">About Wica</Link>
-            <Link href="/scoring-engine" className="hover:text-ink transition-colors">Scoring Engine</Link>
-            <Link href="/rarity-tiers" className="hover:text-ink transition-colors">Rarity Tiers</Link>
-            <Link href="/directory" className="hover:text-ink transition-colors">Anomaly Directory</Link>
-            <Link href="/community-guidelines" className="hover:text-ink transition-colors">Community Guidelines</Link>
-            <Link href="/gemini-vision-api" className="hover:text-ink transition-colors">Gemini Vision API</Link>
-            <Link href="/privacy" className="hover:text-ink transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-ink transition-colors">Terms</Link>
-            <Link href="/verified-anomalies" className="hover:text-ink transition-colors">Verified Anomalies</Link>
-            <Link href="/anomaly-guidelines" className="hover:text-ink transition-colors">Anomaly Guidelines</Link>
-            <Link href="/learn-more" className="hover:text-ink transition-colors">Learn More</Link>
+          <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+            <button onClick={onExploreFeed} className="hover:text-zinc-900 dark:hover:text-white transition-colors">World Feed</button>
+            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About Wica</Link>
+            <Link href="/scoring-engine" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Scoring Engine</Link>
+            <Link href="/rarity-tiers" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Rarity Tiers</Link>
+            <Link href="/directory" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Anomaly Directory</Link>
+            <Link href="/community-guidelines" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Community Guidelines</Link>
+            <Link href="/gemini-vision-api" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Gemini Vision API</Link>
+            <Link href="/privacy" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Terms</Link>
+            <Link href="/verified-anomalies" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Verified Anomalies</Link>
+            <Link href="/anomaly-guidelines" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Anomaly Guidelines</Link>
+            <Link href="/learn-more" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Learn More</Link>
           </div>
 
           {/* Bottom Copyright & Language */}
           <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-zinc-400 font-mono">
-            <div className="flex items-center gap-1 cursor-pointer hover:text-zinc-600 transition-colors">
+            <div className="flex items-center gap-1 cursor-pointer hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
               <Globe className="w-3.5 h-3.5" />
               <span>English (US)</span>
               <ChevronDown className="w-3 h-3" />

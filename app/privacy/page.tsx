@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ShieldCheck, Lock, Eye, FileText, ArrowRight, UserCheck } from "lucide-react";
 
@@ -12,35 +11,33 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-ink">
-      <SubpageHeader category="Legal" currentPage="Privacy Policy" />
-
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
-        <div className="mb-12 border-b border-zinc-200 pb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-600 text-xs font-mono mb-4">
+        <div className="mb-12 border-b border-zinc-200 dark:border-zinc-800 pb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono mb-4">
             <ShieldCheck className="w-3.5 h-3.5 text-violet" />
             <span>Effective Date: January 1, 2026</span>
           </div>
 
-          <h1 className="font-display font-black text-4xl sm:text-5xl text-ink tracking-tight mb-4">
+          <h1 className="font-display font-black text-4xl sm:text-5xl text-zinc-900 dark:text-white tracking-tight mb-4">
             Wica Privacy Policy
           </h1>
 
-          <p className="text-zinc-600 text-base sm:text-lg leading-relaxed">
+          <p className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg leading-relaxed">
             Your privacy and digital autonomy are paramount. This policy outlines how Wica (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;the Platform&rdquo;) collects, processes, and protects your information when you interact with our service.
           </p>
         </div>
 
         {/* Legal Body */}
-        <div className="space-y-10 text-sm text-zinc-700 leading-relaxed">
+        <div className="space-y-10 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
           {/* Section 1 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               1. Information We Collect
             </h2>
             <p>We collect information in three primary categories:</p>
-            <ul className="list-disc pl-5 space-y-2 text-zinc-600">
+            <ul className="list-disc pl-5 space-y-2 text-zinc-600 dark:text-zinc-400">
               <li>
                 <strong>Account Information:</strong> When you register, we collect your email address, username, encrypted password hashes, and optional avatar image.
               </li>
@@ -58,13 +55,13 @@ export default function PrivacyPage() {
 
           {/* Section 2 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               2. How AI & Gemini Vision Processes Your Images
             </h2>
             <p>
               When you submit an image for scoring, the raw media buffer is transmitted via secure encrypted channels to Google Gemini Vision APIs.
             </p>
-            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs space-y-2 text-zinc-600 font-mono">
+            <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-xs space-y-2 text-zinc-600 dark:text-zinc-400 font-mono">
               <p>• Visual inference is strictly ephemeral for score calculation.</p>
               <p>• Your personal photos are NOT used to train third-party advertising or commercial marketing models.</p>
               <p>• Evaluated dimensions (Absurdity, Rarity, Craft, Cultural Novelty, Wit) become public metadata attached to the submission.</p>
@@ -73,7 +70,7 @@ export default function PrivacyPage() {
 
           {/* Section 3 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               3. Contact Uploads & Non-User Protection
             </h2>
             <p>
@@ -89,11 +86,11 @@ export default function PrivacyPage() {
 
           {/* Section 4 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               4. Data Sharing & Third-Party Processors
             </h2>
             <p>We do not sell, rent, or trade your personal data. We disclose information only under the following limited circumstances:</p>
-            <ul className="list-disc pl-5 space-y-2 text-zinc-600">
+            <ul className="list-disc pl-5 space-y-2 text-zinc-600 dark:text-zinc-400">
               <li>
                 <strong>Cloud Infrastructure:</strong> High-security cloud hosts including Supabase (PostgreSQL database with Row-Level Security) and Vercel (Edge delivery).
               </li>
@@ -108,25 +105,25 @@ export default function PrivacyPage() {
 
           {/* Section 5 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               5. Your Global Privacy Rights (GDPR & CCPA)
             </h2>
             <p>Regardless of your geographic jurisdiction, Wica affords you complete control over your digital footprint:</p>
             <div className="grid sm:grid-cols-2 gap-4 pt-2">
-              <div className="p-4 rounded-xl border border-zinc-200">
-                <h4 className="font-bold text-ink mb-1">Right to Access & Portability</h4>
-                <p className="text-xs text-zinc-500">Request a full machine-readable JSON export of all your submitted anomalies, scores, and profile activity.</p>
+              <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60">
+                <h4 className="font-bold text-zinc-900 dark:text-white mb-1">Right to Access & Portability</h4>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Request a full machine-readable JSON export of all your submitted anomalies, scores, and profile activity.</p>
               </div>
-              <div className="p-4 rounded-xl border border-zinc-200">
-                <h4 className="font-bold text-ink mb-1">Right to Erasure (Be Forgotten)</h4>
-                <p className="text-xs text-zinc-500">Permanently delete your account, images, comments, and profile record with one click.</p>
+              <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60">
+                <h4 className="font-bold text-zinc-900 dark:text-white mb-1">Right to Erasure (Be Forgotten)</h4>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Permanently delete your account, images, comments, and profile record with one click.</p>
               </div>
             </div>
           </section>
 
           {/* Section 6 */}
           <section className="space-y-3">
-            <h2 className="font-display font-bold text-xl text-ink">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               6. Security Standards
             </h2>
             <p>
@@ -135,21 +132,21 @@ export default function PrivacyPage() {
           </section>
 
           {/* Section 7 */}
-          <section className="space-y-3 pt-6 border-t border-zinc-200">
-            <h2 className="font-display font-bold text-xl text-ink">
+          <section className="space-y-3 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+            <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               7. Contact Our Data Protection Officer
             </h2>
-            <p className="text-zinc-600">
+            <p className="text-zinc-600 dark:text-zinc-400">
               For privacy requests, GDPR inquiries, or data deletion petitions, email our Data Protection team at:
             </p>
-            <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 font-mono text-xs text-ink inline-block">
+            <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-900 dark:text-zinc-100 inline-block">
               privacy@wica.io • Subject: Privacy Request
             </div>
           </section>
         </div>
 
         {/* Footer Navigation */}
-        <section className="mt-16 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <section className="mt-16 pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link
             href="/terms"
             className="flex items-center gap-1.5 text-xs font-semibold text-violet hover:underline"
@@ -160,7 +157,7 @@ export default function PrivacyPage() {
 
           <Link
             href="/learn-more"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-ink"
+            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
           >
             <span>Learn More about Contact Uploads</span>
             <ArrowRight className="w-4 h-4" />

@@ -163,21 +163,21 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-5xl bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-800/90 shadow-2xl shadow-black/90 overflow-hidden flex flex-col md:flex-row max-h-[92vh] text-zinc-100"
+        className="relative w-full max-w-5xl bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl shadow-black/40 dark:shadow-black/90 overflow-hidden flex flex-col md:flex-row max-h-[92vh] text-zinc-900 dark:text-zinc-100"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white shadow-sm transition-colors cursor-pointer"
+          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-zinc-100/90 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white shadow-sm transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Left Side: Photo Display */}
-        <div className="md:w-3/5 bg-zinc-950 flex items-center justify-center relative overflow-hidden min-h-[300px] md:min-h-full">
+        <div className="md:w-3/5 bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center relative overflow-hidden min-h-[300px] md:min-h-full">
           <img
             src={getSafeImageUrl(image.storage_path)}
             alt={image.caption || image.ai_verdict}
@@ -186,11 +186,11 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
 
           {/* Category Tag */}
           <div className="absolute top-4 left-4 flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-xs font-mono font-medium text-white border border-zinc-700/80">
+            <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-zinc-900/80 backdrop-blur-md text-xs font-mono font-medium text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700/80 shadow-xs">
               {image.category}
             </span>
             {image.country && (
-              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-xs font-mono text-cyan border border-zinc-700/80">
+              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 dark:bg-zinc-900/80 backdrop-blur-md text-xs font-mono text-cyan-600 dark:text-cyan border border-zinc-200 dark:border-zinc-700/80 shadow-xs">
                 <MapPin className="w-3 h-3" />
                 <span>{image.country}</span>
               </span>
@@ -199,9 +199,9 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
         </div>
 
         {/* Right Side: Score Rubric & Comments */}
-        <div className="md:w-2/5 flex flex-col h-full bg-zinc-900/90 overflow-y-auto border-t md:border-t-0 md:border-l border-zinc-800">
+        <div className="md:w-2/5 flex flex-col h-full bg-white dark:bg-zinc-900/90 overflow-y-auto border-t md:border-t-0 md:border-l border-zinc-200 dark:border-zinc-800">
           {/* Header & Author */}
-          <div className="p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
             <Link
               href={`/profile/${image.author?.username || "unknown"}`}
               className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
@@ -209,10 +209,10 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               <img
                 src={image.author?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${image.user_id}`}
                 alt={image.author?.username || "author"}
-                className="w-9 h-9 rounded-full object-cover bg-zinc-800 ring-1 ring-zinc-700"
+                className="w-9 h-9 rounded-full object-cover bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200 dark:ring-zinc-700"
               />
               <div>
-                <span className="font-mono font-bold text-xs text-white block">
+                <span className="font-mono font-bold text-xs text-zinc-900 dark:text-white block">
                   @{image.author?.username || "explorer"}
                 </span>
                 <span className="text-[11px] font-mono text-zinc-400">
@@ -231,29 +231,29 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
                 onClick={handleToggleBookmark}
                 className={`p-2 rounded-lg transition-colors cursor-pointer ${
                   isBookmarked
-                    ? "text-amber-400 hover:bg-amber-400/10"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    ? "text-amber-500 dark:text-amber-400 hover:bg-amber-400/10"
+                    : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
                 title={isBookmarked ? "Remove from Saved" : "Save anomaly"}
               >
-                <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-amber-400 text-amber-400" : ""}`} />
+                <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" : ""}`} />
               </button>
 
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 title="Copy share link"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> : <Share2 className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
           {/* AI Verdict & Score Badge */}
-          <div className="p-4 sm:p-5 border-b border-zinc-800 bg-zinc-950/40">
+          <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 font-semibold">
                 AI Weirdness Evaluation
               </span>
               <div
@@ -265,18 +265,18 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               </div>
             </div>
 
-            <p className="font-display font-semibold text-white text-base leading-snug">
+            <p className="font-display font-semibold text-zinc-900 dark:text-white text-base leading-snug">
               “{image.ai_verdict}”
             </p>
 
             {image.caption && (
-              <p className="text-xs text-zinc-400 mt-2 italic">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 italic">
                 &ldquo;{image.caption}&rdquo;
               </p>
             )}
 
             {/* Rubric Breakdown Accordion */}
-            <div className="mt-4 pt-3 border-t border-zinc-800 space-y-2 text-xs">
+            <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 space-y-2 text-xs">
               {[
                 { label: "Absurdity", val: image.absurdity, color: "bg-violet" },
                 { label: "Rarity", val: image.rarity, color: "bg-cyan" },
@@ -285,14 +285,14 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
                 { label: "Wit", val: image.wit, color: "bg-amber-400" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-zinc-400 text-[11px] font-medium w-28">{item.label}</span>
-                  <div className="flex-1 h-1.5 bg-zinc-800 rounded-full mx-2 overflow-hidden">
+                  <span className="text-zinc-500 dark:text-zinc-400 text-[11px] font-medium w-28">{item.label}</span>
+                  <div className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full mx-2 overflow-hidden">
                     <div
                       className={`h-full rounded-full ${item.color}`}
                       style={{ width: `${(item.val || 5) * 10}%` }}
                     />
                   </div>
-                  <span className="font-mono text-zinc-300 font-bold text-[11px] w-5 text-right">
+                  <span className="font-mono text-zinc-700 dark:text-zinc-300 font-bold text-[11px] w-5 text-right">
                     {item.val || 5}
                   </span>
                 </div>
@@ -300,14 +300,14 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
             </div>
 
             {/* Like Action Bar */}
-            <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center justify-between">
+            <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
               <button
                 type="button"
                 onClick={handleToggleLike}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-medium transition-all cursor-pointer ${
                   liked
-                    ? "bg-rose-950/40 border-rose-800 text-rose-400 font-bold"
-                    : "bg-zinc-950/80 border-zinc-800 text-zinc-300 hover:border-zinc-700"
+                    ? "bg-rose-500/10 border-rose-400 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-bold"
+                    : "bg-white dark:bg-zinc-950/80 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700"
                 }`}
               >
                 <Heart className={`w-4 h-4 ${liked ? "fill-rose-500 text-rose-500" : ""}`} />
@@ -341,21 +341,21 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
                   <img
                     src={comment.author?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${comment.user_id}`}
                     alt={comment.author?.username || "commenter"}
-                    className="w-6 h-6 rounded-full object-cover bg-zinc-800 shrink-0 mt-0.5 border border-zinc-700"
+                    className="w-6 h-6 rounded-full object-cover bg-zinc-100 dark:bg-zinc-800 shrink-0 mt-0.5 border border-zinc-200 dark:border-zinc-700"
                   />
-                  <div className="flex-1 bg-zinc-950/60 rounded-xl p-2.5 border border-zinc-800">
+                  <div className="flex-1 bg-zinc-50 dark:bg-zinc-950/60 rounded-xl p-2.5 border border-zinc-200 dark:border-zinc-800">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono font-semibold text-white text-[11px]">
+                      <span className="font-mono font-semibold text-zinc-900 dark:text-white text-[11px]">
                         @{comment.author?.username || "user"}
                       </span>
-                      <span className="text-[10px] text-zinc-500 font-mono">
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
                         {new Date(comment.created_at).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
                       </span>
                     </div>
-                    <p className="text-zinc-300 leading-relaxed">{comment.body}</p>
+                    <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">{comment.body}</p>
                   </div>
                 </div>
               ))
@@ -363,7 +363,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
           </div>
 
           {/* Post Comment Input */}
-          <form onSubmit={handleAddComment} className="p-3 border-t border-zinc-800 bg-zinc-950/50">
+          <form onSubmit={handleAddComment} className="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/50">
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -371,12 +371,12 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 disabled={!user || submittingComment}
-                className="flex-1 px-3 py-2 text-xs border border-zinc-800 bg-zinc-900 text-white rounded-xl focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-colors placeholder:text-zinc-500 disabled:opacity-50"
+                className="flex-1 px-3 py-2 text-xs border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-xl focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-colors placeholder:text-zinc-400 dark:placeholder:text-zinc-500 disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={!user || !newComment.trim() || submittingComment}
-                className="p-2 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 disabled:opacity-40 transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 disabled:opacity-40 transition-colors cursor-pointer"
                 title="Post comment"
               >
                 <Send className="w-4 h-4 text-violet" />

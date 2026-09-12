@@ -67,21 +67,21 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-sm bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-800/90 shadow-2xl shadow-black/90 p-5 text-zinc-100 font-sans space-y-4"
+        className="relative w-full max-w-sm bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl p-5 text-zinc-900 dark:text-zinc-100 font-sans space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-white">
+        <div className="flex items-center justify-between pb-2 border-b border-zinc-200 dark:border-zinc-800/80">
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-900 dark:text-white">
             <Sparkles className="w-3.5 h-3.5 text-cyan" />
             <span>Add to Anomaly Story</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -89,7 +89,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
         </div>
 
         {/* Story Preview Card */}
-        <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-inner group">
+        <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-inner group">
           <img
             src={selectedImage}
             alt="Story preview"
@@ -124,7 +124,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
 
         {/* Pick from Sightings Strip */}
         <div className="space-y-1.5">
-          <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+          <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
             Or select from recent sightings:
           </div>
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
@@ -139,7 +139,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
                 className={`w-12 h-12 rounded-xl overflow-hidden shrink-0 border-2 transition-transform hover:scale-105 ${
                   selectedImage === photo.url
                     ? "border-cyan ring-2 ring-cyan/30"
-                    : "border-zinc-800 opacity-70 hover:opacity-100"
+                    : "border-zinc-200 dark:border-zinc-800 opacity-70 hover:opacity-100"
                 }`}
               >
                 <img src={photo.url} alt="thumbnail" className="w-full h-full object-cover" />
@@ -156,7 +156,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="Add story caption or sighting coordinates..."
-            className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/30 transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/30 transition-all"
           />
         </div>
 
@@ -164,7 +164,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
         <button
           type="button"
           onClick={handlePublish}
-          className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer shadow-md flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer shadow-md flex items-center justify-center gap-1.5"
         >
           <Check className="w-3.5 h-3.5" />
           <span>Share to Story</span>

@@ -170,7 +170,7 @@ export const VerifiedAnomaliesClient: React.FC = () => {
             <div
               key={item.id}
               onClick={() => setActiveDossier(item)}
-              className="group cursor-pointer rounded-3xl border border-zinc-200 hover:border-amber-400 bg-white overflow-hidden transition-all hover:shadow-xl flex flex-col relative"
+              className="group cursor-pointer rounded-3xl border border-zinc-200 dark:border-zinc-800 hover:border-amber-400 dark:hover:border-amber-400 bg-white dark:bg-zinc-900/60 overflow-hidden transition-all hover:shadow-xl flex flex-col relative"
             >
               {/* Gold Archival Seal Badge */}
               <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-amber-400 text-[11px] font-mono font-bold border border-amber-400/30 shadow-lg">
@@ -185,7 +185,7 @@ export const VerifiedAnomaliesClient: React.FC = () => {
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-xs font-mono font-bold text-ink shadow-sm flex items-center gap-1">
+                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 shadow-sm flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-cyan" />
                   <span>{item.score} Wica</span>
                 </div>
@@ -194,27 +194,27 @@ export const VerifiedAnomaliesClient: React.FC = () => {
               {/* Body */}
               <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div>
-                  <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mb-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 dark:text-zinc-500 mb-1.5">
                     <span>{item.code}</span>
                     <span className={tierColors.text}>{item.tier}</span>
                   </div>
 
-                  <h3 className="font-display font-bold text-lg text-ink group-hover:text-amber-600 transition-colors line-clamp-1">
+                  <h3 className="font-display font-bold text-lg text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
                     {item.title}
                   </h3>
 
-                  <p className="text-xs text-zinc-500 line-clamp-2 mt-1 italic">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-1 italic">
                     &ldquo;{item.verdict}&rdquo;
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-400">
-                  <span className="flex items-center gap-1 text-zinc-600">
+                <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs font-mono text-zinc-400 dark:text-zinc-500">
+                  <span className="flex items-center gap-1 text-zinc-600 dark:text-zinc-300">
                     <MapPin className="w-3.5 h-3.5 text-violet" />
                     <span>{item.country}</span>
                   </span>
 
-                  <span className="text-amber-600 font-semibold flex items-center gap-1">
+                  <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
                     <span>Inspect Dossier</span>
                     <Eye className="w-3 h-3" />
                   </span>
@@ -228,11 +228,11 @@ export const VerifiedAnomaliesClient: React.FC = () => {
       {/* Detail Dossier Modal */}
       {activeDossier && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-3xl bg-white rounded-3xl overflow-hidden shadow-2xl border border-zinc-200">
+          <div className="relative w-full max-w-3xl bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800">
             {/* Close */}
             <button
               onClick={() => setActiveDossier(null)}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -259,52 +259,52 @@ export const VerifiedAnomaliesClient: React.FC = () => {
               {/* Dossier Dossier Details */}
               <div className="p-6 sm:p-8 space-y-6">
                 <div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-zinc-400 mb-2">
-                    <span className="text-amber-600 font-bold">{activeDossier.tier}</span>
+                  <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-zinc-400 dark:text-zinc-500 mb-2">
+                    <span className="text-amber-600 dark:text-amber-400 font-bold">{activeDossier.tier}</span>
                     <span>•</span>
                     <span>{activeDossier.date_verified}</span>
                     <span>•</span>
-                    <span className="text-emerald-600 font-semibold">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
                       Consensus: {activeDossier.consensus_rate}
                     </span>
                   </div>
 
-                  <h2 className="font-display font-black text-2xl sm:text-3xl text-ink">
+                  <h2 className="font-display font-black text-2xl sm:text-3xl text-zinc-900 dark:text-white">
                     {activeDossier.title}
                   </h2>
                 </div>
 
                 {/* Score & Dimensions */}
-                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
-                  <div className="flex items-baseline justify-between border-b border-zinc-200 pb-3">
-                    <span className="font-mono text-xs font-bold text-zinc-600 uppercase">
+                <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-4">
+                  <div className="flex items-baseline justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                    <span className="font-mono text-xs font-bold text-zinc-600 dark:text-zinc-300 uppercase">
                       Composite Wica Score
                     </span>
-                    <span className="font-display font-black text-2xl text-ink">
+                    <span className="font-display font-black text-2xl text-zinc-900 dark:text-white">
                       {activeDossier.score} / 100
                     </span>
                   </div>
 
                   <div className="grid grid-cols-5 gap-2 text-center font-mono text-xs">
-                    <div className="p-2 rounded-xl bg-white border border-zinc-200">
+                    <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                       <div className="font-bold text-violet">{activeDossier.dimensions.absurdity}/10</div>
-                      <div className="text-[10px] text-zinc-400">Absurdity</div>
+                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500">Absurdity</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-white border border-zinc-200">
+                    <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                       <div className="font-bold text-cyan">{activeDossier.dimensions.rarity}/10</div>
-                      <div className="text-[10px] text-zinc-400">Rarity</div>
+                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500">Rarity</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-white border border-zinc-200">
-                      <div className="font-bold text-zinc-700">{activeDossier.dimensions.craft}/10</div>
-                      <div className="text-[10px] text-zinc-400">Craft</div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                      <div className="font-bold text-zinc-700 dark:text-zinc-300">{activeDossier.dimensions.craft}/10</div>
+                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500">Craft</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-white border border-zinc-200">
+                    <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                       <div className="font-bold text-magenta">{activeDossier.dimensions.cultural_novelty}/10</div>
-                      <div className="text-[10px] text-zinc-400">Novelty</div>
+                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500">Novelty</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-white border border-zinc-200">
+                    <div className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                       <div className="font-bold text-amber-500">{activeDossier.dimensions.wit}/10</div>
-                      <div className="text-[10px] text-zinc-400">Wit</div>
+                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500">Wit</div>
                     </div>
                   </div>
                 </div>
@@ -324,12 +324,12 @@ export const VerifiedAnomaliesClient: React.FC = () => {
 
                 {/* Field Notes */}
                 <div>
-                  <h4 className="font-mono text-xs font-bold uppercase text-zinc-500 mb-2">
+                  <h4 className="font-mono text-xs font-bold uppercase text-zinc-500 dark:text-zinc-400 mb-2">
                     Lead Investigator Field Notes
                   </h4>
-                  <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 leading-relaxed">
+                  <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
                     {activeDossier.field_notes}
-                    <div className="mt-3 pt-2 border-t border-zinc-200 text-[11px] text-zinc-500 font-mono">
+                    <div className="mt-3 pt-2 border-t border-zinc-200 dark:border-zinc-800 text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
                       Signed: {activeDossier.lead_investigator}
                     </div>
                   </div>
@@ -338,7 +338,7 @@ export const VerifiedAnomaliesClient: React.FC = () => {
                 <div className="flex items-center justify-end pt-2">
                   <button
                     onClick={() => setActiveDossier(null)}
-                    className="px-5 py-2 rounded-xl bg-ink hover:bg-zinc-800 text-white font-medium text-xs transition-colors"
+                    className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-medium text-xs transition-colors cursor-pointer"
                   >
                     Close Dossier
                   </button>

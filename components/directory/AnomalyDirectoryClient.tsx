@@ -218,22 +218,22 @@ export const AnomalyDirectoryClient: React.FC = () => {
   return (
     <div>
       {/* Search & Filter Controls */}
-      <div className="p-6 rounded-3xl bg-zinc-50 border border-zinc-200 mb-10 space-y-4">
+      <div className="p-6 rounded-3xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 mb-10 space-y-4">
         <div className="flex flex-col sm:flex-row items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by code (e.g. OBJ-ICE-04), keyword, or country..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-zinc-200 bg-white text-xs text-ink placeholder:text-zinc-400 focus:outline-none focus:border-ink"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-ink"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -245,7 +245,7 @@ export const AnomalyDirectoryClient: React.FC = () => {
             <select
               value={selectedTier}
               onChange={(e) => setSelectedTier(e.target.value)}
-              className="w-full sm:w-48 px-3 py-2.5 rounded-xl border border-zinc-200 bg-white text-xs text-zinc-700 focus:outline-none focus:border-ink font-mono"
+              className="w-full sm:w-48 px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs text-zinc-700 dark:text-zinc-200 focus:outline-none focus:border-violet font-mono"
             >
               <option value="All">All Tiers</option>
               <option value="Mildly Odd">Mildly Odd</option>
@@ -262,8 +262,8 @@ export const AnomalyDirectoryClient: React.FC = () => {
             onClick={() => setSelectedCategory("All")}
             className={`px-3 py-1.5 rounded-full font-mono text-xs whitespace-nowrap transition-colors ${
               selectedCategory === "All"
-                ? "bg-ink text-white"
-                : "bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
+                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 font-semibold shadow-sm"
+                : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
             All Categories ({DIRECTORY_DATA.length})
@@ -277,7 +277,7 @@ export const AnomalyDirectoryClient: React.FC = () => {
                 className={`px-3 py-1.5 rounded-full font-mono text-xs whitespace-nowrap transition-colors ${
                   selectedCategory === cat
                     ? "bg-violet text-white font-medium"
-                    : "bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
+                    : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 {cat} {count > 0 ? `(${count})` : ""}
@@ -288,7 +288,7 @@ export const AnomalyDirectoryClient: React.FC = () => {
       </div>
 
       {/* Results Count */}
-      <div className="flex items-center justify-between text-xs font-mono text-zinc-400 mb-6 px-1">
+      <div className="flex items-center justify-between text-xs font-mono text-zinc-400 dark:text-zinc-500 mb-6 px-1">
         <span>Showing {filteredItems.length} cataloged anomalies</span>
         <span>Standard Taxonomy v1.0</span>
       </div>
@@ -301,10 +301,10 @@ export const AnomalyDirectoryClient: React.FC = () => {
             <div
               key={item.id}
               onClick={() => setSelectedAnomaly(item)}
-              className="group cursor-pointer rounded-2xl border border-zinc-200 hover:border-zinc-400 bg-white overflow-hidden transition-all hover:shadow-md flex flex-col"
+              className="group cursor-pointer rounded-2xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600 bg-white dark:bg-zinc-900/60 overflow-hidden transition-all hover:shadow-md flex flex-col"
             >
               {/* Photo Container */}
-              <div className="relative aspect-4/3 bg-zinc-100 overflow-hidden">
+              <div className="relative aspect-4/3 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                 <img
                   src={item.image_url}
                   alt={item.title}
@@ -317,13 +317,13 @@ export const AnomalyDirectoryClient: React.FC = () => {
                 </div>
 
                 {/* Score Pill */}
-                <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-xs font-mono font-bold text-ink shadow-sm flex items-center gap-1">
+                <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 text-xs font-mono font-bold text-zinc-900 dark:text-white shadow-sm flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-cyan" />
                   <span>{item.score}</span>
                 </div>
 
                 {/* Country Pill */}
-                <div className="absolute bottom-3 left-3 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-mono text-zinc-700 flex items-center gap-1">
+                <div className="absolute bottom-3 left-3 px-2 py-0.5 rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 text-[10px] font-mono text-zinc-700 dark:text-zinc-300 flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-violet" />
                   <span>{item.location}, {item.country}</span>
                 </div>
@@ -333,7 +333,7 @@ export const AnomalyDirectoryClient: React.FC = () => {
               <div className="p-4 flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400">
+                    <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 dark:text-zinc-500">
                       {item.category}
                     </span>
                     <span className={`text-[10px] font-mono font-bold ${tierColors.text}`}>
@@ -341,16 +341,16 @@ export const AnomalyDirectoryClient: React.FC = () => {
                     </span>
                   </div>
 
-                  <h3 className="font-display font-bold text-base text-ink group-hover:text-violet transition-colors line-clamp-1 mb-1">
+                  <h3 className="font-display font-bold text-base text-zinc-900 dark:text-white group-hover:text-violet transition-colors line-clamp-1 mb-1">
                     {item.title}
                   </h3>
 
-                  <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
                     &ldquo;{item.verdict}&rdquo;
                   </p>
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-zinc-100 flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                <div className="pt-3 mt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[11px] font-mono text-zinc-400">
                   <span>@{item.submitted_by}</span>
                   <span className="text-violet group-hover:underline flex items-center gap-1">
                     <span>Inspect</span>
@@ -365,12 +365,12 @@ export const AnomalyDirectoryClient: React.FC = () => {
 
       {/* Inspect Modal */}
       {selectedAnomaly && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl border border-zinc-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100">
             {/* Close Button */}
             <button
               onClick={() => setSelectedAnomaly(null)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -390,26 +390,26 @@ export const AnomalyDirectoryClient: React.FC = () => {
 
               <div className="p-6 sm:p-8 space-y-6">
                 <div>
-                  <div className="flex items-center gap-2 font-mono text-xs text-zinc-400 mb-1">
+                  <div className="flex items-center gap-2 font-mono text-xs text-zinc-500 dark:text-zinc-400 mb-1">
                     <span>{selectedAnomaly.code}</span>
                     <span>•</span>
                     <span>{selectedAnomaly.category}</span>
                     <span>•</span>
                     <span>{selectedAnomaly.date_logged}</span>
                   </div>
-                  <h2 className="font-display font-black text-2xl text-ink">
+                  <h2 className="font-display font-black text-2xl text-zinc-900 dark:text-white">
                     {selectedAnomaly.title}
                   </h2>
-                  <p className="text-xs text-zinc-500 font-mono mt-1 flex items-center gap-1">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-1 flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-violet" />
                     <span>{selectedAnomaly.location}, {selectedAnomaly.country}</span>
                   </p>
                 </div>
 
                 {/* Score Breakdown Bars */}
-                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-semibold text-ink">
+                    <span className="font-mono text-xs font-semibold text-zinc-900 dark:text-white">
                       Composite Wica Score
                     </span>
                     <span className="font-mono font-bold text-sm text-violet">
@@ -418,39 +418,39 @@ export const AnomalyDirectoryClient: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-5 gap-2 text-center text-[10px] font-mono">
-                    <div className="p-2 rounded bg-white border border-zinc-200">
+                    <div className="p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
                       <div className="font-bold text-violet">{selectedAnomaly.absurdity}/10</div>
-                      <div className="text-zinc-400">Absurd</div>
+                      <div className="text-zinc-500 dark:text-zinc-400">Absurd</div>
                     </div>
-                    <div className="p-2 rounded bg-white border border-zinc-200">
+                    <div className="p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
                       <div className="font-bold text-cyan">{selectedAnomaly.rarity}/10</div>
-                      <div className="text-zinc-400">Rarity</div>
+                      <div className="text-zinc-500 dark:text-zinc-400">Rarity</div>
                     </div>
-                    <div className="p-2 rounded bg-white border border-zinc-200">
-                      <div className="font-bold text-zinc-700">{selectedAnomaly.craft}/10</div>
-                      <div className="text-zinc-400">Craft</div>
+                    <div className="p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
+                      <div className="font-bold text-zinc-700 dark:text-zinc-300">{selectedAnomaly.craft}/10</div>
+                      <div className="text-zinc-500 dark:text-zinc-400">Craft</div>
                     </div>
-                    <div className="p-2 rounded bg-white border border-zinc-200">
+                    <div className="p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
                       <div className="font-bold text-magenta">{selectedAnomaly.cultural_novelty}/10</div>
-                      <div className="text-zinc-400">Novelty</div>
+                      <div className="text-zinc-500 dark:text-zinc-400">Novelty</div>
                     </div>
-                    <div className="p-2 rounded bg-white border border-zinc-200">
+                    <div className="p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
                       <div className="font-bold text-amber-500">{selectedAnomaly.wit}/10</div>
-                      <div className="text-zinc-400">Wit</div>
+                      <div className="text-zinc-500 dark:text-zinc-400">Wit</div>
                     </div>
                   </div>
                 </div>
 
                 {/* AI Verdict */}
-                <div className="p-4 rounded-xl bg-violet/5 border border-violet/20 text-xs text-zinc-700 italic">
+                <div className="p-4 rounded-xl bg-violet/5 dark:bg-violet/10 border border-violet/20 text-xs text-zinc-800 dark:text-zinc-200 italic">
                   <strong>Gemini Verdict:</strong> &ldquo;{selectedAnomaly.verdict}&rdquo;
                 </div>
 
-                <div className="flex items-center justify-between text-xs font-mono text-zinc-400 pt-2 border-t border-zinc-100">
+                <div className="flex items-center justify-between text-xs font-mono text-zinc-500 dark:text-zinc-400 pt-2 border-t border-zinc-100 dark:border-zinc-800">
                   <span>Documented by @{selectedAnomaly.submitted_by}</span>
                   <button
                     onClick={() => setSelectedAnomaly(null)}
-                    className="px-4 py-2 rounded-xl bg-ink text-white font-medium hover:bg-zinc-800 transition-colors"
+                    className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-medium transition-colors cursor-pointer"
                   >
                     Close Dossier
                   </button>

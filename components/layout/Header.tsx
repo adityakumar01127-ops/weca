@@ -22,6 +22,8 @@ import {
   ChevronRight
 } from "lucide-react";
 
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+
 interface HeaderProps {
   onOpenUpload: () => void;
 }
@@ -48,13 +50,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-zinc-200">
+    <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-6">
           <Link href="/" className="group flex items-center gap-2 shrink-0">
             <Logo size={30} showWordmark={true} />
-            <span className="hidden xl:inline-flex items-center text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-200">
+            <span className="hidden xl:inline-flex items-center text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
               v0.2.0
             </span>
           </Link>
@@ -69,8 +71,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
                   href={link.href}
                   className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
                     active
-                      ? "bg-zinc-100 text-ink font-bold"
-                      : "text-zinc-600 hover:text-ink hover:bg-zinc-50"
+                      ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold"
+                      : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                   }`}
                 >
                   <span>{link.label}</span>
@@ -87,10 +89,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* Upload Button */}
           <button
             onClick={onOpenUpload}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-ink hover:bg-zinc-800 text-white text-xs font-semibold tracking-wide transition-all shadow-sm active:scale-95 cursor-pointer shrink-0"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-semibold tracking-wide transition-all shadow-sm active:scale-95 cursor-pointer shrink-0"
           >
             <Plus className="w-3.5 h-3.5 text-cyan" />
             <span className="hidden sm:inline">Upload Photo</span>
@@ -99,34 +104,34 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
 
           {/* User Account / Profile */}
           {user ? (
-            <div className="flex items-center gap-1.5 sm:gap-2 pl-2 border-l border-zinc-200">
+            <div className="flex items-center gap-1.5 sm:gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
               {/* Weird Credits Link to Wallet */}
               <Link
                 href="/wallet"
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan/10 border border-cyan/30 text-cyan text-xs font-mono font-bold tracking-tight hover:bg-cyan/15 transition-colors"
                 title="Open Weird Credits Wallet"
               >
-                <Sparkles className="w-3 h-3 text-cyan" />
+                <Sparkles className="w-3.5 h-3.5 text-cyan" />
                 <span>{user.total_wc || 0} WC</span>
               </Link>
 
               {/* Profile Link */}
               <Link
                 href={`/profile/${user.username}`}
-                className="flex items-center gap-1.5 p-1 pl-1.5 pr-2 rounded-full hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition-all text-xs font-medium text-ink"
+                className="flex items-center gap-1.5 p-1 pl-1.5 pr-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all text-xs font-medium text-zinc-900 dark:text-zinc-100"
               >
                 <img
                   src={user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.id}`}
                   alt={user.username}
-                  className="w-7 h-7 rounded-full object-cover bg-zinc-100 ring-1 ring-zinc-200"
+                  className="w-7 h-7 rounded-full object-cover bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200 dark:ring-zinc-700"
                 />
-                <span className="hidden md:inline font-mono text-zinc-700">@{user.username}</span>
+                <span className="hidden md:inline font-mono text-zinc-700 dark:text-zinc-300">@{user.username}</span>
               </Link>
 
               {/* Sign out */}
               <button
                 onClick={() => signOut()}
-                className="p-1.5 rounded-full text-zinc-400 hover:text-ink hover:bg-zinc-100 transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 title="Sign Out"
                 aria-label="Sign out"
               >
@@ -137,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
             <div className="flex items-center gap-2">
               <Link
                 href="/wallet"
-                className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-mono transition-colors"
+                className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-mono transition-colors"
                 title="Rewards Wallet"
               >
                 <Wallet className="w-3.5 h-3.5 text-violet" />
@@ -146,9 +151,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
 
               <button
                 onClick={openAuthModal}
-                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50 text-ink text-xs font-medium transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs font-medium transition-colors cursor-pointer"
               >
-                <UserIcon className="w-3.5 h-3.5 text-zinc-500" />
+                <UserIcon className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
                 <span>Sign In</span>
               </button>
             </div>
@@ -157,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
           {/* Mobile Menu Hamburger Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-zinc-600 hover:text-ink hover:bg-zinc-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

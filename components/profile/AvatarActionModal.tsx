@@ -98,21 +98,21 @@ export const AvatarActionModal: React.FC<AvatarActionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-sm bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-800/90 shadow-2xl shadow-black/90 p-6 text-zinc-100 font-sans space-y-6"
+        className="relative w-full max-w-sm bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl p-6 text-zinc-900 dark:text-zinc-100 font-sans space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-1 border-b border-zinc-800/80">
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-white">
-            <Camera className="w-4 h-4 text-cyan" />
+        <div className="flex items-center justify-between pb-1 border-b border-zinc-200 dark:border-zinc-800/80">
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-900 dark:text-white">
+            <Camera className="w-4 h-4 text-cyan-600 dark:text-cyan" />
             <span>Profile Picture Settings</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -121,14 +121,14 @@ export const AvatarActionModal: React.FC<AvatarActionModalProps> = ({
 
         {/* Current Avatar Holo Preview */}
         <div className="flex flex-col items-center justify-center">
-          <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-cyan via-violet to-magenta ring-2 ring-violet/30 overflow-hidden shadow-2xl">
+          <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-cyan via-violet to-magenta ring-2 ring-violet/30 overflow-hidden shadow-xl">
             <img
               src={currentAvatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`}
               alt={username}
-              className="w-full h-full rounded-full object-cover bg-zinc-950"
+              className="w-full h-full rounded-full object-cover bg-zinc-100 dark:bg-zinc-950"
             />
           </div>
-          <span className="text-[11px] font-mono text-zinc-400 mt-2">@{username}</span>
+          <span className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 mt-2">@{username}</span>
         </div>
 
         {/* Action Menu (Instagram-style options) */}
@@ -139,15 +139,15 @@ export const AvatarActionModal: React.FC<AvatarActionModalProps> = ({
             id="avatar-action-upload-btn"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUpdating}
-            className="w-full p-3 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 text-xs font-semibold text-white flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/80 text-xs font-semibold text-zinc-900 dark:text-white flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer shadow-xs"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-violet/20 text-violet">
+              <div className="p-2 rounded-xl bg-violet/10 text-violet">
                 <Upload className="w-4 h-4" />
               </div>
               <div className="text-left">
                 <div>Upload Photo from Device</div>
-                <div className="text-[10px] font-mono text-zinc-400 font-normal">JPG, PNG, WebP up to 10MB</div>
+                <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 font-normal">JPG, PNG, WebP up to 10MB</div>
               </div>
             </div>
           </button>
@@ -166,15 +166,15 @@ export const AvatarActionModal: React.FC<AvatarActionModalProps> = ({
             id="avatar-action-roll-bot-btn"
             onClick={handleRollDiceBear}
             disabled={isUpdating}
-            className="w-full p-3 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 text-xs font-semibold text-white flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/80 text-xs font-semibold text-zinc-900 dark:text-white flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer shadow-xs"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-cyan/20 text-cyan">
+              <div className="p-2 rounded-xl bg-cyan/10 text-cyan-700 dark:text-cyan">
                 <Dices className="w-4 h-4" />
               </div>
               <div className="text-left">
                 <div>Generate Anomaly Bot Avatar</div>
-                <div className="text-[10px] font-mono text-zinc-400 font-normal">Roll unique neural bot design</div>
+                <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 font-normal">Roll unique neural bot design</div>
               </div>
             </div>
           </button>
@@ -185,33 +185,33 @@ export const AvatarActionModal: React.FC<AvatarActionModalProps> = ({
             id="avatar-action-url-toggle-btn"
             onClick={() => setShowUrlInput(!showUrlInput)}
             disabled={isUpdating}
-            className="w-full p-3 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 text-xs font-semibold text-white flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/80 text-xs font-semibold text-zinc-900 dark:text-white flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer shadow-xs"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
                 <LinkIcon className="w-4 h-4" />
               </div>
               <div className="text-left">
                 <div>Paste Custom Image URL</div>
-                <div className="text-[10px] font-mono text-zinc-400 font-normal">Use hosted HTTPS image link</div>
+                <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 font-normal">Use hosted HTTPS image link</div>
               </div>
             </div>
           </button>
 
           {showUrlInput && (
-            <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2 animate-in fade-in">
+            <div className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-2 animate-in fade-in">
               <input
                 type="url"
                 value={customUrl}
                 onChange={(e) => setCustomUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-500 font-mono focus:outline-none focus:border-cyan"
+                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-cyan"
               />
               <button
                 type="button"
                 onClick={handleApplyUrl}
                 disabled={!customUrl.trim() || isUpdating}
-                className="w-full py-2 rounded-xl bg-cyan hover:bg-cyan/90 text-zinc-950 font-semibold text-xs transition-colors cursor-pointer"
+                className="w-full py-2 rounded-xl bg-cyan-600 dark:bg-cyan text-white dark:text-zinc-950 font-semibold text-xs transition-colors cursor-pointer shadow-xs"
               >
                 Apply Image URL
               </button>
@@ -224,15 +224,15 @@ export const AvatarActionModal: React.FC<AvatarActionModalProps> = ({
             id="avatar-action-remove-btn"
             onClick={handleRemovePhoto}
             disabled={isUpdating}
-            className="w-full p-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-semibold text-rose-400 flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+            className="w-full p-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/15 border border-rose-500/20 text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer shadow-xs"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400">
+              <div className="p-2 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400">
                 <Trash2 className="w-4 h-4" />
               </div>
               <div className="text-left">
                 <div>Remove Current Photo</div>
-                <div className="text-[10px] font-mono text-rose-400/80 font-normal">Delete photo and reset to default</div>
+                <div className="text-[10px] font-mono text-rose-600/80 dark:text-rose-400/80 font-normal">Delete photo and reset to default</div>
               </div>
             </div>
           </button>
@@ -242,7 +242,7 @@ export const AvatarActionModal: React.FC<AvatarActionModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="w-full py-2.5 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-mono transition-colors cursor-pointer"
+          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 dark:text-zinc-400 dark:hover:text-white text-xs font-mono transition-colors cursor-pointer border border-zinc-200 dark:border-transparent"
         >
           Cancel
         </button>

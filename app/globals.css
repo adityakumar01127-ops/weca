@@ -15,8 +15,29 @@
 }
 
 :root {
+  --background: #fafafa;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ink: #0E0E10;
+  --violet: #7C5CFC;
+  --magenta: #FF4D8D;
+  --cyan: #22D3EE;
+}
+
+.dark {
   --background: #09090b;
   --foreground: #f4f4f5;
+  --card: #18181b;
+  --card-foreground: #f4f4f5;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
+  --input: #27272a;
   --ink: #0E0E10;
   --violet: #7C5CFC;
   --magenta: #FF4D8D;
@@ -52,11 +73,17 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E4E4E7;
+  background: #d4d4d8;
   border-radius: 9999px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
 ::-webkit-scrollbar-thumb:hover {
-  background: #A1A1AA;
+  background: #a1a1aa;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
 }
 
 /* Masonry column support */

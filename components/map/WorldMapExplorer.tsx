@@ -54,10 +54,10 @@ export const WorldMapExplorer: React.FC = () => {
   return (
     <div className="w-full space-y-6">
       {/* Top Controls & Filter Strip */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800">
         {/* Region Pills */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-zinc-400 font-mono flex items-center gap-1 mr-1">
+          <span className="text-zinc-500 dark:text-zinc-400 font-mono flex items-center gap-1 mr-1">
             <Compass className="w-3.5 h-3.5 text-violet" />
             <span>Region:</span>
           </span>
@@ -67,8 +67,8 @@ export const WorldMapExplorer: React.FC = () => {
               onClick={() => setSelectedRegion(reg)}
               className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-all cursor-pointer ${
                 selectedRegion === reg
-                  ? "bg-ink text-white font-semibold shadow-sm"
-                  : "bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-200"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 font-semibold shadow-sm"
+                  : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
               }`}
             >
               {reg}
@@ -81,7 +81,7 @@ export const WorldMapExplorer: React.FC = () => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-white border border-zinc-200 text-xs font-mono text-zinc-700 focus:outline-none focus:ring-1 focus:ring-violet"
+            className="px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs font-mono text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-violet"
           >
             <option value="All">All Categories</option>
             {CATEGORIES.map((c) => (
@@ -92,13 +92,13 @@ export const WorldMapExplorer: React.FC = () => {
           </select>
 
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
             <input
               type="text"
               placeholder="Search coordinates or city..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-lg bg-white border border-zinc-200 text-xs text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-violet w-40 sm:w-56"
+              className="pl-8 pr-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-violet w-40 sm:w-56"
             />
           </div>
         </div>
@@ -277,10 +277,10 @@ export const WorldMapExplorer: React.FC = () => {
       {/* Grid of Anomalies in Selected Region */}
       <div className="pt-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-bold text-xl text-ink tracking-tight">
+          <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white tracking-tight">
             Anomalies in {selectedRegion === "All" ? "Every Hemisphere" : selectedRegion} ({filteredAnomalies.length})
           </h3>
-          <span className="text-xs font-mono text-zinc-500">Sorted by Wica Score</span>
+          <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">Sorted by Wica Score</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -292,39 +292,39 @@ export const WorldMapExplorer: React.FC = () => {
               <div
                 key={anom.id}
                 onClick={() => setActivePin(anom)}
-                className={`group cursor-pointer rounded-2xl border transition-all overflow-hidden bg-white p-3 flex flex-col justify-between ${
+                className={`group cursor-pointer rounded-2xl border transition-all overflow-hidden bg-white dark:bg-zinc-900/60 p-3 flex flex-col justify-between ${
                   isSelected
                     ? "border-violet ring-2 ring-violet/20 shadow-md"
-                    : "border-zinc-200 hover:border-zinc-300 hover:shadow-sm"
+                    : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm"
                 }`}
               >
                 <div>
-                  <div className="relative aspect-4/3 rounded-xl overflow-hidden mb-2.5 bg-zinc-100">
+                  <div className="relative aspect-4/3 rounded-xl overflow-hidden mb-2.5 bg-zinc-100 dark:bg-zinc-800">
                     <img
                       src={anom.image_url}
                       alt={anom.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-ink/75 backdrop-blur-sm text-[10px] font-mono text-white">
+                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-sm text-[10px] font-mono text-white">
                       {anom.country}
                     </span>
-                    <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-ink/90 backdrop-blur-sm text-[11px] font-mono text-cyan font-bold">
+                    <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/90 backdrop-blur-sm text-[11px] font-mono text-cyan font-bold">
                       {anom.wica_score}
                     </span>
                   </div>
 
-                  <h4 className="font-display font-bold text-xs text-ink line-clamp-1 mb-1">
+                  <h4 className="font-display font-bold text-xs text-zinc-900 dark:text-white line-clamp-1 mb-1">
                     {anom.title}
                   </h4>
-                  <div className="flex items-center gap-1 text-[11px] text-zinc-500 font-mono mb-2">
+                  <div className="flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400 font-mono mb-2">
                     <MapPin className="w-3 h-3 text-zinc-400" />
                     <span>{anom.city}</span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-[10px] font-mono">
+                <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[10px] font-mono">
                   <span className={`${tierColor.text} font-semibold`}>{anom.tier}</span>
-                  <span className="text-zinc-400">@{anom.hunter}</span>
+                  <span className="text-zinc-400 dark:text-zinc-500">@{anom.hunter}</span>
                 </div>
               </div>
             );

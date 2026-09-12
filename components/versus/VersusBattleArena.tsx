@@ -161,22 +161,22 @@ export const VersusBattleArena: React.FC = () => {
       {/* Main Face-Off Arena (Split Cards) */}
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch mb-8">
         {/* Center VS Indicator Badge */}
-        <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-ink border-4 border-white text-white items-center justify-center font-black font-display text-sm tracking-wider shadow-xl ring-2 ring-violet/30">
+        <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-zinc-900 dark:bg-zinc-950 border-4 border-white dark:border-zinc-800 text-white items-center justify-center font-black font-display text-sm tracking-wider shadow-xl ring-2 ring-violet/30">
           VS
         </div>
 
         {/* CONTENDER A */}
         <div
-          className={`group flex flex-col justify-between rounded-3xl border transition-all overflow-hidden bg-white ${
+          className={`group flex flex-col justify-between rounded-3xl border transition-all overflow-hidden bg-white dark:bg-zinc-900/80 ${
             userVote === "a"
               ? "border-violet ring-4 ring-violet/20 shadow-xl"
               : userVote === "b"
-              ? "border-zinc-200 opacity-80"
-              : "border-zinc-200 hover:border-violet/60 hover:shadow-lg"
+              ? "border-zinc-200 dark:border-zinc-800 opacity-80"
+              : "border-zinc-200 dark:border-zinc-800 hover:border-violet/60 hover:shadow-lg"
           }`}
         >
           {/* Card Top / Photo */}
-          <div className="relative aspect-4/3 w-full bg-zinc-100 overflow-hidden">
+          <div className="relative aspect-4/3 w-full bg-zinc-100 dark:bg-zinc-950 overflow-hidden">
             <img
               src={getSafeImageUrl(activeBattle.image_a.storage_path)}
               alt={activeBattle.image_a.caption || "Contender A"}
@@ -184,17 +184,17 @@ export const VersusBattleArena: React.FC = () => {
             />
             {/* Country and author overlay */}
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
-              <span className="px-2.5 py-1 rounded-full bg-ink/75 backdrop-blur-md text-white text-[11px] font-mono border border-white/10">
+              <span className="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-mono border border-white/10">
                 {activeBattle.image_a.country}
               </span>
-              <span className={`px-2.5 py-1 rounded-full text-[11px] font-mono border bg-white/90 backdrop-blur-md ${tierAColor.text} ${tierAColor.border}`}>
+              <span className={`px-2.5 py-1 rounded-full text-[11px] font-mono border bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md ${tierAColor.text} ${tierAColor.border}`}>
                 {activeBattle.image_a.author?.tier || "Verified Anomaly"}
               </span>
             </div>
 
             {/* Score reveal on vote */}
             {userVote && (
-              <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl bg-ink/90 backdrop-blur-md text-white font-mono text-xs border border-violet/30 flex items-center gap-1.5">
+              <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl bg-black/90 backdrop-blur-md text-white font-mono text-xs border border-violet/30 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-cyan" />
                 <span>Score: <strong>{activeBattle.image_a.wica_score}</strong>/100</span>
               </div>
@@ -204,15 +204,15 @@ export const VersusBattleArena: React.FC = () => {
           {/* Card Content */}
           <div className="p-6 flex-1 flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 mb-2 text-xs text-zinc-500 font-mono">
+              <div className="flex items-center gap-2 mb-2 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                 <span>By @{activeBattle.image_a.author?.username}</span>
                 <span>•</span>
                 <span>Category: {activeBattle.image_a.category}</span>
               </div>
-              <h3 className="font-display font-bold text-lg text-ink line-clamp-2 mb-2">
+              <h3 className="font-display font-bold text-lg text-zinc-900 dark:text-white line-clamp-2 mb-2">
                 {activeBattle.image_a.caption}
               </h3>
-              <p className="text-xs text-zinc-600 italic bg-zinc-50 p-3 rounded-xl border border-zinc-100 mb-4">
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 italic bg-zinc-50 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 mb-4">
                 &ldquo;{activeBattle.image_a.ai_verdict}&rdquo;
               </p>
             </div>
@@ -230,13 +230,13 @@ export const VersusBattleArena: React.FC = () => {
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="font-semibold text-ink flex items-center gap-1">
+                    <span className="font-semibold text-zinc-900 dark:text-white flex items-center gap-1">
                       {userVote === "a" && <CheckCircle2 className="w-3.5 h-3.5 text-violet" />}
                       <span>{activeBattle.votes_a} votes</span>
                     </span>
                     <span className="font-bold text-violet text-sm">{pctA}%</span>
                   </div>
-                  <div className="w-full h-3 rounded-full bg-zinc-100 overflow-hidden">
+                  <div className="w-full h-3 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                     <div
                       className="h-full bg-violet rounded-full transition-all duration-700 ease-out"
                       style={{ width: `${pctA}%` }}
@@ -250,16 +250,16 @@ export const VersusBattleArena: React.FC = () => {
 
         {/* CONTENDER B */}
         <div
-          className={`group flex flex-col justify-between rounded-3xl border transition-all overflow-hidden bg-white ${
+          className={`group flex flex-col justify-between rounded-3xl border transition-all overflow-hidden bg-white dark:bg-zinc-900/80 ${
             userVote === "b"
               ? "border-magenta ring-4 ring-magenta/20 shadow-xl"
               : userVote === "a"
-              ? "border-zinc-200 opacity-80"
-              : "border-zinc-200 hover:border-magenta/60 hover:shadow-lg"
+              ? "border-zinc-200 dark:border-zinc-800 opacity-80"
+              : "border-zinc-200 dark:border-zinc-800 hover:border-magenta/60 hover:shadow-lg"
           }`}
         >
           {/* Card Top / Photo */}
-          <div className="relative aspect-4/3 w-full bg-zinc-100 overflow-hidden">
+          <div className="relative aspect-4/3 w-full bg-zinc-100 dark:bg-zinc-950 overflow-hidden">
             <img
               src={getSafeImageUrl(activeBattle.image_b.storage_path)}
               alt={activeBattle.image_b.caption || "Contender B"}
@@ -267,17 +267,17 @@ export const VersusBattleArena: React.FC = () => {
             />
             {/* Country and author overlay */}
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
-              <span className="px-2.5 py-1 rounded-full bg-ink/75 backdrop-blur-md text-white text-[11px] font-mono border border-white/10">
+              <span className="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-mono border border-white/10">
                 {activeBattle.image_b.country}
               </span>
-              <span className={`px-2.5 py-1 rounded-full text-[11px] font-mono border bg-white/90 backdrop-blur-md ${tierBColor.text} ${tierBColor.border}`}>
+              <span className={`px-2.5 py-1 rounded-full text-[11px] font-mono border bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md ${tierBColor.text} ${tierBColor.border}`}>
                 {activeBattle.image_b.author?.tier || "Verified Anomaly"}
               </span>
             </div>
 
             {/* Score reveal on vote */}
             {userVote && (
-              <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl bg-ink/90 backdrop-blur-md text-white font-mono text-xs border border-magenta/30 flex items-center gap-1.5">
+              <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl bg-black/90 backdrop-blur-md text-white font-mono text-xs border border-magenta/30 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-magenta" />
                 <span>Score: <strong>{activeBattle.image_b.wica_score}</strong>/100</span>
               </div>
@@ -287,15 +287,15 @@ export const VersusBattleArena: React.FC = () => {
           {/* Card Content */}
           <div className="p-6 flex-1 flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 mb-2 text-xs text-zinc-500 font-mono">
+              <div className="flex items-center gap-2 mb-2 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                 <span>By @{activeBattle.image_b.author?.username}</span>
                 <span>•</span>
                 <span>Category: {activeBattle.image_b.category}</span>
               </div>
-              <h3 className="font-display font-bold text-lg text-ink line-clamp-2 mb-2">
+              <h3 className="font-display font-bold text-lg text-zinc-900 dark:text-white line-clamp-2 mb-2">
                 {activeBattle.image_b.caption}
               </h3>
-              <p className="text-xs text-zinc-600 italic bg-zinc-50 p-3 rounded-xl border border-zinc-100 mb-4">
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 italic bg-zinc-50 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 mb-4">
                 &ldquo;{activeBattle.image_b.ai_verdict}&rdquo;
               </p>
             </div>
@@ -313,13 +313,13 @@ export const VersusBattleArena: React.FC = () => {
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="font-semibold text-ink flex items-center gap-1">
+                    <span className="font-semibold text-zinc-900 dark:text-white flex items-center gap-1">
                       {userVote === "b" && <CheckCircle2 className="w-3.5 h-3.5 text-magenta" />}
                       <span>{activeBattle.votes_b} votes</span>
                     </span>
                     <span className="font-bold text-magenta text-sm">{pctB}%</span>
                   </div>
-                  <div className="w-full h-3 rounded-full bg-zinc-100 overflow-hidden">
+                  <div className="w-full h-3 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                     <div
                       className="h-full bg-magenta rounded-full transition-all duration-700 ease-out"
                       style={{ width: `${pctB}%` }}
@@ -333,12 +333,12 @@ export const VersusBattleArena: React.FC = () => {
       </div>
 
       {/* Battle Switcher / Pagination Carousel */}
-      <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-zinc-200 mb-12">
+      <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 mb-12">
         <div className="flex items-center gap-2">
           <button
             disabled={currentIndex === 0}
             onClick={() => setCurrentIndex((prev) => prev - 1)}
-            className="p-2 rounded-lg bg-white border border-zinc-200 hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-ink"
+            className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-zinc-800 dark:text-zinc-200"
             aria-label="Previous battle"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -350,10 +350,10 @@ export const VersusBattleArena: React.FC = () => {
                 onClick={() => setCurrentIndex(idx)}
                 className={`w-3 h-3 rounded-full transition-all ${
                   idx === currentIndex
-                    ? "bg-ink scale-125"
+                    ? "bg-zinc-900 dark:bg-white scale-125"
                     : votedBattles[b.id]
                     ? "bg-violet"
-                    : "bg-zinc-300 hover:bg-zinc-400"
+                    : "bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400"
                 }`}
                 title={`Jump to battle #${idx + 1}`}
               />
@@ -362,16 +362,16 @@ export const VersusBattleArena: React.FC = () => {
           <button
             disabled={currentIndex === battles.length - 1}
             onClick={() => setCurrentIndex((prev) => prev + 1)}
-            className="p-2 rounded-lg bg-white border border-zinc-200 hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-ink"
+            className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-zinc-800 dark:text-zinc-200"
             aria-label="Next battle"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-4 text-xs font-mono text-zinc-500">
+        <div className="flex items-center gap-4 text-xs font-mono text-zinc-500 dark:text-zinc-400">
           <span className="hidden sm:inline">Earn +5 Weird Credits for each vote</span>
-          <span className="flex items-center gap-1 text-ink font-semibold">
+          <span className="flex items-center gap-1 text-zinc-900 dark:text-white font-semibold">
             <Trophy className="w-3.5 h-3.5 text-amber-500" />
             <span>Versus Oracle Streak: 4 wins</span>
           </span>
@@ -379,13 +379,13 @@ export const VersusBattleArena: React.FC = () => {
       </div>
 
       {/* How Versus Works Strip */}
-      <div className="grid sm:grid-cols-3 gap-6 p-6 rounded-2xl border border-zinc-200 bg-white">
+      <div className="grid sm:grid-cols-3 gap-6 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60">
         <div className="space-y-1.5">
           <div className="w-8 h-8 rounded-lg bg-violet/10 text-violet flex items-center justify-center font-bold text-xs font-mono">
             01
           </div>
-          <h4 className="font-display font-bold text-sm text-ink">Strict Category Matchmaking</h4>
-          <p className="text-xs text-zinc-500 leading-relaxed">
+          <h4 className="font-display font-bold text-sm text-zinc-900 dark:text-white">Strict Category Matchmaking</h4>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
             Only candid anomalies from the exact same category (e.g. Objects vs Objects) clash in 24-hour head-to-head bouts.
           </p>
         </div>
@@ -394,8 +394,8 @@ export const VersusBattleArena: React.FC = () => {
           <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center font-bold text-xs font-mono">
             02
           </div>
-          <h4 className="font-display font-bold text-sm text-ink">Anti-Brigading Weighting</h4>
-          <p className="text-xs text-zinc-500 leading-relaxed">
+          <h4 className="font-display font-bold text-sm text-zinc-900 dark:text-white">Anti-Brigading Weighting</h4>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
             Votes are capped and weighted by account age. Community sentiment nudges the final score via a capped Bayesian formula.
           </p>
         </div>
@@ -404,8 +404,8 @@ export const VersusBattleArena: React.FC = () => {
           <div className="w-8 h-8 rounded-lg bg-magenta/10 text-magenta flex items-center justify-center font-bold text-xs font-mono">
             03
           </div>
-          <h4 className="font-display font-bold text-sm text-ink">Battle Champion Badges</h4>
-          <p className="text-xs text-zinc-500 leading-relaxed">
+          <h4 className="font-display font-bold text-sm text-zinc-900 dark:text-white">Battle Champion Badges</h4>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
             Winning photos earn bonus Weird Credits for their authors and unlock the rare Battle Champion profile badge.
           </p>
         </div>

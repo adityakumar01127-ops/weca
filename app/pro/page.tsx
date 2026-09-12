@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ProView } from "@/components/pro/ProView";
 import { Sparkles, Zap, ShieldCheck } from "lucide-react";
@@ -12,9 +11,7 @@ export const metadata: Metadata = {
 
 export default function ProPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-ink">
-      <SubpageHeader category="Subscription" currentPage="Wica Pro & Marketplace" />
-
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8 text-center max-w-2xl mx-auto">
@@ -23,11 +20,11 @@ export default function ProPage() {
             <span>Hunter Pro & Brand Licensing</span>
           </div>
 
-          <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-ink tracking-tight leading-[1.1] mb-3">
+          <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-zinc-900 dark:text-white tracking-tight leading-[1.1] mb-3">
             Wica Pro: Power the <span className="underline decoration-violet decoration-wavy underline-offset-6">Archive.</span>
           </h1>
 
-          <p className="text-zinc-600 text-sm sm:text-base">
+          <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
             Whether you are an observational researcher wanting raw 5-D vision telemetry or a creative studio licensing candid physical anomalies for global campaigns.
           </p>
         </div>

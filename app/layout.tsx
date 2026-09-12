@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider, ThemeScript } from "@/context/ThemeContext";
 import { Navbar } from "@/components/layout/Navbar";
 
 export const metadata: Metadata = {
@@ -14,14 +15,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark h-full bg-[#09090b] text-zinc-100 antialiased selection:bg-zinc-800">
-      <body className="min-h-full flex flex-col bg-[#09090b] text-zinc-100 font-sans">
-        <AuthProvider>
-          <Navbar />
-          <main className="flex-1 w-full">
-            {children}
-          </main>
-        </AuthProvider>
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-violet/20 dark:selection:bg-zinc-800 transition-colors duration-200">
+        <ThemeProvider>
+          <AuthProvider>
+            <Navbar />
+            <main className="flex-1 w-full">
+              {children}
+            </main>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

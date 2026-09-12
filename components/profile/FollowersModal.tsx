@@ -94,21 +94,21 @@ export const FollowersModal: React.FC<FollowersModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-md max-h-[85vh] flex flex-col bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-800/90 shadow-2xl shadow-black/90 overflow-hidden text-zinc-100 font-sans"
+        className="relative w-full max-w-md max-h-[85vh] flex flex-col bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl overflow-hidden text-zinc-900 dark:text-zinc-100 font-sans"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Subtle Ambient Card Top Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-cyan/60 to-transparent rounded-full" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/80 bg-zinc-950/40 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/40 shrink-0">
           <div className="flex items-center gap-2">
-            <h2 className="font-display font-bold text-base text-white">
+            <h2 className="font-display font-bold text-base text-zinc-900 dark:text-white">
               {type === "followers" ? "Community Observers" : "Following Observers"}
             </h2>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan/10 text-cyan border border-cyan/20">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan/10 text-cyan-700 dark:text-cyan border border-cyan/20">
               @{username}
             </span>
           </div>
@@ -116,7 +116,7 @@ export const FollowersModal: React.FC<FollowersModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -124,23 +124,23 @@ export const FollowersModal: React.FC<FollowersModalProps> = ({
         </div>
 
         {/* Search Bar */}
-        <div className="p-4 border-b border-zinc-800/80 bg-zinc-950/30">
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/30">
           <div className="relative">
-            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-2.5" />
+            <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-2.5" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search researchers by handle or role..."
-              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/30 transition-all font-mono"
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-white dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/30 transition-all font-mono"
             />
           </div>
         </div>
 
         {/* Researchers List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-zinc-800/50 p-2">
+        <div className="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800/50 p-2">
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-xs text-zinc-500 font-mono">
+            <div className="py-12 text-center text-xs text-zinc-400 dark:text-zinc-500 font-mono">
               No matching anomaly researchers found.
             </div>
           ) : (
@@ -149,23 +149,23 @@ export const FollowersModal: React.FC<FollowersModalProps> = ({
               return (
                 <div
                   key={r.id}
-                  className="flex items-center justify-between p-3 rounded-2xl hover:bg-zinc-800/40 transition-colors gap-3"
+                  className="flex items-center justify-between p-3 rounded-2xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors gap-3"
                 >
                   {/* Left: Avatar & Info */}
                   <div className="flex items-center gap-3 min-w-0">
                     <img
                       src={r.avatar_url}
                       alt={r.name}
-                      className="w-10 h-10 rounded-full object-cover border border-zinc-700/80 shrink-0"
+                      className="w-10 h-10 rounded-full object-cover border border-zinc-200 dark:border-zinc-700/80 shrink-0"
                     />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-semibold text-white truncate">
+                        <span className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
                           {r.name}
                         </span>
-                        <ShieldCheck className="w-3.5 h-3.5 text-cyan shrink-0" />
+                        <ShieldCheck className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan shrink-0" />
                       </div>
-                      <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
+                      <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                         <span>@{r.username}</span>
                         <span>•</span>
                         <span className="truncate">{r.role}</span>
@@ -185,15 +185,15 @@ export const FollowersModal: React.FC<FollowersModalProps> = ({
                     <button
                       type="button"
                       onClick={() => toggleFollow(r.id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] flex items-center gap-1.5 cursor-pointer shadow-xs ${
                         r.isFollowing
-                          ? "bg-zinc-800 hover:bg-zinc-700/80 text-zinc-300 border border-zinc-700"
-                          : "bg-white hover:bg-zinc-200 text-zinc-950 shadow-sm"
+                          ? "bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700/80 dark:text-zinc-300 dark:border-zinc-700"
+                          : "bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950"
                       }`}
                     >
                       {r.isFollowing ? (
                         <>
-                          <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                          <UserCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                           <span>Following</span>
                         </>
                       ) : (
@@ -211,7 +211,7 @@ export const FollowersModal: React.FC<FollowersModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-zinc-800/80 bg-zinc-950/40 text-center text-[10px] font-mono text-zinc-500 shrink-0">
+        <div className="p-3 border-t border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/40 text-center text-[10px] font-mono text-zinc-400 dark:text-zinc-500 shrink-0">
           Weca Global Observer Network • Verified Roster
         </div>
       </div>

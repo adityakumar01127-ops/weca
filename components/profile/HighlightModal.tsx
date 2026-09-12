@@ -178,38 +178,38 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-6 text-zinc-100 shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 text-zinc-900 dark:text-zinc-100 shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
         {/* Glow Effects */}
         <div className="absolute -top-16 -right-16 w-36 h-36 bg-violet/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-cyan/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-800/80 shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800/80 shrink-0">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-xl bg-violet/10 text-violet border border-violet/20">
               <Compass className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-bold text-white tracking-tight">
+            <h3 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">
               {editingHighlight ? "Edit Expedition Highlight" : "New Expedition Highlight"}
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors"
+            className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 dark:hover:text-white dark:hover:bg-zinc-800/80 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="space-y-5 overflow-y-auto pr-1 py-4 scrollbar-thin scrollbar-thumb-zinc-800">
+        <div className="space-y-5 overflow-y-auto pr-1 py-4 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
           {/* Live Preview Circle */}
           <div className="flex flex-col items-center justify-center py-2">
             <div className="relative group">
               <div className="w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-violet via-cyan to-purple-500 shadow-lg shadow-violet/25 flex items-center justify-center">
-                <div className="w-full h-full rounded-full overflow-hidden bg-zinc-950 flex items-center justify-center">
+                <div className="w-full h-full rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center">
                   {coverType === "glyph" ? (
                     <div
                       className={`w-full h-full bg-gradient-to-br ${selectedGradient} flex items-center justify-center text-3xl select-none`}
@@ -223,17 +223,17 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-zinc-500">
+                    <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
                       <ImageIcon className="w-6 h-6" />
                     </div>
                   )}
                 </div>
               </div>
-              <div className="absolute -bottom-1 -right-1 bg-violet text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md border border-zinc-900">
+              <div className="absolute -bottom-1 -right-1 bg-violet text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md border border-white dark:border-zinc-900">
                 Preview
               </div>
             </div>
-            <span className="text-xs font-semibold text-zinc-200 mt-2 truncate max-w-[120px]">
+            <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 mt-2 truncate max-w-[120px]">
               {name.trim() || "Collection"}
             </span>
           </div>
@@ -241,7 +241,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
           {/* Highlight Title */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium text-zinc-300">Highlight Title</label>
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Highlight Title</label>
               <span className="text-[10px] font-mono text-zinc-500">{name.length}/15</span>
             </div>
             <input
@@ -251,7 +251,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Glitch Finds, Tokyo Night..."
-              className="w-full px-3.5 py-2.5 bg-zinc-950/80 border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-all"
+              className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-all"
             />
             {/* Quick Suggestions */}
             <div className="flex flex-wrap gap-1.5 mt-2">
@@ -260,7 +260,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                   key={sug}
                   type="button"
                   onClick={() => setName(sug)}
-                  className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50 transition-colors"
+                  className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50 transition-colors"
                 >
                   {sug}
                 </button>
@@ -270,16 +270,16 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
 
           {/* Cover Style Selector Tabs */}
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-2">Cover Icon & Style</label>
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-950 rounded-xl border border-zinc-800 mb-3">
+            <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-2">Cover Icon & Style</label>
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 mb-3">
               <button
                 type="button"
                 id="cover-tab-glyph"
                 onClick={() => setCoverType("glyph")}
-                className={`py-1.5 text-xs font-medium rounded-lg transition-all ${
+                className={`py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   coverType === "glyph"
-                    ? "bg-violet text-white shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    ? "bg-violet text-white shadow-xs"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
                 }`}
               >
                 Anomaly Glyphs
@@ -288,10 +288,10 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                 type="button"
                 id="cover-tab-image"
                 onClick={() => setCoverType("image")}
-                className={`py-1.5 text-xs font-medium rounded-lg transition-all ${
+                className={`py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   coverType === "image"
-                    ? "bg-violet text-white shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    ? "bg-violet text-white shadow-xs"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
                 }`}
               >
                 Photo / Sightings
@@ -299,10 +299,10 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
             </div>
 
             {coverType === "glyph" ? (
-              <div className="space-y-3 p-3 bg-zinc-950/60 rounded-2xl border border-zinc-800/80">
+              <div className="space-y-3 p-3 bg-zinc-50 dark:bg-zinc-950/60 rounded-2xl border border-zinc-200 dark:border-zinc-800/80">
                 {/* Glyph Picker */}
                 <div>
-                  <span className="text-[11px] text-zinc-400 mb-2 block">Choose Anomaly Glyph:</span>
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-2 block">Choose Anomaly Glyph:</span>
                   <div className="grid grid-cols-6 gap-2">
                     {PRESET_GLYPHS.map((item) => (
                       <button
@@ -310,10 +310,10 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                         type="button"
                         onClick={() => setSelectedGlyph(item.icon)}
                         title={item.label}
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all ${
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all cursor-pointer ${
                           selectedGlyph === item.icon
                             ? "bg-violet/25 border-2 border-violet scale-105 text-white"
-                            : "bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/60 text-zinc-300"
+                            : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 text-zinc-800 dark:text-zinc-300"
                         }`}
                       >
                         {item.icon}
@@ -324,7 +324,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
 
                 {/* Gradient Picker */}
                 <div>
-                  <span className="text-[11px] text-zinc-400 mb-1.5 block">Backdrop Aura:</span>
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1.5 block">Backdrop Aura:</span>
                   <div className="flex items-center gap-2">
                     {PRESET_GRADIENTS.map((grad) => (
                       <button
@@ -332,9 +332,9 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                         type="button"
                         onClick={() => setSelectedGradient(grad.class)}
                         title={grad.label}
-                        className={`w-8 h-8 rounded-full bg-gradient-to-br ${grad.class} transition-all ${
+                        className={`w-8 h-8 rounded-full bg-gradient-to-br ${grad.class} transition-all cursor-pointer ${
                           selectedGradient === grad.class
-                            ? "ring-2 ring-white ring-offset-2 ring-offset-zinc-950 scale-110"
+                            ? "ring-2 ring-violet ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 scale-110"
                             : "opacity-70 hover:opacity-100"
                         }`}
                       />
@@ -343,7 +343,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 p-3 bg-zinc-950/60 rounded-2xl border border-zinc-800/80">
+              <div className="space-y-3 p-3 bg-zinc-50 dark:bg-zinc-950/60 rounded-2xl border border-zinc-200 dark:border-zinc-800/80">
                 {/* Upload or Pick Sightings */}
                 <div className="flex items-center gap-2">
                   <input
@@ -356,9 +356,9 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs text-white flex items-center justify-center gap-2 transition-colors"
+                    className="flex-1 py-2 px-3 rounded-xl bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-800 dark:text-white flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
                   >
-                    <Upload className="w-3.5 h-3.5 text-cyan" />
+                    <Upload className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan" />
                     Upload Image
                   </button>
                 </div>
@@ -366,7 +366,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                 {/* Sighting Gallery Selector */}
                 {userSightings.length > 0 && (
                   <div>
-                    <span className="text-[11px] text-zinc-400 mb-1.5 block">
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1.5 block">
                       Or pick from verified sightings:
                     </span>
                     <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto pr-1">
@@ -379,7 +379,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                             className={`aspect-square rounded-xl overflow-hidden border cursor-pointer relative group transition-all ${
                               isChosen
                                 ? "border-violet ring-2 ring-violet"
-                                : "border-zinc-800 hover:border-zinc-600"
+                                : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600"
                             }`}
                           >
                             <img
@@ -406,7 +406,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
           {userSightings.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-zinc-300">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                   Include Sightings in Story Reel
                 </label>
                 <span className="text-[10px] font-mono text-zinc-500">
@@ -422,15 +422,15 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                       onClick={() => toggleSightingSelection(s.id)}
                       className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer transition-all ${
                         isChecked
-                          ? "bg-violet/10 border-violet/50 text-white"
-                          : "bg-zinc-950/60 border-zinc-800/80 text-zinc-400 hover:text-zinc-200"
+                          ? "bg-violet/10 border-violet/50 text-zinc-900 dark:text-white"
+                          : "bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 truncate">
                         <img
                           src={s.storage_path}
                           alt="Thumbnail"
-                          className="w-8 h-8 rounded-lg object-cover shrink-0 border border-zinc-800"
+                          className="w-8 h-8 rounded-lg object-cover shrink-0 border border-zinc-200 dark:border-zinc-800"
                         />
                         <span className="truncate max-w-[200px]">
                           {s.caption || s.category}
@@ -438,7 +438,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                       </div>
                       <div
                         className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
-                          isChecked ? "bg-violet border-violet text-white" : "border-zinc-700 bg-zinc-900"
+                          isChecked ? "bg-violet border-violet text-white" : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900"
                         }`}
                       >
                         {isChecked && <Check className="w-3 h-3" />}
@@ -452,7 +452,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
         </div>
 
         {/* Action Footer */}
-        <div className="pt-4 border-t border-zinc-800/80 flex items-center justify-between gap-3 shrink-0">
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-3 shrink-0">
           {editingHighlight && onDelete ? (
             <button
               type="button"
@@ -461,7 +461,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                 onDelete(editingHighlight.id);
                 onClose();
               }}
-              className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Delete
@@ -474,7 +474,7 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 text-xs font-semibold transition-colors cursor-pointer border border-zinc-200 dark:border-transparent"
             >
               Cancel
             </button>

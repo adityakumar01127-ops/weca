@@ -109,13 +109,13 @@ export default function AdminPayoutsPage() {
   const totalVolumeWC = payouts.reduce((acc, p) => acc + p.amount, 0);
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Navigation & Header */}
         <div>
           <Link
             href="/wallet"
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 hover:text-white mb-4 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white mb-4 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Wallet</span>
@@ -127,17 +127,17 @@ export default function AdminPayoutsPage() {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Weca Phase 4 Admin View</span>
               </div>
-              <h1 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight">
+              <h1 className="font-display font-black text-3xl sm:text-4xl text-zinc-900 dark:text-white tracking-tight">
                 Payout Review Desk
               </h1>
-              <p className="text-zinc-400 text-xs sm:text-sm font-mono mt-1">
+              <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm font-mono mt-1">
                 Human-in-the-loop authorization desk. Inspect abuse guards and approve or reject cash-out requests.
               </p>
             </div>
 
             <button
               onClick={fetchPayouts}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white text-xs font-mono transition-colors cursor-pointer shadow-xs"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               <span>Refresh Queue</span>
@@ -147,17 +147,17 @@ export default function AdminPayoutsPage() {
 
         {/* Feedback Alerts */}
         {errorMsg && (
-          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-mono flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
-            <button onClick={() => setErrorMsg(null)} className="text-zinc-400 hover:text-white">✕</button>
+            <button onClick={() => setErrorMsg(null)} className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white">✕</button>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono flex items-center gap-2">
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-mono flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
           </div>
@@ -165,41 +165,41 @@ export default function AdminPayoutsPage() {
 
         {/* Overview Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
-          <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
-            <span className="text-xs text-zinc-400 block mb-1">Pending Review</span>
+          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1">Pending Review</span>
             <div className="flex items-baseline gap-2">
-              <span className="font-display font-black text-2xl text-amber-400">{pendingCount}</span>
+              <span className="font-display font-black text-2xl text-amber-500 dark:text-amber-400">{pendingCount}</span>
               <span className="text-[10px] text-zinc-500">requests</span>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
-            <span className="text-xs text-zinc-400 block mb-1">Abuse Flagged</span>
+          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1">Abuse Flagged</span>
             <div className="flex items-baseline gap-2">
-              <span className="font-display font-black text-2xl text-red-400">{flaggedCount}</span>
-              <span className="text-[10px] text-red-400/80">requires check</span>
+              <span className="font-display font-black text-2xl text-red-500 dark:text-red-400">{flaggedCount}</span>
+              <span className="text-[10px] text-red-500/80 dark:text-red-400/80">requires check</span>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
-            <span className="text-xs text-zinc-400 block mb-1">Approved & Paid</span>
+          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1">Approved & Paid</span>
             <div className="flex items-baseline gap-2">
-              <span className="font-display font-black text-2xl text-emerald-400">{paidCount}</span>
+              <span className="font-display font-black text-2xl text-emerald-600 dark:text-emerald-400">{paidCount}</span>
               <span className="text-[10px] text-zinc-500">settled</span>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
-            <span className="text-xs text-zinc-400 block mb-1">Total Cash-Out Volume</span>
+          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1">Total Cash-Out Volume</span>
             <div className="flex items-baseline gap-2">
-              <span className="font-display font-black text-2xl text-white">{totalVolumeWC.toLocaleString()}</span>
-              <span className="text-[10px] text-cyan font-bold">WC</span>
+              <span className="font-display font-black text-2xl text-zinc-900 dark:text-white">{totalVolumeWC.toLocaleString()}</span>
+              <span className="text-[10px] text-cyan-700 dark:text-cyan font-bold">WC</span>
             </div>
           </div>
         </div>
 
         {/* Filter Navigation */}
-        <div className="flex items-center gap-2 border-b border-zinc-800 pb-3 overflow-x-auto text-xs font-mono">
+        <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-3 overflow-x-auto text-xs font-mono">
           {(
             [
               { id: "pending", label: `Pending Review (${pendingCount})` },
@@ -214,8 +214,8 @@ export default function AdminPayoutsPage() {
               onClick={() => setFilter(t.id)}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 filter === t.id
-                  ? "bg-zinc-800 text-white font-semibold border border-zinc-700"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850"
+                  ? "bg-zinc-900 text-white font-semibold shadow-xs dark:bg-zinc-800 dark:border-zinc-700"
+                  : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-850"
               }`}
             >
               {t.label}
@@ -224,7 +224,7 @@ export default function AdminPayoutsPage() {
         </div>
 
         {/* Requests Table */}
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
+        <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 overflow-hidden shadow-xs">
           {loading ? (
             <div className="p-12 text-center text-zinc-500 font-mono text-xs flex flex-col items-center gap-3">
               <RefreshCw className="w-5 h-5 animate-spin text-zinc-400" />
@@ -235,19 +235,19 @@ export default function AdminPayoutsPage() {
               No payout requests match the selected &quot;{filter}&quot; filter.
             </div>
           ) : (
-            <div className="divide-y divide-zinc-800/80 font-mono text-xs">
+            <div className="divide-y divide-zinc-100 dark:divide-zinc-800/80 font-mono text-xs">
               {filteredPayouts.map((p) => {
                 const userHandle = p.user?.username || `user_${p.user_id.slice(0, 6)}`;
                 const hasAbuseFlags = p.flagged_suspicious || (p.suspicion_reasons && p.suspicion_reasons.length > 0);
 
                 return (
-                  <div key={p.id} className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-zinc-800/20 transition-colors">
+                  <div key={p.id} className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition-colors">
                     {/* Left: User & Amount info */}
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-base">@{userHandle}</span>
-                        <span className="text-zinc-500">•</span>
-                        <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 text-[10px]">
+                        <span className="font-bold text-zinc-900 dark:text-white text-base">@{userHandle}</span>
+                        <span className="text-zinc-400 dark:text-zinc-500">•</span>
+                        <span className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-[10px]">
                           Req #{p.id.slice(0, 8)}
                         </span>
                         <span className="text-zinc-500 text-[10px]">
@@ -256,42 +256,42 @@ export default function AdminPayoutsPage() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-black text-cyan">{p.amount} WC</span>
-                        <span className="text-zinc-500">→</span>
-                        <span className="text-sm font-bold text-emerald-400">₹{(p.amount * WC_TO_INR_RATE).toFixed(0)} INR</span>
+                        <span className="text-sm font-black text-cyan-700 dark:text-cyan">{p.amount} WC</span>
+                        <span className="text-zinc-400 dark:text-zinc-500">→</span>
+                        <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">₹{(p.amount * WC_TO_INR_RATE).toFixed(0)} INR</span>
                         <span className="text-zinc-500 text-[10px]">(${(p.amount * WC_TO_USD_RATE).toFixed(2)} USD)</span>
                       </div>
 
-                      <div className="text-zinc-400 text-[11px] flex items-center gap-2">
-                        <span className="text-zinc-500">Destination:</span>
-                        <strong className="text-zinc-200 uppercase">{p.payout_details.method}</strong>
+                      <div className="text-zinc-600 dark:text-zinc-400 text-[11px] flex items-center gap-2">
+                        <span className="text-zinc-400 dark:text-zinc-500">Destination:</span>
+                        <strong className="text-zinc-800 dark:text-zinc-200 uppercase">{p.payout_details.method}</strong>
                         <span>({p.payout_details.name})</span>
-                        <span className="text-zinc-500">|</span>
+                        <span className="text-zinc-400 dark:text-zinc-500">|</span>
                         <span>{p.payout_details.method === "upi" ? p.payout_details.upi_id : `Acc: ${p.payout_details.account_number} • IFSC: ${p.payout_details.ifsc}`}</span>
                       </div>
 
                       {/* Abuse Guard Status Banner */}
                       {hasAbuseFlags ? (
-                        <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] space-y-1 max-w-xl">
+                        <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-[11px] space-y-1 max-w-xl">
                           <div className="font-bold flex items-center gap-1.5">
                             <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                             <span>Abuse Guard Flagged (Risk Score: {p.risk_score}/100)</span>
                           </div>
-                          <ul className="list-disc list-inside text-[10px] space-y-0.5 text-red-300/90 pl-1">
+                          <ul className="list-disc list-inside text-[10px] space-y-0.5 text-red-600/90 dark:text-red-300/90 pl-1">
                             {p.suspicion_reasons.map((r, idx) => (
                               <li key={idx}>{r}</li>
                             ))}
                           </ul>
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                        <div className="inline-flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
                           <CheckCircle2 className="w-3 h-3" />
                           <span>Abuse Guards Passed (Risk: {p.risk_score}/100)</span>
                         </div>
                       )}
 
                       {p.admin_notes && (
-                        <div className="text-[11px] text-zinc-400 bg-zinc-950 p-2 rounded-lg border border-zinc-800">
+                        <div className="text-[11px] text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 p-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
                           Admin Note: {p.admin_notes}
                         </div>
                       )}
@@ -318,7 +318,7 @@ export default function AdminPayoutsPage() {
                               setActionNotes("");
                               setActionModal("reject");
                             }}
-                            className="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-red-500/20 hover:text-red-400 text-zinc-400 border border-zinc-700 transition-colors cursor-pointer flex items-center gap-1.5"
+                            className="px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-red-500/15 hover:text-red-600 dark:hover:bg-red-500/20 dark:hover:text-red-400 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 transition-colors cursor-pointer flex items-center gap-1.5"
                           >
                             <XCircle className="w-3.5 h-3.5" />
                             <span>Reject & Refund</span>
@@ -328,8 +328,8 @@ export default function AdminPayoutsPage() {
                         <span
                           className={`px-3 py-1.5 rounded-full font-bold text-xs border ${
                             p.status === "paid" || p.status === "approved"
-                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                              : "bg-red-500/10 text-red-400 border-red-500/30"
+                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                              : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30"
                           }`}
                         >
                           {p.status === "paid"
@@ -350,10 +350,10 @@ export default function AdminPayoutsPage() {
 
       {/* ACTION CONFIRMATION MODAL */}
       {actionModal && selectedRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-md bg-[#09090b] border border-zinc-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 font-mono text-xs">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-display font-bold text-base text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/85 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="font-display font-bold text-base text-zinc-900 dark:text-white">
                 {actionModal === "approve" ? "Approve Payout Request" : "Reject Payout Request"}
               </h3>
               <button
@@ -361,27 +361,27 @@ export default function AdminPayoutsPage() {
                   setActionModal(null);
                   setSelectedRequest(null);
                 }}
-                className="text-zinc-500 hover:text-white"
+                className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-2 p-3.5 rounded-xl bg-zinc-950 border border-zinc-800">
+            <div className="space-y-2 p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
               <div className="flex justify-between">
                 <span className="text-zinc-500">Recipient:</span>
-                <span className="text-white font-bold">{selectedRequest.payout_details.name}</span>
+                <span className="text-zinc-900 dark:text-white font-bold">{selectedRequest.payout_details.name}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Amount:</span>
-                <span className="text-cyan font-bold">{selectedRequest.amount} WC (₹{(selectedRequest.amount * WC_TO_INR_RATE).toFixed(0)} INR)</span>
+                <span className="text-cyan-700 dark:text-cyan font-bold">{selectedRequest.amount} WC (₹{(selectedRequest.amount * WC_TO_INR_RATE).toFixed(0)} INR)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Channel:</span>
-                <span className="text-zinc-300 uppercase">{selectedRequest.payout_details.method}</span>
+                <span className="text-zinc-700 dark:text-zinc-300 uppercase">{selectedRequest.payout_details.method}</span>
               </div>
               {selectedRequest.flagged_suspicious && (
-                <div className="pt-2 text-red-400 text-[10px] border-t border-zinc-800">
+                <div className="pt-2 text-red-500 dark:text-red-400 text-[10px] border-t border-zinc-200 dark:border-zinc-800">
                   ⚠️ Note: Request was flagged by anti-sybil abuse guards. Proceed with caution.
                 </div>
               )}
@@ -389,7 +389,7 @@ export default function AdminPayoutsPage() {
 
             <form onSubmit={handleActionSubmit} className="space-y-4">
               <div>
-                <label className="text-zinc-400 block mb-1">
+                <label className="text-zinc-600 dark:text-zinc-400 block mb-1">
                   {actionModal === "approve" ? "Admin Audit Note (Optional)" : "Rejection Reason (Refund Notice to User)"}
                 </label>
                 <textarea
@@ -401,13 +401,13 @@ export default function AdminPayoutsPage() {
                       : "e.g. Ineligible: account failed anti-sybil cluster verification."
                   }
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-hidden focus:border-zinc-600"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-zinc-600"
                   required={actionModal === "reject"}
                 />
               </div>
 
               {actionModal === "reject" && (
-                <p className="text-[11px] text-amber-400/90 leading-relaxed">
+                <p className="text-[11px] text-amber-600 dark:text-amber-400/90 leading-relaxed">
                   Rejecting will automatically refund {selectedRequest.amount} WC back to the user&apos;s balance and log a refund audit row in credit_transactions.
                 </p>
               )}
@@ -419,7 +419,7 @@ export default function AdminPayoutsPage() {
                     setActionModal(null);
                     setSelectedRequest(null);
                   }}
-                  className="w-1/2 py-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:text-white"
+                  className="w-1/2 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:text-white dark:hover:bg-zinc-800"
                 >
                   Cancel
                 </button>
