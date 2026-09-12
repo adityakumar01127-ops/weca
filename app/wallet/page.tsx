@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function WalletPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-ink">
+    <div className="min-h-screen flex flex-col bg-[#09090b] text-zinc-100 selection:bg-zinc-800">
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8">
@@ -21,11 +21,11 @@ export default function WalletPage() {
             <span>Weird Credits & Creator Economy</span>
           </div>
 
-          <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-ink tracking-tight leading-[1.1] mb-3">
+          <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-white tracking-tight leading-[1.1] mb-3">
             The Rewards Wallet: <span className="underline decoration-violet decoration-wavy underline-offset-6">Earned Candor.</span>
           </h1>
 
-          <p className="text-zinc-600 text-sm sm:text-base max-w-2xl">
+          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl">
             Weird Credits (WC) reward observers for observational serendipity. Earned through verified real-world findings, Versus predictions, and community endorsements.
           </p>
         </div>

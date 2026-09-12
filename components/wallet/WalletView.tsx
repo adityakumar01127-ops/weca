@@ -122,39 +122,39 @@ export const WalletView: React.FC = () => {
         </div>
 
         {/* Lifetime Earnings Quick Stat */}
-        <div className="p-6 rounded-3xl bg-zinc-50 border border-zinc-200 flex flex-col justify-between">
+        <div className="p-6 rounded-3xl bg-zinc-900/60 border border-zinc-800 flex flex-col justify-between">
           <div>
             <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-2">
               Lifetime Yield
             </span>
-            <h3 className="font-display font-black text-3xl text-ink mb-1">
+            <h3 className="font-display font-black text-3xl text-white mb-1">
               965 WC
             </h3>
-            <span className="text-xs text-emerald-600 font-mono flex items-center gap-1 font-semibold">
+            <span className="text-xs text-emerald-400 font-mono flex items-center gap-1 font-semibold">
               <ArrowUpRight className="w-3.5 h-3.5" />
               <span>+215 WC this week</span>
             </span>
 
-            <div className="mt-6 space-y-3 font-mono text-xs text-zinc-600">
-              <div className="flex justify-between border-b border-zinc-200 pb-2">
+            <div className="mt-6 space-y-3 font-mono text-xs text-zinc-400">
+              <div className="flex justify-between border-b border-zinc-800 pb-2">
                 <span>Scored Uploads:</span>
-                <strong className="text-ink">640 WC</strong>
+                <strong className="text-white">640 WC</strong>
               </div>
-              <div className="flex justify-between border-b border-zinc-200 pb-2">
+              <div className="flex justify-between border-b border-zinc-800 pb-2">
                 <span>Versus Voting:</span>
-                <strong className="text-ink">75 WC</strong>
+                <strong className="text-white">75 WC</strong>
               </div>
               <div className="flex justify-between">
                 <span>Achievements:</span>
-                <strong className="text-ink">250 WC</strong>
+                <strong className="text-white">250 WC</strong>
               </div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-zinc-200">
+          <div className="pt-6 border-t border-zinc-800">
             <Link
-              href="/#world-feed-heading"
-              className="w-full py-2.5 px-4 rounded-xl bg-ink hover:bg-zinc-800 text-white font-mono text-xs font-bold transition-all text-center block"
+              href="/upload"
+              className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-mono text-xs font-bold transition-all text-center block shadow-xs"
             >
               Upload Photo to Earn +WC
             </Link>
@@ -166,10 +166,10 @@ export const WalletView: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-display font-bold text-xl text-ink tracking-tight">
+            <h3 className="font-display font-bold text-xl text-white tracking-tight">
               Hunter Achievements & Milestones
             </h3>
-            <p className="text-xs text-zinc-500 font-mono">
+            <p className="text-xs text-zinc-400 font-mono">
               Complete observational challenges to unlock prestigious badges and credit bounties.
             </p>
           </div>
@@ -184,13 +184,13 @@ export const WalletView: React.FC = () => {
               key={ach.id}
               className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
                 ach.unlocked
-                  ? "bg-white border-violet/30 shadow-sm"
-                  : "bg-zinc-50/70 border-zinc-200 opacity-80"
+                  ? "bg-zinc-900/80 border-violet/40 shadow-sm"
+                  : "bg-zinc-900/40 border-zinc-800 opacity-80"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center">
                     {getIcon(ach.iconName)}
                   </div>
                   <span className="px-2.5 py-0.5 rounded-full bg-cyan/10 text-cyan text-xs font-mono font-bold">
@@ -199,11 +199,11 @@ export const WalletView: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-display font-bold text-sm text-ink">{ach.title}</h4>
-                  {ach.unlocked && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
+                  <h4 className="font-display font-bold text-sm text-white">{ach.title}</h4>
+                  {ach.unlocked && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
                 </div>
 
-                <p className="text-xs text-zinc-600 leading-relaxed mb-4">
+                <p className="text-xs text-zinc-400 leading-relaxed mb-4">
                   {ach.description}
                 </p>
               </div>
@@ -213,7 +213,7 @@ export const WalletView: React.FC = () => {
                   <span>{ach.unlocked ? "Completed" : "In Progress"}</span>
                   <span>{ach.progress}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-zinc-200 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
                       ach.unlocked ? "bg-emerald-500" : "bg-violet"
@@ -296,40 +296,40 @@ export const WalletView: React.FC = () => {
       {/* TRANSACTION LEDGER TABLE */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-bold text-xl text-ink tracking-tight">
+          <h3 className="font-display font-bold text-xl text-white tracking-tight">
             Recent Credit Ledger Transactions
           </h3>
-          <span className="text-xs font-mono text-zinc-500">
+          <span className="text-xs font-mono text-zinc-400">
             Immutable Audit Trail
           </span>
         </div>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm divide-y divide-zinc-100 font-mono text-xs">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden divide-y divide-zinc-800/80 font-mono text-xs">
           {MOCK_TRANSACTIONS.map((tx) => (
             <div
               key={tx.id}
-              className="p-4 flex items-center justify-between hover:bg-zinc-50 transition-colors"
+              className="p-4 flex items-center justify-between hover:bg-zinc-800/40 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                     tx.type === "earn"
-                      ? "bg-emerald-50 text-emerald-600"
+                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                       : tx.type === "bonus"
-                      ? "bg-violet/10 text-violet"
-                      : "bg-zinc-100 text-zinc-600"
+                      ? "bg-violet/10 text-violet border border-violet/20"
+                      : "bg-zinc-800 text-zinc-400 border border-zinc-700/60"
                   }`}
                 >
                   <ArrowUpRight className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="font-semibold text-ink text-xs">{tx.reason}</div>
+                  <div className="font-semibold text-white text-xs">{tx.reason}</div>
                   <div className="text-[10px] text-zinc-400">{tx.created_at.slice(0, 10)} • Tx #{tx.id}</div>
                 </div>
               </div>
 
               <div className="text-right">
-                <span className="font-bold text-emerald-600 text-sm">+{tx.amount} WC</span>
+                <span className="font-bold text-emerald-400 text-sm">+{tx.amount} WC</span>
               </div>
             </div>
           ))}

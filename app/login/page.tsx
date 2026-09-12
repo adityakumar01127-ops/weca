@@ -102,8 +102,8 @@ export default function LoginPage() {
       </form>
 
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-zinc-200 dark:border-zinc-800 w-full" />
-        <span className="bg-zinc-50 dark:bg-black px-2 text-[10px] text-zinc-400 font-mono uppercase tracking-wider relative">
+        <div className="border-t border-zinc-800 w-full" />
+        <span className="bg-[#09090b] px-2 text-[10px] text-zinc-500 font-mono uppercase tracking-wider relative">
           or
         </span>
       </div>
