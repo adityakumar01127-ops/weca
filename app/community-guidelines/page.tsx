@@ -15,14 +15,41 @@ import {
   HeartHandshake
 } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
   title: "Community Guidelines — Preserving the Integrity of Weirdness",
-  description: "Read the official Wica Community Guidelines: our strict No-AI policy, safety protocols, honest attribution, and moderation enforcement.",
+  description:
+    "Read the official Wica Community Guidelines: our strict No-AI policy, safety protocols, honest attribution, and moderation enforcement.",
+  alternates: {
+    canonical: `${SITE_URL}/community-guidelines`,
+  },
+  openGraph: {
+    title: `Community Guidelines — Preserving the Integrity of Weirdness | ${SITE_NAME}`,
+    description:
+      "Read the official Wica Community Guidelines: our strict No-AI policy, safety protocols, and honest attribution.",
+    url: `${SITE_URL}/community-guidelines`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Community Guidelines — Preserving the Integrity of Weirdness | ${SITE_NAME}`,
+    description:
+      "Read the official Wica Community Guidelines: our strict No-AI policy, safety protocols, and honest attribution.",
+  },
 };
 
 export default function CommunityGuidelinesPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Community Guidelines", path: "/community-guidelines" },
+        ]}
+      />
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
         <div className="mb-12">

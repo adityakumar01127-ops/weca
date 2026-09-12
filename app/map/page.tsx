@@ -2,16 +2,42 @@ import React from "react";
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { WorldMapExplorer } from "@/components/map/WorldMapExplorer";
-import { Globe2, MapPin, Compass, Sparkles } from "lucide-react";
+import { Globe2 } from "lucide-react";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "World Map Explorer — Global Weirdness Geographic Index",
-  description: "Explore the geographic distribution of verified candid anomalies. Browse bizarre finds mapped across 89 countries with coordinates and vision scores.",
+  title: "World Map Explorer — Global Geographic Index",
+  description:
+    "Explore the geographic distribution of verified candid anomalies. Browse bizarre finds mapped across 89 countries with coordinates and vision scores.",
+  alternates: {
+    canonical: `${SITE_URL}/map`,
+  },
+  openGraph: {
+    title: `World Map Explorer — Global Geographic Index | ${SITE_NAME}`,
+    description:
+      "Explore the geographic distribution of verified candid anomalies. Browse bizarre finds mapped across 89 countries.",
+    url: `${SITE_URL}/map`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `World Map Explorer — Global Geographic Index | ${SITE_NAME}`,
+    description:
+      "Explore the geographic distribution of verified candid anomalies. Browse bizarre finds mapped across 89 countries.",
+  },
 };
 
 export default function MapPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "World Map Explorer", path: "/map" },
+        ]}
+      />
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8">

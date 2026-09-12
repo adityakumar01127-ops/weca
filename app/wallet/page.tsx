@@ -2,16 +2,42 @@ import React from "react";
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { WalletView } from "@/components/wallet/WalletView";
-import { Wallet, Sparkles } from "lucide-react";
+import { Wallet } from "lucide-react";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Weird Credits Wallet & Economy — Rewards Ledger | Wica",
-  description: "Track your Weird Credits balance, unlock tier milestones, review immutable credit ledgers, and simulate Stripe Connect cash conversions.",
+  title: "Weird Credits Wallet & Economy — Rewards Ledger",
+  description:
+    "Track your Weird Credits balance, unlock tier milestones, review immutable credit ledgers, and manage creator cash conversions.",
+  alternates: {
+    canonical: `${SITE_URL}/wallet`,
+  },
+  openGraph: {
+    title: `Weird Credits Wallet & Economy — Rewards Ledger | ${SITE_NAME}`,
+    description:
+      "Track your Weird Credits balance, unlock tier milestones, and review immutable credit ledgers.",
+    url: `${SITE_URL}/wallet`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Weird Credits Wallet & Economy — Rewards Ledger | ${SITE_NAME}`,
+    description:
+      "Track your Weird Credits balance, unlock tier milestones, and review immutable credit ledgers.",
+  },
 };
 
 export default function WalletPage() {
   return (
     <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/20 transition-colors duration-200">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Weird Credits Wallet", path: "/wallet" },
+        ]}
+      />
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { Plus, Swords, Trophy, Wallet, LogOut, User as UserIcon, Menu, X, Sparkles, Settings as SettingsIcon, Globe2, BookOpen } from "lucide-react";
+import { Plus, Swords, Trophy, Wallet, LogOut, User as UserIcon, Menu, X, Sparkles, Globe2, BookOpen } from "lucide-react";
 import { CreatePostModal } from "@/components/upload/CreatePostModal";
 import { Logo } from "@/components/brand/Logo";
 
@@ -70,22 +70,22 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Settings Link (Hosts Appearance & Theme Toggle) */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* Quick Map Link on Mobile */}
             <Link
-              href="/settings"
-              className="p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              title="Settings & Appearance"
-              aria-label="Settings"
+              href="/map"
+              className="p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors md:hidden"
+              title="Anomaly World Map"
+              aria-label="Map"
             >
-              <SettingsIcon className="w-4 h-4" />
+              <Globe2 className="w-4 h-4" />
             </Link>
 
-            {/* Upload Button */}
+            {/* Desktop Upload Button (Mobile uses the center dock action) */}
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 text-xs font-medium transition-all shadow-xs cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 text-xs font-medium transition-all shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Upload</span>
@@ -108,7 +108,7 @@ export const Navbar: React.FC = () => {
 
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  className="hidden sm:flex items-center gap-2 p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                   title="Your Profile"
                 >
                   {profile?.avatar_url ? (
@@ -129,14 +129,14 @@ export const Navbar: React.FC = () => {
 
                 <button
                   onClick={() => signOut()}
-                  className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
+                  className="hidden sm:inline-flex p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
                   title="Log out"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
+              <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
                 <Link
                   href="/login"
                   className="px-2.5 py-1.5 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
@@ -193,35 +193,22 @@ export const Navbar: React.FC = () => {
               );
             })}
 
-            {/* Mobile Settings Link */}
-            <div className="pt-2 pb-1 border-t border-zinc-200 dark:border-zinc-800">
-              <Link
-                href="/settings"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <SettingsIcon className="w-4 h-4 opacity-70" />
-                  <span>Settings & Appearance</span>
-                </div>
-                <span className="text-[10px] font-mono text-zinc-500">Theme</span>
-              </Link>
-            </div>
-
-            {/* Mobile Upload Action */}
-            <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setIsCreateModalOpen(true);
-                }}
-                className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 transition-colors cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Upload Photograph</span>
-              </button>
-            </div>
+            {/* Logout on mobile menu if logged in */}
+            {(user || profile) && (
+              <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut();
+                  }}
+                  className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </header>

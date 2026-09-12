@@ -16,14 +16,65 @@ import {
   CheckCircle2 
 } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
-  title: "About Wica — The Global Weirdness Index",
-  description: "Learn why Wica exists: cataloging humanity's most inexplicable candid encounters through real photos and multimodal AI scoring.",
+  title: "About — The Global Weirdness Index",
+  description:
+    `Learn why ${SITE_NAME} exists: cataloging humanity's most inexplicable candid encounters through real unedited photos and multimodal AI scoring.`,
+  alternates: {
+    canonical: `${SITE_URL}/about`,
+  },
+  openGraph: {
+    title: `About ${SITE_NAME} — The Global Weirdness Index`,
+    description:
+      `Learn why ${SITE_NAME} exists: cataloging humanity's most inexplicable candid encounters through real photos and multimodal AI scoring.`,
+    url: `${SITE_URL}/about`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `About ${SITE_NAME} — The Global Weirdness Index`,
+    description:
+      `Learn why ${SITE_NAME} exists: cataloging humanity's most inexplicable candid encounters through real photos and multimodal AI scoring.`,
+  },
 };
+
+const ABOUT_FAQS = [
+  {
+    question: "What is Wica?",
+    answer:
+      "Wica is a decentralized public ledger and social discovery platform dedicated to documenting the statistically improbable, surreal, and inexplicable phenomena found in real, unedited physical reality.",
+  },
+  {
+    question: "How does the AI Scoring Engine work?",
+    answer:
+      "Every uploaded photo is evaluated zero-shot by Google Gemini Vision across 5 calibrated dimensions: Absurdity, Rarity, Compositional Craft, Cultural Novelty, and Cognitive Wit.",
+  },
+  {
+    question: "Are synthetic or AI-generated images allowed on Wica?",
+    answer:
+      "No. Wica is strictly designed as an antidote to synthetic slop. Only authentic, candid photographs of real-world phenomena are accepted and verified.",
+  },
+  {
+    question: "What are Weird Credits?",
+    answer:
+      "Weird Credits are the reputation currency of Wica earned by discovering verified anomalies and voting accurately in community Versus battles.",
+  },
+];
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "About", path: "/about" },
+        ]}
+      />
+      <FaqJsonLd items={ABOUT_FAQS} />
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* Badge & Title */}
         <div className="mb-12">

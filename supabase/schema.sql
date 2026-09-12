@@ -560,3 +560,17 @@ begin
   return new;
 end;
 $$ language plpgsql security definer;
+
+-- 11.6 Webhook Event Deduplication Table
+create table if not exists public.processed_webhook_events (
+  event_id text primary key,
+  event_type text not null,
+  payload jsonb,
+  processed_at timestamptz default now()
+);
+
+alter table public.processed_webhook_events enable row level security;
+drop policy if exists "Service role can manage webhook events" on public.processed_webhook_events;
+create policy "Service role can manage webhook events"
+  on public.processed_webhook_events for all
+  using (true) with check (true);

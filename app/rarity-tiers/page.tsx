@@ -13,9 +13,30 @@ import {
   Coins
 } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
-  title: "Rarity Tiers — Official Wica Classification System",
-  description: "Learn about the 4 official anomaly tiers: Mildly Odd, Certified Weird, Reality-Breaking, and Legendary Anomaly, along with Weird Credit rewards.",
+  title: "Rarity Tiers — Official Classification System",
+  description:
+    "Learn about the 4 official anomaly tiers: Mildly Odd, Certified Weird, Reality-Breaking, and Legendary Anomaly, along with Weird Credit rewards.",
+  alternates: {
+    canonical: `${SITE_URL}/rarity-tiers`,
+  },
+  openGraph: {
+    title: `Rarity Tiers — Official Anomaly Classification System | ${SITE_NAME}`,
+    description:
+      "Learn about the 4 official anomaly tiers: Mildly Odd, Certified Weird, Reality-Breaking, and Legendary Anomaly, along with Weird Credit rewards.",
+    url: `${SITE_URL}/rarity-tiers`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Rarity Tiers — Official Anomaly Classification System | ${SITE_NAME}`,
+    description:
+      "Learn about the 4 official anomaly tiers: Mildly Odd, Certified Weird, Reality-Breaking, and Legendary Anomaly, along with Weird Credit rewards.",
+  },
 };
 
 const TIERS = [
@@ -84,6 +105,12 @@ const TIERS = [
 export default function RarityTiersPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Rarity Tiers", path: "/rarity-tiers" },
+        ]}
+      />
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
         <div className="mb-12">

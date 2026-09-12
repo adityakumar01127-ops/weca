@@ -2,16 +2,42 @@ import React from "react";
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { LeaderboardView } from "@/components/leaderboard/LeaderboardView";
-import { Trophy, Crown, Sparkles } from "lucide-react";
+import { Trophy } from "lucide-react";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Global Leaderboard — Hall of Fame & Top Spotters | Wica",
-  description: "Rankings of the world's premier anomaly hunters. Filter by highest Wica Score, Weird Credits balance, Versus accuracy, and hunting streaks.",
+  title: "Global Leaderboard — Hall of Fame & Top Spotters",
+  description:
+    "Rankings of the world's premier anomaly hunters. Filter by highest Wica Score, Weird Credits balance, Versus accuracy, and hunting streaks.",
+  alternates: {
+    canonical: `${SITE_URL}/leaderboard`,
+  },
+  openGraph: {
+    title: `Global Leaderboard — Hall of Fame & Top Spotters | ${SITE_NAME}`,
+    description:
+      "Rankings of the world's premier anomaly hunters. Filter by highest Wica Score, Weird Credits, and Versus accuracy.",
+    url: `${SITE_URL}/leaderboard`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Global Leaderboard — Hall of Fame & Top Spotters | ${SITE_NAME}`,
+    description:
+      "Rankings of the world's premier anomaly hunters. Filter by highest Wica Score, Weird Credits, and Versus accuracy.",
+  },
 };
 
 export default function LeaderboardPage() {
   return (
     <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-amber-500/20 transition-colors duration-200">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Global Leaderboard", path: "/leaderboard" },
+        ]}
+      />
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8">

@@ -15,14 +15,41 @@ import {
   Sliders
 } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
-  title: "Gemini Vision API — Multimodal Architecture Documentation",
-  description: "Learn how Wica leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis, zero-shot multimodal scoring, and forensic AI detection.",
+  title: "Gemini Vision API — Multimodal Architecture",
+  description:
+    "Learn how Wica leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis, zero-shot multimodal scoring, and forensic detection.",
+  alternates: {
+    canonical: `${SITE_URL}/gemini-vision-api`,
+  },
+  openGraph: {
+    title: `Gemini Vision API — Multimodal Architecture | ${SITE_NAME}`,
+    description:
+      "Learn how Wica leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis and zero-shot scoring.",
+    url: `${SITE_URL}/gemini-vision-api`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Gemini Vision API — Multimodal Architecture | ${SITE_NAME}`,
+    description:
+      "Learn how Wica leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis and zero-shot scoring.",
+  },
 };
 
 export default function GeminiVisionApiPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Gemini Vision API", path: "/gemini-vision-api" },
+        ]}
+      />
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
         <div className="mb-12">

@@ -14,14 +14,60 @@ import {
   ArrowRight 
 } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
   title: "Anomaly Guidelines — Field Handbook & Submission Criteria",
-  description: "Official Wica submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
+  description:
+    "Official Wica submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
+  alternates: {
+    canonical: `${SITE_URL}/anomaly-guidelines`,
+  },
+  openGraph: {
+    title: `Anomaly Guidelines — Field Handbook & Submission Criteria | ${SITE_NAME}`,
+    description:
+      "Official Wica submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
+    url: `${SITE_URL}/anomaly-guidelines`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Anomaly Guidelines — Field Handbook & Submission Criteria | ${SITE_NAME}`,
+    description:
+      "Official Wica submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
+  },
 };
+
+const GUIDELINE_FAQS = [
+  {
+    question: "What qualifies as an authentic anomaly?",
+    answer:
+      "A candid, unposed physical phenomenon encountered serendipitously in everyday reality, free from digital manipulation, CGI, or generative AI.",
+  },
+  {
+    question: "What are photography best practices for Wica?",
+    answer:
+      "Capture the discovery in clear natural lighting with wide enough context to prove authenticity. Keep original EXIF sensor metadata intact.",
+  },
+  {
+    question: "What happens to staged or manipulated submissions?",
+    answer:
+      "AI-generated, staged, or heavily filtered images fail forensic cross-validation, resulting in quarantine and score revocation.",
+  },
+];
 
 export default function AnomalyGuidelinesPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Anomaly Guidelines", path: "/anomaly-guidelines" },
+        ]}
+      />
+      <FaqJsonLd items={GUIDELINE_FAQS} />
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
         <div className="mb-12">

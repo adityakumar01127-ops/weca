@@ -410,6 +410,49 @@ export const VersusBattleArena: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Mobile Floating Thumb Voting Dock (Pinned above the bottom navigation bar) */}
+      <div className="fixed bottom-18 left-3 right-3 z-40 md:hidden p-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl rounded-2xl border border-zinc-200/90 dark:border-zinc-800/90 shadow-2xl shadow-black/25 select-none transition-all">
+        {!userVote ? (
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => handleVote("a")}
+              className="py-3 px-3 rounded-xl bg-violet hover:bg-violet/90 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-violet/20 cursor-pointer min-h-[46px]"
+            >
+              <Swords className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Vote A (@{activeBattle.image_a.author?.username})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleVote("b")}
+              className="py-3 px-3 rounded-xl bg-magenta hover:bg-magenta/90 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-magenta/20 cursor-pointer min-h-[46px]"
+            >
+              <Swords className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Vote B (@{activeBattle.image_b.author?.username})</span>
+            </button>
+          </div>
+        ) : (
+          <div className="px-3 py-1 space-y-1.5">
+            <div className="flex items-center justify-between text-xs font-mono font-bold">
+              <span className="text-violet flex items-center gap-1">
+                {userVote === "a" && <CheckCircle2 className="w-3.5 h-3.5" />}
+                Option A ({pctA}%)
+              </span>
+              <span className="text-zinc-400 text-[10px]">Showdown Live Split</span>
+              <span className="text-magenta flex items-center gap-1">
+                {userVote === "b" && <CheckCircle2 className="w-3.5 h-3.5" />}
+                Option B ({pctB}%)
+              </span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden flex">
+              <div className="h-full bg-violet transition-all duration-500" style={{ width: `${pctA}%` }} />
+              <div className="h-full bg-magenta transition-all duration-500" style={{ width: `${pctB}%` }} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+

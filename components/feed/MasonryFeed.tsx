@@ -104,10 +104,10 @@ export const MasonryFeed: React.FC<MasonryFeedProps> = ({
       {/* Control Bar: Categories & Sorting */}
       <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-4">
         {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 scrollbar-none -mx-2 px-2 sm:mx-0 sm:px-0">
           <button
             onClick={() => setSelectedCategory("All")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-full text-xs font-medium shrink-0 transition-all cursor-pointer min-h-[40px] ${
               selectedCategory === "All"
                 ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-semibold shadow-xs"
                 : "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
@@ -119,7 +119,7 @@ export const MasonryFeed: React.FC<MasonryFeedProps> = ({
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-full text-xs font-medium shrink-0 transition-all cursor-pointer min-h-[40px] ${
                 selectedCategory === cat
                   ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-semibold shadow-xs"
                   : "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
@@ -134,15 +134,15 @@ export const MasonryFeed: React.FC<MasonryFeedProps> = ({
         <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto text-xs">
           <button
             onClick={() => setSortBy(sortBy === "score" ? "latest" : "score")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 font-mono transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 font-mono transition-colors cursor-pointer min-h-[40px]"
           >
             <ArrowUpDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
-            <span>Sort: {sortBy === "score" ? "Highest Wica Score" : "Most Recent"}</span>
+            <span>Sort: {sortBy === "score" ? "Highest Score" : "Most Recent"}</span>
           </button>
 
           <button
             onClick={refreshFeed}
-            className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
+            className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
             title="Refresh feed"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />

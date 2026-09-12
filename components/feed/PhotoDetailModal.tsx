@@ -163,29 +163,35 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/75 dark:bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div 
-        className="relative w-full max-w-5xl bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl shadow-black/40 dark:shadow-black/90 overflow-hidden flex flex-col md:flex-row max-h-[92vh] text-zinc-900 dark:text-zinc-100"
+        className="relative w-full max-w-5xl bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-t-[32px] sm:rounded-3xl border-t sm:border border-zinc-200 dark:border-zinc-800/90 shadow-2xl shadow-black/40 dark:shadow-black/90 overflow-hidden flex flex-col md:flex-row max-h-[94vh] sm:max-h-[88vh] text-zinc-900 dark:text-zinc-100 animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Drag Indicator Handle */}
+        <div className="w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 mx-auto my-2.5 sm:hidden shrink-0" />
+
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-zinc-100/90 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white shadow-sm transition-colors cursor-pointer"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 p-2.5 sm:p-2 rounded-full bg-zinc-100/90 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white shadow-sm transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Left Side: Photo Display */}
-        <div className="md:w-3/5 bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center relative overflow-hidden min-h-[300px] md:min-h-full">
+        <div className="md:w-3/5 bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center relative overflow-hidden min-h-[260px] sm:min-h-[300px] md:min-h-full">
           <img
             src={getSafeImageUrl(image.storage_path)}
             alt={image.caption || image.ai_verdict}
-            className="w-full h-full max-h-[85vh] object-contain"
+            className="w-full h-full max-h-[45vh] sm:max-h-[85vh] object-contain"
           />
 
           {/* Category Tag */}
-          <div className="absolute top-4 left-4 flex items-center gap-2">
+          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-zinc-900/80 backdrop-blur-md text-xs font-mono font-medium text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700/80 shadow-xs">
               {image.category}
             </span>
@@ -199,12 +205,12 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
         </div>
 
         {/* Right Side: Score Rubric & Comments */}
-        <div className="md:w-2/5 flex flex-col h-full bg-white dark:bg-zinc-900/90 overflow-y-auto border-t md:border-t-0 md:border-l border-zinc-200 dark:border-zinc-800">
+        <div className="md:w-2/5 flex flex-col flex-1 min-h-0 bg-white dark:bg-zinc-900/90 overflow-y-auto border-t md:border-t-0 md:border-l border-zinc-200 dark:border-zinc-800">
           {/* Header & Author */}
           <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
             <Link
               href={`/profile/${image.author?.username || "unknown"}`}
-              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity min-h-[44px]"
             >
               <img
                 src={image.author?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${image.user_id}`}
@@ -229,7 +235,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               <button
                 type="button"
                 onClick={handleToggleBookmark}
-                className={`p-2 rounded-lg transition-colors cursor-pointer ${
+                className={`p-2.5 rounded-xl transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center ${
                   isBookmarked
                     ? "text-amber-500 dark:text-amber-400 hover:bg-amber-400/10"
                     : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -242,7 +248,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-2.5 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title="Copy share link"
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /> : <Share2 className="w-4 h-4" />}
@@ -265,7 +271,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               </div>
             </div>
 
-            <p className="font-display font-semibold text-zinc-900 dark:text-white text-base leading-snug">
+            <p className="font-display font-semibold text-zinc-900 dark:text-white text-sm sm:text-base leading-snug">
               “{image.ai_verdict}”
             </p>
 
@@ -304,7 +310,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               <button
                 type="button"
                 onClick={handleToggleLike}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-medium transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-medium transition-all cursor-pointer min-h-[44px] ${
                   liked
                     ? "bg-rose-500/10 border-rose-400 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-bold"
                     : "bg-white dark:bg-zinc-950/80 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700"
@@ -322,7 +328,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
           </div>
 
           {/* Comments Thread */}
-          <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3 min-h-[160px]">
+          <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3 min-h-[140px]">
             <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 block mb-1">
               Discussion
             </span>
@@ -362,8 +368,8 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
             )}
           </div>
 
-          {/* Post Comment Input */}
-          <form onSubmit={handleAddComment} className="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/50">
+          {/* Post Comment Input with Safe Area */}
+          <form onSubmit={handleAddComment} className="p-3 pb-safe border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/95 dark:bg-zinc-950/95">
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -371,12 +377,12 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 disabled={!user || submittingComment}
-                className="flex-1 px-3 py-2 text-xs border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-xl focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-colors placeholder:text-zinc-400 dark:placeholder:text-zinc-500 disabled:opacity-50"
+                className="flex-1 px-3.5 py-2.5 text-sm sm:text-xs border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-xl focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-colors placeholder:text-zinc-400 dark:placeholder:text-zinc-500 disabled:opacity-50 min-h-[44px]"
               />
               <button
                 type="submit"
                 disabled={!user || !newComment.trim() || submittingComment}
-                className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 disabled:opacity-40 transition-colors cursor-pointer"
+                className="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 disabled:opacity-40 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title="Post comment"
               >
                 <Send className="w-4 h-4 text-violet" />
@@ -388,3 +394,4 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
     </div>
   );
 };
+

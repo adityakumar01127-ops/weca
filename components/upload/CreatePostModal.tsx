@@ -505,8 +505,11 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   if (!isOpen || !mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/70 dark:bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-zinc-900 dark:text-zinc-100 shadow-2xl relative flex flex-col my-auto max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 dark:bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 border-t sm:border border-zinc-200 dark:border-zinc-800 rounded-t-[32px] sm:rounded-3xl p-4 sm:p-7 text-zinc-900 dark:text-zinc-100 shadow-2xl relative flex flex-col max-h-[94vh] sm:max-h-[92vh] overflow-hidden animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300">
+        {/* Mobile Drag Indicator Handle */}
+        <div className="w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 mx-auto mb-2.5 sm:hidden shrink-0" />
+
         {/* Ambient Glows */}
         <div className="absolute -top-24 -right-24 w-52 h-52 bg-violet/15 dark:bg-violet/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-cyan/10 dark:bg-cyan/15 rounded-full blur-3xl pointer-events-none" />
@@ -534,7 +537,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             type="button"
             id="close-create-post-modal-btn"
             onClick={handleClose}
-            className="p-2 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-2.5 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
@@ -948,12 +951,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           </div>
 
             {/* ACTION FOOTER */}
-            <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-3 shrink-0">
+            <div className="pt-3 pb-safe sm:pb-0 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-2.5 shrink-0">
               <button
                 type="button"
                 id="save-draft-btn"
                 onClick={handleSaveDraft}
-                className="px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-900 border border-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 dark:hover:text-white dark:border-zinc-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-900 border border-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 dark:hover:text-white dark:border-zinc-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px]"
               >
                 <Save className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Save Draft</span>
@@ -963,7 +966,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 text-xs font-semibold transition-colors cursor-pointer"
+                  className="px-3.5 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-800 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 text-xs font-semibold transition-colors cursor-pointer min-h-[44px]"
                 >
                   Cancel
                 </button>
@@ -972,7 +975,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   type="submit"
                   id="submit-post-btn"
                   disabled={uploading || !previewUrl}
-                  className={`px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-1.5 cursor-pointer disabled:opacity-40 ${
+                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-1.5 cursor-pointer disabled:opacity-40 min-h-[44px] ${
                     isScheduled
                       ? "bg-gradient-to-r from-cyan to-blue-600 hover:from-cyan/90 text-zinc-950 shadow-cyan/20"
                       : "bg-gradient-to-r from-violet to-purple-600 hover:from-violet/90 text-white shadow-violet/25"
@@ -985,6 +988,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                     </>
                   ) : isScheduled ? (
                     <>
+
                       <Calendar className="w-3.5 h-3.5" />
                       <span>Schedule Anomaly</span>
                     </>

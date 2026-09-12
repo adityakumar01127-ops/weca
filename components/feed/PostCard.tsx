@@ -169,16 +169,16 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
             <Link
               href={`/posts/${post.id}`}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 font-mono transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 font-mono transition-colors min-h-[44px] justify-center"
             >
-              <MessageSquare className="w-3.5 h-3.5" />
+              <MessageSquare className="w-4 h-4" />
               <span>{post.comments_count || 0}</span>
             </Link>
           </div>
 
           <Link
             href={`/posts/${post.id}`}
-            className="text-[11px] font-mono text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            className="text-[11px] font-mono text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors px-2 py-2 min-h-[44px] inline-flex items-center"
           >
             View detail
           </Link>

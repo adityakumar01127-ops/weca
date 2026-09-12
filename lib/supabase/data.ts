@@ -353,8 +353,20 @@ export async function createPost(params: {
 
         return createdPost;
       }
+
+      if (error) {
+        console.error("Supabase insert post error:", error);
+        if (process.env.NODE_ENV === "production") {
+          throw new Error(`Failed to create post in production database: ${error.message}`);
+        }
+      }
     } catch (err) {
       console.warn("Supabase insert post failed, using local store:", err);
+      if (process.env.NODE_ENV === "production") {
+        throw new Error(
+          `Database failure during post creation: ${err instanceof Error ? err.message : String(err)}`
+        );
+      }
     }
   }
 
@@ -1375,13 +1387,15 @@ export async function processAdminPayoutAction(params: {
       // 2. Process via RazorpayX Payouts
       const payoutResult = await initiateRazorpayXPayout(request as PayoutRequest);
 
-      const updatedStatus = payoutResult.success ? "paid" : "approved";
+      // On initial API dispatch, status transitions to "approved".
+      // The incoming RazorpayX webhook (payout.processed) confirms settlement and sets status to "paid".
+      const updatedStatus = "approved";
       const { data: updated, error: uErr } = await supabase
         .from("payout_requests")
         .update({
           status: updatedStatus,
           razorpayx_payout_id: payoutResult.payoutId || null,
-          admin_notes: params.notes || `Approved manually by admin (${payoutResult.mode} mode)`,
+          admin_notes: params.notes || `Approved manually by admin (${payoutResult.mode} mode, awaiting webhook settlement)`,
           processed_at: new Date().toISOString(),
           processed_by: validAdminId,
         })

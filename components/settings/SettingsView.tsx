@@ -309,17 +309,46 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Main Settings Console Layout */}
-      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-12">
+        {/* Mobile Horizontal Pill Tab Navigation (Fast thumb switching) */}
+        <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none">
+          {[
+            { id: "profile" as SettingsTab, label: "Profile", icon: UserIcon },
+            { id: "appearance" as SettingsTab, label: "Appearance", icon: Sun },
+            { id: "ai-vision" as SettingsTab, label: "AI Vision", icon: Sparkles },
+            { id: "wallet" as SettingsTab, label: "Wallet", icon: Coins },
+            { id: "account" as SettingsTab, label: "Account", icon: ShieldCheck },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-all min-h-[44px] cursor-pointer ${
+                  isActive
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-sm"
+                    : "bg-white/80 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
           {/* ============================================================ */}
-          {/* LEFT COLUMN: NAVIGATION TABS                                 */}
+          {/* LEFT COLUMN: NAVIGATION TABS (Desktop Only)                  */}
           {/* ============================================================ */}
-          <aside className="lg:col-span-4 space-y-4">
+          <aside className="hidden lg:block lg:col-span-4 space-y-4">
             <div className="p-4 rounded-3xl bg-white/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-xl space-y-2">
               <div className="px-3 py-2 text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                 System Control Panels
               </div>
+
 
               <button
                 type="button"

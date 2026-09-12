@@ -18,12 +18,39 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ image, onOpenDetail }) => 
   const [likeCount, setLikeCount] = useState<number>(image.likes_count || 0);
   const [animatingLike, setAnimatingLike] = useState<boolean>(false);
   const [imageError, setImageError] = useState<boolean>(false);
+  const [showHeartPop, setShowHeartPop] = useState<boolean>(false);
+
+  const lastTapRef = useRef<number>(0);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const tier = getTierFromScore(image.wica_score);
   const tierColors = getTierColor(tier);
 
-  const handleToggleLike = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const performLikeRequest = async (targetLiked: boolean, targetCount: number) => {
+    try {
+      const res = await fetch("/api/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageId: image.id,
+          userId: user?.id,
+        }),
+      });
+      const data = await res.json();
+      if (typeof data.count === "number") {
+        setLikeCount(data.count);
+        setLiked(data.liked);
+      }
+    } catch (err) {
+      console.error("Failed to like:", err);
+      // Rollback
+      setLiked(liked);
+      setLikeCount(likeCount);
+    }
+  };
+
+  const handleToggleLike = async (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
 
     if (!user) {
       openAuthModal();
@@ -41,35 +68,62 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ image, onOpenDetail }) => 
       setTimeout(() => setAnimatingLike(false), 500);
     }
 
-    try {
-      const res = await fetch("/api/like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageId: image.id,
-          userId: user.id,
-        }),
-      });
-      const data = await res.json();
-      if (typeof data.count === "number") {
-        setLikeCount(data.count);
-        setLiked(data.liked);
+    await performLikeRequest(nextLiked, nextCount);
+  };
+
+  const handleCardClick = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 280;
+
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Double tap detected!
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
       }
-    } catch (err) {
-      console.error("Failed to like:", err);
-      // Rollback
-      setLiked(liked);
-      setLikeCount(likeCount);
+      lastTapRef.current = 0;
+
+      // Trigger heart pop animation
+      setShowHeartPop(true);
+      setTimeout(() => setShowHeartPop(false), 850);
+
+      if (!liked) {
+        if (!user) {
+          openAuthModal();
+        } else {
+          const nextLiked = true;
+          const nextCount = likeCount + 1;
+          setLiked(true);
+          setLikeCount(nextCount);
+          setAnimatingLike(true);
+          setTimeout(() => setAnimatingLike(false), 500);
+          performLikeRequest(nextLiked, nextCount);
+        }
+      }
+    } else {
+      lastTapRef.current = now;
+      clickTimeoutRef.current = setTimeout(() => {
+        onOpenDetail(image);
+      }, DOUBLE_TAP_DELAY);
     }
   };
 
   return (
     <article
-      onClick={() => onOpenDetail(image)}
-      className="masonry-item group relative bg-white dark:bg-zinc-900/80 rounded-2xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 overflow-hidden cursor-pointer hover:shadow-md"
+      onClick={handleCardClick}
+      className="masonry-item group relative bg-white dark:bg-zinc-900/80 rounded-2xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 overflow-hidden cursor-pointer hover:shadow-md select-none touch-manipulation"
     >
       {/* Photo Container with natural varied aspect ratio */}
       <div className="relative w-full min-h-[180px] bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center overflow-hidden">
+        {/* Double-tap Heart Burst Pop */}
+        {showHeartPop && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+            <div className="animate-heart-pop p-4 rounded-full bg-black/40 backdrop-blur-md shadow-2xl">
+              <Heart className="w-16 h-16 fill-magenta text-magenta drop-shadow-[0_0_20px_rgba(255,77,141,0.8)]" />
+            </div>
+          </div>
+        )}
+
         {/* Error Fallback */}
         {imageError ? (
           <div className="flex flex-col items-center justify-center p-8 text-center text-zinc-400">
@@ -132,7 +186,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ image, onOpenDetail }) => 
           <Link
             href={`/profile/${image.author?.username || "unknown"}`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1.5 hover:text-zinc-900 dark:hover:text-white transition-colors group/author"
+            className="flex items-center gap-1.5 py-1.5 hover:text-zinc-900 dark:hover:text-white transition-colors group/author min-h-[44px]"
           >
             <img
               src={image.author?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${image.user_id}`}
@@ -145,18 +199,18 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ image, onOpenDetail }) => 
           </Link>
 
           {/* Social Stats: Likes and Comments */}
-          <div className="flex items-center gap-3 font-mono text-[11px]">
+          <div className="flex items-center gap-1 font-mono text-[11px]">
             {/* Likes */}
             <button
               type="button"
               onClick={handleToggleLike}
-              className={`flex items-center gap-1 transition-colors cursor-pointer ${
+              className={`flex items-center gap-1 px-2.5 py-2 rounded-xl transition-colors cursor-pointer min-h-[44px] min-w-[44px] justify-center ${
                 liked ? "text-magenta font-semibold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               }`}
               title={liked ? "Unlike" : "Like"}
             >
               <Heart
-                className={`w-3.5 h-3.5 transition-transform ${
+                className={`w-4 h-4 transition-transform ${
                   liked ? "fill-magenta text-magenta" : ""
                 } ${animatingLike ? "scale-125" : "scale-100"}`}
               />
@@ -164,8 +218,8 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ image, onOpenDetail }) => 
             </button>
 
             {/* Comments */}
-            <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
-              <MessageSquare className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1 px-2.5 py-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors min-h-[44px] justify-center">
+              <MessageSquare className="w-4 h-4" />
               <span>{image.comments_count || 0}</span>
             </div>
           </div>

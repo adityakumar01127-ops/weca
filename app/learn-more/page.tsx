@@ -5,14 +5,41 @@ import { Footer } from "@/components/layout/Footer";
 import { ContactOptOutForm } from "@/components/privacy/ContactOptOutForm";
 import { Users, Lock, ShieldCheck, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
-  title: "Learn More — Understanding Contact Uploads on Wica",
-  description: "Learn how Wica handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
+  title: "Contact Information Disclosure & Privacy",
+  description:
+    "Learn how Wica handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
+  alternates: {
+    canonical: `${SITE_URL}/learn-more`,
+  },
+  openGraph: {
+    title: `Contact Information Disclosure & Privacy | ${SITE_NAME}`,
+    description:
+      "Learn how Wica handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
+    url: `${SITE_URL}/learn-more`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Contact Information Disclosure & Privacy | ${SITE_NAME}`,
+    description:
+      "Learn how Wica handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
+  },
 };
 
 export default function LearnMorePage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Contact Uploads Disclosure", path: "/learn-more" },
+        ]}
+      />
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
         <div className="mb-12">

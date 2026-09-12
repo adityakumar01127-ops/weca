@@ -2,16 +2,42 @@ import React from "react";
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { ChallengesView } from "@/components/challenges/ChallengesView";
-import { Flame, Sparkles } from "lucide-react";
+import { Flame } from "lucide-react";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Weekly Challenges & Bounties — Community Quests | Wica",
-  description: "Participate in time-boxed community anomaly challenges. Compete for bonus Weird Credits with targeted optical observations.",
+  title: "Weekly Challenges & Bounties — Community Quests",
+  description:
+    "Participate in time-boxed community anomaly challenges. Compete for bonus Weird Credits with targeted optical observations.",
+  alternates: {
+    canonical: `${SITE_URL}/challenges`,
+  },
+  openGraph: {
+    title: `Weekly Challenges & Bounties — Community Quests | ${SITE_NAME}`,
+    description:
+      "Participate in time-boxed community anomaly challenges. Compete for bonus Weird Credits with targeted optical observations.",
+    url: `${SITE_URL}/challenges`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Weekly Challenges & Bounties — Community Quests | ${SITE_NAME}`,
+    description:
+      "Participate in time-boxed community anomaly challenges. Compete for bonus Weird Credits with targeted optical observations.",
+  },
 };
 
 export default function ChallengesPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Challenges & Bounties", path: "/challenges" },
+        ]}
+      />
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8">

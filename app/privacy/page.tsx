@@ -4,14 +4,41 @@ import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { ShieldCheck, Lock, Eye, FileText, ArrowRight, UserCheck } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
-  title: "Privacy Policy — Wica Data Protection & Security",
-  description: "Read the Wica Privacy Policy: understand how we process photos, AI vision inference data, contact uploads, and protect your digital privacy rights.",
+  title: "Privacy Policy — Data Protection & Security",
+  description:
+    "Read the Wica Privacy Policy: understand how we process photos, AI vision inference data, contact uploads, and protect your digital privacy rights.",
+  alternates: {
+    canonical: `${SITE_URL}/privacy`,
+  },
+  openGraph: {
+    title: `Privacy Policy — Data Protection & Security | ${SITE_NAME}`,
+    description:
+      "Read the Wica Privacy Policy: understand how we process photos, AI vision inference data, and protect your privacy rights.",
+    url: `${SITE_URL}/privacy`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Privacy Policy — Data Protection & Security | ${SITE_NAME}`,
+    description:
+      "Read the Wica Privacy Policy: understand how we process photos, AI vision inference data, and protect your privacy rights.",
+  },
 };
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Privacy Policy", path: "/privacy" },
+        ]}
+      />
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
         {/* Header */}
         <div className="mb-12 border-b border-zinc-200 dark:border-zinc-800 pb-8">

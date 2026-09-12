@@ -2,16 +2,42 @@ import React from "react";
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { ProView } from "@/components/pro/ProView";
-import { Sparkles, Zap, ShieldCheck } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Wica Pro & Brand Marketplace — Subscriptions & Licensing",
-  description: "Upgrade to Hunter Pro for raw Gemini Vision tensor metrics and 4K downloads, or license candid real-world anomalies for commercial campaigns.",
+  title: "Hunter Pro & Brand Marketplace — Subscriptions & Licensing",
+  description:
+    "Upgrade to Hunter Pro for raw Gemini Vision tensor metrics and 4K downloads, or license candid real-world anomalies for commercial campaigns.",
+  alternates: {
+    canonical: `${SITE_URL}/pro`,
+  },
+  openGraph: {
+    title: `${SITE_NAME} Pro & Brand Marketplace — Subscriptions & Licensing | ${SITE_NAME}`,
+    description:
+      "Upgrade to Hunter Pro for raw Gemini Vision tensor metrics and 4K downloads, or license candid real-world anomalies for commercial campaigns.",
+    url: `${SITE_URL}/pro`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} Pro & Brand Marketplace — Subscriptions & Licensing | ${SITE_NAME}`,
+    description:
+      "Upgrade to Hunter Pro for raw Gemini Vision tensor metrics and 4K downloads, or license candid real-world anomalies for commercial campaigns.",
+  },
 };
 
 export default function ProPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Wica Pro & Marketplace", path: "/pro" },
+        ]}
+      />
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8 text-center max-w-2xl mx-auto">

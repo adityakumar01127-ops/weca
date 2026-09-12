@@ -51,17 +51,24 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+
+      onClick={closeAuthModal}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div 
-        className="relative w-full max-w-md bg-white/95 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl overflow-hidden p-6 sm:p-7 animate-in zoom-in-95 duration-200 text-zinc-900 dark:text-zinc-100"
+        className="relative w-full max-w-md bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl rounded-t-[32px] sm:rounded-3xl border-t sm:border border-zinc-200 dark:border-zinc-800/90 shadow-2xl overflow-hidden p-6 sm:p-7 pb-safe animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200 text-zinc-900 dark:text-zinc-100"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Drag Handle */}
+        <div className="w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 mx-auto -mt-2 mb-4 sm:hidden shrink-0" />
+
         {/* Subtle Ambient Card Top Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-violet/60 to-transparent rounded-full" />
 
         <button
           onClick={closeAuthModal}
-          className="absolute top-5 right-5 p-1.5 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800/80 transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-2 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800/80 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
@@ -94,14 +101,14 @@ export const AuthModal: React.FC = () => {
                 Username
               </label>
               <div className="relative">
-                <UserIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
+                <UserIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
                 <input
                   type="text"
                   required
                   placeholder="e.g. anomaly_hunter"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
+                  className="w-full pl-10 pr-3.5 py-3 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-base sm:text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono min-h-[44px]"
                 />
               </div>
             </div>
@@ -112,14 +119,14 @@ export const AuthModal: React.FC = () => {
               Email Address
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
+              <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
               <input
                 type="email"
                 required
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
+                className="w-full pl-10 pr-3.5 py-3 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-base sm:text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
               />
             </div>
           </div>
@@ -129,14 +136,14 @@ export const AuthModal: React.FC = () => {
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
+              <Lock className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
               <input
                 type="password"
                 required
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
+                className="w-full pl-10 pr-3.5 py-3 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-base sm:text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono min-h-[44px]"
               />
             </div>
           </div>
@@ -144,10 +151,10 @@ export const AuthModal: React.FC = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-2 py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.99] disabled:opacity-50 cursor-pointer"
+            className="w-full mt-2 py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-semibold text-sm sm:text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.99] disabled:opacity-50 cursor-pointer min-h-[44px]"
           >
             {submitting ? "Authenticating..." : isSignUp ? "Create Account" : "Sign In"}
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
@@ -160,7 +167,7 @@ export const AuthModal: React.FC = () => {
                 setIsSignUp(!isSignUp);
                 setError(null);
               }}
-              className="text-violet font-semibold hover:underline cursor-pointer"
+              className="text-violet font-semibold hover:underline cursor-pointer min-h-[44px] inline-flex items-center"
             >
               {isSignUp ? "Sign In" : "Create Account"}
             </button>
@@ -170,3 +177,4 @@ export const AuthModal: React.FC = () => {
     </div>
   );
 };
+

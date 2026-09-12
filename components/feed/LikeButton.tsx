@@ -60,15 +60,16 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   return (
     <button
       onClick={handleToggle}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono transition-colors ${
+      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer min-h-[44px] min-w-[44px] justify-center active:scale-90 select-none ${
         liked
-          ? "text-rose-500 bg-rose-50 dark:bg-rose-950/30"
-          : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+          ? "text-rose-500 bg-rose-50 dark:bg-rose-950/40 font-semibold"
+          : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
       }`}
       title={liked ? "Unlike" : "Like"}
     >
-      <Heart className={`w-3.5 h-3.5 ${liked ? "fill-current" : ""}`} />
+      <Heart className={`w-4 h-4 transition-transform ${liked ? "fill-current scale-110" : ""}`} />
       <span>{count}</span>
     </button>
   );
 };
+

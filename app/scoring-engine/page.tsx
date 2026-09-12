@@ -15,14 +15,60 @@ import {
   Zap
 } from "lucide-react";
 
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
+
 export const metadata: Metadata = {
-  title: "Scoring Engine — Wica Weirdness Engine v1.0",
-  description: "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Wica.",
+  title: "Scoring Engine — 5-D Multimodal Rubric",
+  description:
+    "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Wica.",
+  alternates: {
+    canonical: `${SITE_URL}/scoring-engine`,
+  },
+  openGraph: {
+    title: `Scoring Engine — 5-D Multimodal Rubric | ${SITE_NAME}`,
+    description:
+      "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Wica.",
+    url: `${SITE_URL}/scoring-engine`,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Scoring Engine — 5-D Multimodal Rubric | ${SITE_NAME}`,
+    description:
+      "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Wica.",
+  },
 };
+
+const SCORING_FAQS = [
+  {
+    question: "What are the 5 dimensions of Wica anomaly scoring?",
+    answer:
+      "Submissions are evaluated across Absurdity (35%), Rarity (25%), Cultural Novelty (20%), Compositional Craft (10%), and Cognitive Wit (10%).",
+  },
+  {
+    question: "What models run the multimodal evaluation?",
+    answer:
+      "Scoring executes on Google Gemini Vision 2.5 Flash and Pro models, evaluating uncompressed imagery with zero-shot spatial tensor reasoning.",
+  },
+  {
+    question: "What is the difference between Weirdness and Uniqueness scores?",
+    answer:
+      "Weirdness measures the visceral incongruity and surreal disruption of the frame. Uniqueness measures frequency of occurrence compared against millions of baseline everyday images.",
+  },
+];
 
 export default function ScoringEnginePage() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Scoring Engine", path: "/scoring-engine" },
+        ]}
+      />
+      <FaqJsonLd items={SCORING_FAQS} />
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* Header */}
         <div className="mb-12">
