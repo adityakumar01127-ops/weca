@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { calculatePostScoringCredits, recordCreditTransaction } from "@/lib/credits";
 
 interface ScoreResult {
   weirdness: number;
@@ -307,6 +308,36 @@ export async function POST(req: NextRequest) {
             })
             .eq("id", postId);
         }
+
+        // Accrue credits to post owner with immutable credit_transactions logging
+        let postUserId = record.user_id;
+        if (!postUserId) {
+          const { data: pData } = await supabase
+            .from("posts")
+            .select("user_id")
+            .eq("id", postId)
+            .single();
+          postUserId = pData?.user_id;
+        }
+
+        if (postUserId) {
+          // Check if transaction already logged for idempotency
+          const { data: existingTx } = await supabase
+            .from("credit_transactions")
+            .select("id")
+            .eq("post_id", postId)
+            .maybeSingle();
+
+          if (!existingTx) {
+            const { total: earnedCredits } = calculatePostScoringCredits(scores.weirdness, scores.uniqueness);
+            await recordCreditTransaction(supabase, {
+              userId: postUserId,
+              amount: earnedCredits,
+              reason: `Anomaly Scored: Weirdness ${scores.weirdness} + Uniqueness ${scores.uniqueness}`,
+              postId: postId,
+            });
+          }
+        }
       }
 
       // Also update in-memory fallback store if active
@@ -316,6 +347,14 @@ export async function POST(req: NextRequest) {
           post.weirdness_score = scores.weirdness;
           post.uniqueness_score = scores.uniqueness;
           post.scoring_status = "completed";
+
+          const { total: earnedCredits } = calculatePostScoringCredits(scores.weirdness, scores.uniqueness);
+          await recordCreditTransaction(null, {
+            userId: post.user_id,
+            amount: earnedCredits,
+            reason: `Anomaly Scored: Weirdness ${scores.weirdness} + Uniqueness ${scores.uniqueness}`,
+            postId: postId,
+          });
         }
       }
 

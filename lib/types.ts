@@ -9,6 +9,7 @@ export interface Profile {
   avatar_url?: string | null;
   bio?: string | null;
   credits_balance: number;
+  is_admin?: boolean;
   created_at: string;
 }
 
@@ -286,4 +287,55 @@ export interface Achievement {
   iconName: string;
   unlocked: boolean;
   progress: number;
+}
+
+// ==============================================================================
+// WECA PHASE 4: CREDITS, MONETIZATION & PAYOUTS
+// ==============================================================================
+
+export interface CreditTransaction {
+  id: string;
+  user_id: string;
+  amount: number;
+  reason: string;
+  post_id?: string | null;
+  battle_id?: string | null;
+  payout_request_id?: string | null;
+  created_at: string;
+}
+
+export type PayoutMethod = "upi" | "bank_account";
+
+export interface PayoutDetails {
+  method: PayoutMethod;
+  name: string;
+  upi_id?: string;
+  account_number?: string;
+  ifsc?: string;
+}
+
+export type PayoutStatus = "pending" | "approved" | "paid" | "rejected";
+
+export interface PayoutRequest {
+  id: string;
+  user_id: string;
+  amount: number;
+  currency: string;
+  status: PayoutStatus;
+  payout_details: PayoutDetails;
+  risk_score: number;
+  flagged_suspicious: boolean;
+  suspicion_reasons: string[];
+  admin_notes?: string | null;
+  razorpayx_payout_id?: string | null;
+  requested_at: string;
+  processed_at?: string | null;
+  processed_by?: string | null;
+  user?: Profile | null;
+}
+
+export interface AbuseEvaluation {
+  isSuspicious: boolean;
+  riskScore: number;
+  reasons: string[];
 }

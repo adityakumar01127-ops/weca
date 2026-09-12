@@ -1,6 +1,9 @@
 import { createClient } from "./client";
 import { createAdminClient } from "./admin";
-import { Post, Profile, Comment, Battle, BattleVote } from "../types";
+import { Post, Profile, Comment, Battle, BattleVote, CreditTransaction, PayoutRequest, PayoutDetails } from "../types";
+import { recordCreditTransaction, BATTLE_WINNER_BONUS_WC, MIN_CASHOUT_THRESHOLD_WC } from "../credits";
+import { evaluatePayoutAbuseGuards } from "../abuse-guards";
+import { initiateRazorpayXPayout } from "../payouts/razorpayx";
 
 // In-memory demo store fallback for initial boot or offline testing
 const DEMO_PROFILE: Profile = {
@@ -1117,8 +1120,309 @@ export async function castBattleVote(
     const bCount = battle.votes_b_count || 0;
     battle.winner_post_id = aCount > bCount ? battle.post_a_id : battle.post_b_id;
     battle.ended_at = new Date().toISOString();
+
+    // Award bonus in memory fallback
+    if (battle.winner_post_id) {
+      const winningPost = (global.__WECA_POSTS || []).find((p) => p.id === battle.winner_post_id);
+      if (winningPost) {
+        recordCreditTransaction(null, {
+          userId: winningPost.user_id,
+          amount: BATTLE_WINNER_BONUS_WC,
+          reason: "Versus Battle Victory Bonus: Post crowned winner",
+          postId: winningPost.id,
+          battleId: battle.id,
+        });
+      }
+    }
   }
 
   return { success: true, battle };
 }
+
+// ==============================================================================
+// WECA PHASE 4: CREDITS, TRANSACTIONS & MONETIZATION
+// ==============================================================================
+
+/**
+ * Fetch credit transaction audit trail for a user
+ */
+export async function getUserCreditTransactions(userId: string): Promise<CreditTransaction[]> {
+  const supabase = typeof window === "undefined" ? (createAdminClient() || createClient()) : createClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("credit_transactions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        return data as CreditTransaction[];
+      }
+    } catch (err) {
+      console.warn("getUserCreditTransactions error, falling back to memory:", err);
+    }
+  }
+
+  return (global.__WECA_CREDIT_TRANSACTIONS || []).filter((t) => t.user_id === userId);
+}
+
+/**
+ * Fetch all payout requests for a user
+ */
+export async function getUserPayoutRequests(userId: string): Promise<PayoutRequest[]> {
+  const supabase = typeof window === "undefined" ? (createAdminClient() || createClient()) : createClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("payout_requests")
+        .select("*")
+        .eq("user_id", userId)
+        .order("requested_at", { ascending: false });
+
+      if (!error && data) {
+        return data as PayoutRequest[];
+      }
+    } catch (err) {
+      console.warn("getUserPayoutRequests error:", err);
+    }
+  }
+
+  return [];
+}
+
+/**
+ * User submits a payout request:
+ * 1. Checks minimum threshold and sufficient balance
+ * 2. Runs automated abuse guards
+ * 3. Deducts credits from user balance and logs transaction
+ * 4. Inserts row into payout_requests with pending status
+ */
+export async function createPayoutRequest(params: {
+  userId: string;
+  amount: number;
+  details: PayoutDetails;
+}): Promise<{ success: boolean; payoutRequest?: PayoutRequest; error?: string }> {
+  if (params.amount < MIN_CASHOUT_THRESHOLD_WC) {
+    return {
+      success: false,
+      error: `Minimum payout request is ${MIN_CASHOUT_THRESHOLD_WC} WC.`,
+    };
+  }
+
+  const supabase = typeof window === "undefined" ? (createAdminClient() || createClient()) : createClient();
+  if (!supabase) {
+    return { success: false, error: "Database client unavailable." };
+  }
+
+  try {
+    // 1. Check current profile balance
+    const { data: profile, error: pErr } = await supabase
+      .from("profiles")
+      .select("credits_balance, username, is_admin")
+      .eq("id", params.userId)
+      .single();
+
+    if (pErr || !profile) {
+      return { success: false, error: "User profile not found." };
+    }
+
+    if ((profile.credits_balance || 0) < params.amount) {
+      return {
+        success: false,
+        error: `Insufficient balance (${profile.credits_balance || 0} WC). Requested: ${params.amount} WC.`,
+      };
+    }
+
+    // 2. Evaluate abuse guards
+    const abuseEval = await evaluatePayoutAbuseGuards(supabase, params.userId);
+
+    // 3. Deduct credits and log negative transaction
+    const txResult = await recordCreditTransaction(supabase, {
+      userId: params.userId,
+      amount: -params.amount,
+      reason: `Cash-Out Payout Request (${params.amount} WC via ${params.details.method.toUpperCase()})`,
+    });
+
+    if (!txResult.success) {
+      return { success: false, error: txResult.error || "Failed to deduct credits." };
+    }
+
+    // 4. Create payout_requests record
+    const { data: payoutData, error: payoutErr } = await supabase
+      .from("payout_requests")
+      .insert({
+        user_id: params.userId,
+        amount: params.amount,
+        currency: "INR",
+        status: "pending",
+        payout_details: params.details,
+        risk_score: abuseEval.riskScore,
+        flagged_suspicious: abuseEval.isSuspicious,
+        suspicion_reasons: abuseEval.reasons,
+      })
+      .select()
+      .single();
+
+    if (payoutErr || !payoutData) {
+      // Rollback: refund deducted credits if insert failed
+      await recordCreditTransaction(supabase, {
+        userId: params.userId,
+        amount: params.amount,
+        reason: "Refund: Failed payout request creation rollback",
+      });
+      return { success: false, error: payoutErr?.message || "Failed to create payout request." };
+    }
+
+    // Link transaction to payout request
+    if (txResult.transactionId) {
+      await supabase
+        .from("credit_transactions")
+        .update({ payout_request_id: payoutData.id })
+        .eq("id", txResult.transactionId);
+    }
+
+    return {
+      success: true,
+      payoutRequest: payoutData as PayoutRequest,
+    };
+  } catch (err: any) {
+    console.error("createPayoutRequest error:", err);
+    return { success: false, error: err.message || "Failed to create payout request." };
+  }
+}
+
+/**
+ * Admin view: Fetch all payout requests with joined profile details
+ */
+export async function getAdminPayoutRequests(): Promise<PayoutRequest[]> {
+  const supabase = createAdminClient() || createClient();
+  if (!supabase) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from("payout_requests")
+      .select(`
+        *,
+        profiles!payout_requests_user_id_fkey (
+          id,
+          username,
+          display_name,
+          avatar_url,
+          credits_balance,
+          created_at
+        )
+      `)
+      .order("requested_at", { ascending: false });
+
+    if (!error && data) {
+      return data.map((item: any) => ({
+        ...item,
+        user: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles,
+      })) as PayoutRequest[];
+    }
+  } catch (err) {
+    console.error("getAdminPayoutRequests error:", err);
+  }
+
+  return [];
+}
+
+/**
+ * Admin action: Manually approve or reject a payout request
+ */
+export async function processAdminPayoutAction(params: {
+  requestId: string;
+  action: "approve" | "reject";
+  adminUserId: string;
+  notes?: string;
+}): Promise<{ success: boolean; payoutRequest?: PayoutRequest; error?: string }> {
+  const supabase = createAdminClient() || createClient();
+  if (!supabase) {
+    return { success: false, error: "Database client unavailable." };
+  }
+
+  try {
+    // 1. Fetch payout request
+    const { data: request, error: rErr } = await supabase
+      .from("payout_requests")
+      .select("*")
+      .eq("id", params.requestId)
+      .single();
+
+    if (rErr || !request) {
+      return { success: false, error: "Payout request not found." };
+    }
+
+    if (request.status !== "pending") {
+      return { success: false, error: `Payout request is already ${request.status}.` };
+    }
+
+    // Validate adminUserId exists in profiles to satisfy foreign key constraint
+    let validAdminId: string | null = null;
+    if (params.adminUserId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.adminUserId)) {
+      const { data: adminExists } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", params.adminUserId)
+        .maybeSingle();
+      if (adminExists) {
+        validAdminId = adminExists.id;
+      }
+    }
+
+    if (params.action === "approve") {
+      // 2. Process via RazorpayX Payouts
+      const payoutResult = await initiateRazorpayXPayout(request as PayoutRequest);
+
+      const updatedStatus = payoutResult.success ? "paid" : "approved";
+      const { data: updated, error: uErr } = await supabase
+        .from("payout_requests")
+        .update({
+          status: updatedStatus,
+          razorpayx_payout_id: payoutResult.payoutId || null,
+          admin_notes: params.notes || `Approved manually by admin (${payoutResult.mode} mode)`,
+          processed_at: new Date().toISOString(),
+          processed_by: validAdminId,
+        })
+        .eq("id", params.requestId)
+        .select()
+        .single();
+
+      if (uErr) return { success: false, error: uErr.message };
+      return { success: true, payoutRequest: updated as PayoutRequest };
+    } else {
+      // 3. Reject: Refund deducted credits back to user and log refund transaction
+      const refundResult = await recordCreditTransaction(supabase, {
+        userId: request.user_id,
+        amount: request.amount,
+        reason: `Refund: Payout Request #${request.id.slice(0, 8)} rejected (${params.notes || "Manual review"})`,
+        payoutRequestId: request.id,
+      });
+
+      if (!refundResult.success) {
+        return { success: false, error: "Failed to refund user credits upon rejection." };
+      }
+
+      const { data: updated, error: uErr } = await supabase
+        .from("payout_requests")
+        .update({
+          status: "rejected",
+          admin_notes: params.notes || "Rejected by administrator during manual review. Credits refunded.",
+          processed_at: new Date().toISOString(),
+          processed_by: validAdminId,
+        })
+        .eq("id", params.requestId)
+        .select()
+        .single();
+
+      if (uErr) return { success: false, error: uErr.message };
+      return { success: true, payoutRequest: updated as PayoutRequest };
+    }
+  } catch (err: any) {
+    console.error("processAdminPayoutAction error:", err);
+    return { success: false, error: err.message || "Failed to process admin action." };
+  }
+}
+
 
