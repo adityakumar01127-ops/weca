@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Plus, Swords, Trophy, Wallet, LogOut, User as UserIcon, Menu, X, Sparkles } from "lucide-react";
 import { CreatePostModal } from "@/components/upload/CreatePostModal";
+import { Logo } from "@/components/brand/Logo";
 
 export const Navbar: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -32,13 +33,8 @@ export const Navbar: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           {/* Brand & Primary Navigation */}
           <div className="flex items-center gap-6 sm:gap-8">
-            <Link href="/" className="flex items-center gap-2 group">
-              <span className="font-bold text-base tracking-tight text-white group-hover:opacity-80 transition-opacity">
-                weca
-              </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700/60">
-                phase 3
-              </span>
+            <Link href="/" className="flex items-center group py-1">
+              <Logo size={28} showWordmark={true} dark={true} className="transition-opacity group-hover:opacity-90" />
             </Link>
 
             {/* Desktop Links */}

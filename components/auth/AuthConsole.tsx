@@ -193,7 +193,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
               </span>
               <span>Weca Global Grid Active</span>
               <span className="text-zinc-600">•</span>
-              <span className="text-zinc-400">Phase 3 Live</span>
+              <span className="text-zinc-400">Network Active</span>
             </div>
 
             {/* Punchy Headline with Chromatic Gradient */}
