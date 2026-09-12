@@ -8,6 +8,7 @@ export interface Profile {
   display_name?: string | null;
   avatar_url?: string | null;
   bio?: string | null;
+  pronouns?: string | null;
   credits_balance: number;
   is_admin?: boolean;
   created_at: string;
@@ -89,6 +90,7 @@ export interface User {
   country?: string | null;
   avatar_url?: string | null;
   bio?: string | null;
+  pronouns?: string | null;
   website?: string | null;
   gender?: string | null;
   is_ai_profile?: boolean;

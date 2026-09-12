@@ -1,41 +1,44 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { User, WicaImage, getTierColor, getTierFromScore } from "@/lib/types";
-import { getSafeImageUrl } from "@/lib/utils/image";
 import { PhotoDetailModal } from "@/components/feed/PhotoDetailModal";
 import { useAuth } from "@/context/AuthContext";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { UploadModal } from "@/components/upload/UploadModal";
-import { AuthModal } from "@/components/auth/AuthModal";
-import { 
-  Settings, 
-  Grid, 
-  Bookmark, 
-  Tag, 
-  Plus, 
-  Camera, 
-  Phone, 
-  User as UserIcon, 
-  Sparkles, 
-  MessageCircle, 
-  Heart, 
+import { EditProfileModal } from "@/components/profile/EditProfileModal";
+import { FollowersModal } from "@/components/profile/FollowersModal";
+import { StatusNoteModal } from "@/components/profile/StatusNoteModal";
+import { StoryViewerModal, StoryItem } from "@/components/profile/StoryViewerModal";
+import { AddStoryModal } from "@/components/profile/AddStoryModal";
+import { AvatarActionModal } from "@/components/profile/AvatarActionModal";
+import { HighlightModal, HighlightItem } from "@/components/profile/HighlightModal";
+import { ExplorerDashboardModal } from "@/components/profile/ExplorerDashboardModal";
+import { CreatePostModal } from "@/components/upload/CreatePostModal";
+import confetti from "canvas-confetti";
+import {
+  Grid,
+  Bookmark,
+  Swords,
+  Plus,
+  Camera,
+  User as UserIcon,
+  Sparkles,
+  MessageCircle,
+  Heart,
   ExternalLink,
   ChevronRight,
   ShieldCheck,
-  Award,
-  MoreHorizontal,
-  LogOut,
-  Activity,
-  Sun,
-  Moon,
-  AlertCircle,
-  Users,
   Check,
-  Swords
+  Share2,
+  Coins,
+  Settings,
+  Flame,
+  ArrowLeft,
+  Copy,
+  BarChart3,
+  Pencil,
+  Play,
 } from "lucide-react";
 
 interface ProfileViewProps {
@@ -44,596 +47,1284 @@ interface ProfileViewProps {
 
 export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
   const router = useRouter();
-  const { user: currentUser, signOut, loginAsDemo } = useAuth();
+  const { user: currentUser, profile: authProfile } = useAuth();
+  
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [images, setImages] = useState<WicaImage[]>([]);
   const [avgScore, setAvgScore] = useState<number>(0);
   const [totalWC, setTotalWC] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedImage, setSelectedImage] = useState<WicaImage | null>(null);
-  const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<"posts" | "saved" | "battles">("posts");
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState<boolean>(false);
-  const [userNote, setUserNote] = useState<string>("Note...");
-  const [isEditingNote, setIsEditingNote] = useState<boolean>(false);
-  const [tempNote, setTempNote] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"posts" | "battles" | "saved">("posts");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isFollowersOpen, setIsFollowersOpen] = useState(false);
+  const [followersType, setFollowersType] = useState<"followers" | "following">("followers");
+  const [selectedHighlight, setSelectedHighlight] = useState<string | null>(null);
+  const [savedPostIds, setSavedPostIds] = useState<string[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [copyToast, setCopyToast] = useState(false);
 
+  // Dedicated Modals State
+  const [isStatusNoteOpen, setIsStatusNoteOpen] = useState(false);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+  const [isAddStoryOpen, setIsAddStoryOpen] = useState(false);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
+  const [editingHighlight, setEditingHighlight] = useState<HighlightItem | null>(null);
+  const [activeHighlightReel, setActiveHighlightReel] = useState<HighlightItem | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Stories state with local persistence
+  const [stories, setStories] = useState<StoryItem[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("weca_active_stories");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+    return [
+      {
+        id: "story-init-1",
+        image_url: "/anom-1.jpg",
+        caption: "Field sighting: Tokyo optical anomaly ⚡",
+        created_at: "2h ago",
+        wica_score: 94.2,
+      },
+      {
+        id: "story-init-2",
+        image_url: "/anom-2.jpg",
+        caption: "Bioluminescent botanical glitch in Shinjuku 🌸",
+        created_at: "45m ago",
+        wica_score: 88.7,
+      },
+    ];
+  });
+
+  const handleAddStory = (newStory: StoryItem) => {
+    const updated = [newStory, ...stories];
+    setStories(updated);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("weca_active_stories", JSON.stringify(updated));
+    }
+  };
+
+  const handleDeleteStory = (storyId: string) => {
+    const updated = stories.filter((s) => s.id !== storyId);
+    setStories(updated);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("weca_active_stories", JSON.stringify(updated));
+    }
+  };
+
+  // Check if viewing own profile
   const isOwnProfile =
-    currentUser &&
-    (currentUser.username.toLowerCase() === username.toLowerCase() ||
-      currentUser.id === username);
+    !username ||
+    (currentUser &&
+      (currentUser.username?.toLowerCase() === username.toLowerCase() ||
+        currentUser.id === username));
+
+  // Default Expedition Highlights
+  const DEFAULT_HIGHLIGHTS: HighlightItem[] = [
+    {
+      id: "h1",
+      name: "Glitch Finds",
+      icon: "🛸",
+      gradient: "from-violet/80 via-purple-600/70 to-cyan/80",
+      cover_image: "/anom-1.jpg",
+      stories: [
+        {
+          id: "hl-s1",
+          image_url: "/anom-1.jpg",
+          caption: "Glitch anomaly in Sector 7",
+          created_at: new Date().toISOString(),
+          wica_score: 96,
+        },
+        {
+          id: "hl-s2",
+          image_url: "/anom-2.jpg",
+          caption: "Spectral frequency feedback loop",
+          created_at: new Date().toISOString(),
+          wica_score: 91,
+        },
+      ],
+    },
+    {
+      id: "h2",
+      name: "Tokyo Night",
+      icon: "⛩️",
+      gradient: "from-indigo-600/80 via-fuchsia-600/70 to-pink-500/80",
+      cover_image: "/anom-2.jpg",
+      stories: [
+        {
+          id: "hl-s3",
+          image_url: "/anom-2.jpg",
+          caption: "Neon refraction over Shinjuku crossing",
+          created_at: new Date().toISOString(),
+          wica_score: 94,
+        },
+      ],
+    },
+    {
+      id: "h3",
+      name: "Rare Nature",
+      icon: "🌿",
+      gradient: "from-emerald-500/80 via-teal-600/70 to-cyan/80",
+      cover_image: "/anom-3.jpg",
+      stories: [
+        {
+          id: "hl-s4",
+          image_url: "/anom-3.jpg",
+          caption: "Bioluminescent botanical specimen",
+          created_at: new Date().toISOString(),
+          wica_score: 89,
+        },
+      ],
+    },
+  ];
+
+  // Expeditions / Story highlights with localStorage persistence
+  const [highlights, setHighlights] = useState<HighlightItem[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("weca_highlights");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return DEFAULT_HIGHLIGHTS;
+  });
+
+  const sampleExhibitionImages: WicaImage[] = [
+    {
+      id: "samp-1",
+      user_id: "demo",
+      storage_path: "/anom-1.jpg",
+      category: "Human-Made",
+      caption: "Urban optical refraction Tokyo",
+      wica_score: 94,
+      absurdity: 92,
+      rarity: 95,
+      craft: 88,
+      cultural_novelty: 90,
+      wit: 85,
+      ai_verdict: "Certified S-Tier Anomaly",
+      moderation_status: "approved",
+      created_at: new Date().toISOString(),
+      likes_count: 86,
+      comments_count: 14,
+    },
+    {
+      id: "samp-2",
+      user_id: "demo",
+      storage_path: "/anom-2.jpg",
+      category: "Nature",
+      caption: "Bioluminescent botanical glitch Kyoto",
+      wica_score: 88,
+      absurdity: 85,
+      rarity: 89,
+      craft: 84,
+      cultural_novelty: 82,
+      wit: 78,
+      ai_verdict: "Verified Botanical Mutation",
+      moderation_status: "approved",
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      likes_count: 53,
+      comments_count: 9,
+    },
+    {
+      id: "samp-3",
+      user_id: "demo",
+      storage_path: "/anom-3.jpg",
+      category: "Coincidences",
+      caption: "Atmospheric resonance in night sky",
+      wica_score: 91,
+      absurdity: 88,
+      rarity: 93,
+      craft: 87,
+      cultural_novelty: 86,
+      wit: 80,
+      ai_verdict: "Celestial Atmospheric Anomaly",
+      moderation_status: "approved",
+      created_at: new Date(Date.now() - 172800000).toISOString(),
+      likes_count: 67,
+      comments_count: 11,
+    },
+  ];
+
+  const sampleBattles = [
+    {
+      id: "battle-tokyo-neon",
+      title: "Urban Optical Refraction vs Atmospheric Resonance",
+      postA: {
+        id: "samp-1",
+        title: "Urban Refraction",
+        image: "/anom-1.jpg",
+        score: 94,
+        votes: 42,
+      },
+      postB: {
+        id: "samp-3",
+        title: "Atmospheric Resonance",
+        image: "/anom-3.jpg",
+        score: 91,
+        votes: 31,
+      },
+      status: "active",
+      statusLabel: "Live Voting",
+      prize: "50 WC Bounty",
+      endsIn: "5h 18m",
+    },
+    {
+      id: "battle-kyoto-glitch",
+      title: "Bioluminescent Glitch vs Silicon Mirror",
+      postA: {
+        id: "samp-2",
+        title: "Bioluminescent Flora",
+        image: "/anom-2.jpg",
+        score: 88,
+        votes: 76,
+      },
+      postB: {
+        id: "samp-1",
+        title: "Urban Refraction",
+        image: "/anom-1.jpg",
+        score: 85,
+        votes: 49,
+      },
+      status: "won",
+      statusLabel: "Victory (+50 WC)",
+      prize: "Concluded",
+      endsIn: "Ended",
+    },
+  ];
+
+  // Load Saved Post IDs from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("weca_saved_posts");
+        if (stored) {
+          setSavedPostIds(JSON.parse(stored));
+        } else {
+          // Initialize with samp-1 as a demo bookmark if empty
+          setSavedPostIds(["samp-1"]);
+        }
+      } catch {}
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     async function loadProfile() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/profile?username=${encodeURIComponent(username)}`);
+        const targetUsername = username || currentUser?.username || "weca_explorer";
+        const res = await fetch(`/api/profile?username=${encodeURIComponent(targetUsername)}`);
         const data = await res.json();
+        
         if (data.user) {
           setProfileUser(data.user);
-          setImages(data.images || []);
-          setAvgScore(data.avgScore || 0);
-          setTotalWC(data.totalWC || data.user.total_wc || 0);
+          const loadedImgs = (data.images && data.images.length > 0) ? data.images : sampleExhibitionImages;
+          setImages(loadedImgs);
+          setAvgScore(data.avgScore || 92);
+          setTotalWC(data.totalWC || data.user.total_wc || authProfile?.credits_balance || 140);
         } else if (isOwnProfile && currentUser) {
           setProfileUser(currentUser);
-          setTotalWC(currentUser.total_wc || 0);
+          setImages(sampleExhibitionImages);
+          setTotalWC(currentUser.total_wc || authProfile?.credits_balance || 140);
+        } else {
+          setImages(sampleExhibitionImages);
         }
       } catch (err) {
         console.error("Failed to load profile:", err);
+        if (isOwnProfile && currentUser) {
+          setProfileUser(currentUser);
+          setImages(sampleExhibitionImages);
+        }
       } finally {
         setLoading(false);
       }
     }
 
     loadProfile();
-  }, [username, currentUser, isOwnProfile]);
+  }, [username, currentUser, isOwnProfile, authProfile?.credits_balance]);
 
-  const displayUser = profileUser || (isOwnProfile ? currentUser : null);
-  const tier = displayUser?.tier || (avgScore ? getTierFromScore(avgScore) : "Mildly Odd");
+  // Synchronize when current user updates profile in context
+  const displayUser = (isOwnProfile && currentUser) ? currentUser : (profileUser || currentUser);
+  const tier = displayUser?.tier || (avgScore ? getTierFromScore(avgScore) : "Certified Weird");
   const tierColors = getTierColor(tier);
 
-  // Demo highlights
-  const [highlights, setHighlights] = useState([
-    { id: "h1", name: "Glitch Finds", image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=150&auto=format&fit=crop&q=80" },
-    { id: "h2", name: "Luminous", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150&auto=format&fit=crop&q=80" },
-  ]);
+  // Dynamic Highlight Filtering
+  const displayImages = useMemo(() => {
+    if (!selectedHighlight) return images;
+    if (selectedHighlight === "h1") {
+      const match = images.filter(
+        (img) =>
+          img.category === "Human-Made" ||
+          img.caption?.toLowerCase().includes("refraction") ||
+          img.caption?.toLowerCase().includes("glitch")
+      );
+      return match.length > 0 ? match : images.slice(0, 1);
+    }
+    if (selectedHighlight === "h2") {
+      const match = images.filter(
+        (img) =>
+          img.caption?.toLowerCase().includes("tokyo") ||
+          img.caption?.toLowerCase().includes("night") ||
+          img.caption?.toLowerCase().includes("sky")
+      );
+      return match.length > 0 ? match : images.slice(0, 2);
+    }
+    if (selectedHighlight === "h3") {
+      const match = images.filter(
+        (img) =>
+          img.category === "Nature" ||
+          img.category === "Coincidences" ||
+          img.caption?.toLowerCase().includes("botanical")
+      );
+      return match.length > 0 ? match : images.slice(1, 3);
+    }
+    const custom = highlights.find((h) => h.id === selectedHighlight);
+    if (custom) {
+      if (custom.stories && custom.stories.length > 0) {
+        const storyIds = custom.stories.map((s) => s.id);
+        const matched = images.filter((img) => storyIds.includes(img.id));
+        if (matched.length > 0) return matched;
+      }
+      const match = images.filter(
+        (img) =>
+          img.caption?.toLowerCase().includes(custom.name.toLowerCase()) ||
+          img.category?.toLowerCase().includes(custom.name.toLowerCase())
+      );
+      return match.length > 0 ? match : images.slice(0, 2);
+    }
+    return images;
+  }, [images, selectedHighlight, highlights]);
 
-  const handleCreateHighlight = () => {
-    const name = prompt("Name your anomaly collection:", "Rare Nature");
-    if (name) {
-      setHighlights((prev) => [
-        ...prev,
-        {
-          id: `h-${Date.now()}`,
-          name,
-          image: images[0]?.storage_path || "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150&auto=format&fit=crop&q=80",
-        },
-      ]);
+  // Dynamic Saved Posts lookup
+  const savedImages = useMemo(() => {
+    if (savedPostIds.length === 0) return [];
+    const pool = [...images, ...sampleExhibitionImages];
+    const map = new Map<string, WicaImage>();
+    pool.forEach((item) => {
+      if (savedPostIds.includes(item.id)) {
+        map.set(item.id, item);
+      }
+    });
+    return Array.from(map.values());
+  }, [images, savedPostIds]);
+
+  const handleShareProfile = () => {
+    if (typeof window !== "undefined") {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url);
+      setCopyToast(true);
+      try {
+        confetti({
+          particleCount: 30,
+          spread: 45,
+          origin: { y: 0.4 },
+          colors: ["#7C5CFC", "#22D3EE", "#FF4D8D"],
+        });
+      } catch {}
+      setTimeout(() => setCopyToast(false), 2500);
     }
   };
 
-  const handleSaveNote = () => {
-    if (tempNote.trim()) {
-      setUserNote(tempNote.trim());
+  const handleAddHighlight = () => {
+    setEditingHighlight(null);
+    setIsHighlightModalOpen(true);
+  };
+
+  const handleSaveHighlight = (newHl: HighlightItem) => {
+    setHighlights((prev) => {
+      const exists = prev.some((h) => h.id === newHl.id);
+      const updated = exists
+        ? prev.map((h) => (h.id === newHl.id ? newHl : h))
+        : [...prev, newHl];
+      if (typeof window !== "undefined") {
+        localStorage.setItem("weca_highlights", JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
+
+  const handleDeleteHighlight = (highlightId: string) => {
+    setHighlights((prev) => {
+      const updated = prev.filter((h) => h.id !== highlightId);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("weca_highlights", JSON.stringify(updated));
+      }
+      return updated;
+    });
+    if (selectedHighlight === highlightId) {
+      setSelectedHighlight(null);
     }
-    setIsEditingNote(false);
+  };
+
+  const handleHighlightClick = (h: HighlightItem) => {
+    setSelectedHighlight((prev) => (prev === h.id ? null : h.id));
+    if (h.stories && h.stories.length > 0) {
+      setActiveHighlightReel(h);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-ink">
-      <Header onOpenUpload={() => setIsUploadOpen(true)} />
+    <div className="relative min-h-screen bg-[#09090b] text-zinc-100 selection:bg-violet/30 font-sans pb-16">
+      {/* Ambient Radial Background Glows */}
+      <div 
+        className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-violet/10 rounded-full blur-[140px] opacity-70"
+        aria-hidden="true" 
+      />
+      <div 
+        className="pointer-events-none absolute top-96 -left-32 w-[500px] h-[450px] bg-cyan/8 rounded-full blur-[160px] opacity-60"
+        aria-hidden="true" 
+      />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-12">
-        {loading ? (
-          <div className="py-24 text-center">
-            <div className="w-8 h-8 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <span className="text-xs font-mono text-zinc-400">Loading profile archive...</span>
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-8">
+        
+        {/* Navigation / Header Bar */}
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+          <div className="flex items-center gap-2">
+            {!isOwnProfile && (
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                title="Go back"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+            <h1 className="font-mono text-sm sm:text-base font-bold text-white flex items-center gap-1.5">
+              <span>{displayUser?.username || username || "explorer"}</span>
+              <ShieldCheck className="w-4 h-4 text-cyan" />
+            </h1>
           </div>
-        ) : !displayUser ? (
-          <div className="py-24 text-center">
-            <h2 className="font-display font-bold text-2xl text-ink">User not found</h2>
-            <p className="text-xs text-zinc-500 mt-2">
-              The explorer @{username} doesn&apos;t seem to be indexed yet.
-            </p>
-            <Link
-              href="/"
-              className="mt-4 inline-block px-4 py-2 rounded-xl bg-ink text-white text-xs font-semibold"
+
+          <div className="flex items-center gap-2">
+            {isOwnProfile && (
+              <button
+                type="button"
+                id="profile-create-post-btn"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                title="Upload Anomaly"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleShareProfile}
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+              title="Share profile"
             >
-              Return to World Feed
-            </Link>
+              <Share2 className="w-4 h-4" />
+            </button>
+
+            {isOwnProfile && (
+              <Link
+                href="/settings"
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                title="Explorer Settings"
+              >
+                <Settings className="w-4 h-4" />
+              </Link>
+            )}
           </div>
-        ) : (
-          <div className="space-y-10">
-            {/* INSTAGRAM-STYLE PROFILE HEADER */}
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-16 pb-8 border-b border-zinc-200">
-              {/* Circular Avatar with Floating Note Bubble */}
-              <div className="relative mx-auto md:mx-0 shrink-0">
-                {/* "Note..." Thought Bubble */}
-                {isEditingNote ? (
-                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-white border border-zinc-300 shadow-md rounded-full px-2.5 py-1">
-                    <input
-                      type="text"
-                      maxLength={30}
-                      value={tempNote}
-                      onChange={(e) => setTempNote(e.target.value)}
-                      placeholder="Share a thought..."
-                      className="text-[11px] font-mono outline-none w-24 text-ink"
-                      autoFocus
-                      onKeyDown={(e) => e.key === "Enter" && handleSaveNote()}
-                    />
-                    <button
-                      onClick={handleSaveNote}
-                      className="text-emerald-600 hover:text-emerald-700"
-                    >
-                      <Check className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => {
-                      if (isOwnProfile) {
-                        setTempNote(userNote === "Note..." ? "" : userNote);
-                        setIsEditingNote(true);
-                      }
-                    }}
-                    className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-white border border-zinc-200 shadow-sm text-[11px] text-zinc-600 font-mono flex items-center gap-1 hover:bg-zinc-50 transition-all cursor-pointer group"
-                    title={isOwnProfile ? "Click to set a status note" : ""}
-                  >
-                    <span className="max-w-[100px] truncate">{userNote}</span>
-                    {/* Small speech bubble indicator */}
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-b border-r border-zinc-200 rotate-45" />
-                  </button>
-                )}
+        </div>
 
-                {/* Big Avatar */}
-                <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full p-1 bg-gradient-to-tr from-cyan via-violet to-magenta ring-2 ring-transparent">
-                  <div className="w-full h-full rounded-full bg-white p-1 overflow-hidden relative group">
-                    <img
-                      src={
-                        displayUser.avatar_url ||
-                        `https://api.dicebear.com/7.x/bottts/svg?seed=${displayUser.id}`
-                      }
-                      alt={displayUser.username}
-                      className="w-full h-full rounded-full object-cover bg-zinc-100"
-                    />
+        {/* Copy Link Toast Notification */}
+        {copyToast && (
+          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/95 border border-violet/50 text-xs font-mono text-white shadow-2xl shadow-violet/20 animate-in fade-in slide-in-from-top-3">
+            <Check className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Profile link copied to clipboard!</span>
+          </div>
+        )}
 
-                    {isOwnProfile && (
-                      <Link
-                        href="/settings"
-                        className="absolute inset-0 bg-black/40 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer"
-                        title="Change profile picture"
-                      >
-                        <Camera className="w-6 h-6 mb-1" />
-                        <span className="text-[10px] font-mono">Change</span>
-                      </Link>
-                    )}
-                  </div>
-                </div>
+        {/* ========================================================================= */}
+        {/* SECTION 1: PROFILE HEADER & IDENTITY (Matching Reference Image 2)         */}
+        {/* ========================================================================= */}
+        <div className="space-y-6">
+          <div className="flex flex-row items-center gap-6 sm:gap-10">
+            
+            {/* Avatar with Floating Thought/Status Note & Story Ring */}
+            <div className="relative shrink-0 select-none">
+              
+              {/* Floating Note Thought Bubble (Instagram Notes style) */}
+              <button 
+                type="button"
+                id="profile-status-note-bubble"
+                onClick={() => setIsStatusNoteOpen(true)}
+                className={`absolute -top-7 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-zinc-900/95 border border-violet/40 hover:border-violet shadow-lg shadow-violet/10 text-[11px] font-mono text-zinc-200 flex items-center gap-1.5 backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer group`}
+                title={isOwnProfile ? "Click to view & update status note" : "Status Note"}
+              >
+                <span className="max-w-[120px] truncate text-zinc-200 group-hover:text-white font-medium">
+                  {displayUser?.note || "Just curious..."}
+                </span>
+                {/* Speech bubble pointer */}
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900 border-b border-r border-violet/40 rotate-45" />
+              </button>
+
+              {/* Glowing Chromatic Lens Ring / Story Ring */}
+              <div 
+                id="profile-avatar-story-ring"
+                onClick={() => {
+                  if (stories.length > 0) {
+                    setIsStoryViewerOpen(true);
+                  } else if (isOwnProfile) {
+                    setIsAddStoryOpen(true);
+                  }
+                }}
+                className={`w-22 h-22 sm:w-28 sm:h-28 rounded-full p-1 cursor-pointer transition-transform hover:scale-[1.03] active:scale-[0.98] ${
+                  stories.length > 0
+                    ? "bg-gradient-to-tr from-cyan via-violet to-magenta ring-2 ring-violet/40 shadow-xl shadow-violet/20"
+                    : "bg-zinc-800 ring-1 ring-zinc-700"
+                } overflow-hidden relative group`}
+                title={stories.length > 0 ? "Click to view Story" : (isOwnProfile ? "Click to add Story" : "Explorer Avatar")}
+              >
+                <img
+                  src={
+                    displayUser?.avatar_url ||
+                    `https://api.dicebear.com/7.x/bottts/svg?seed=${displayUser?.id || "user"}`
+                  }
+                  alt={displayUser?.username || "Explorer"}
+                  className="w-full h-full rounded-full object-cover bg-zinc-950 pointer-events-none"
+                />
               </div>
 
-              {/* Profile Details & Actions */}
-              <div className="flex-1 w-full space-y-4">
-                {/* Top Row: Username + Edit Profile / Settings Gear */}
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                  <h1 className="font-display font-semibold text-xl sm:text-2xl text-ink tracking-tight">
-                    {displayUser.username}
-                  </h1>
+              {/* Bottom-Right: Plus Badge for Add Story (Instagram style) */}
+              {isOwnProfile && (
+                <button
+                  type="button"
+                  id="profile-add-story-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsAddStoryOpen(true);
+                  }}
+                  className="absolute bottom-0 right-0 p-1.5 rounded-full bg-gradient-to-r from-violet to-cyan text-white shadow-lg border-2 border-[#09090b] hover:scale-110 active:scale-95 transition-all cursor-pointer z-20"
+                  title="Add to Expedition Story (+)"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              )}
 
-                  {/* Tier Badge */}
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${tierColors.bg} ${tierColors.text} ${tierColors.border}`}
-                  >
-                    {tier}
-                  </span>
-
-                  {isOwnProfile ? (
-                    <div className="flex items-center gap-2 ml-auto sm:ml-0">
-                      <Link
-                        href="/settings"
-                        className="px-4 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-ink text-xs font-semibold transition-all active:scale-95"
-                      >
-                        Edit Profile
-                      </Link>
-
-                      <Link
-                        href="/wallet"
-                        className="px-4 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-ink text-xs font-semibold transition-all active:scale-95"
-                      >
-                        View archive
-                      </Link>
-
-                      {/* Settings Gear with Dropdown / Link */}
-                      <Link
-                        href="/settings"
-                        className="p-1.5 rounded-lg text-zinc-700 hover:bg-zinc-100 transition-colors"
-                        title="Settings"
-                      >
-                        <Settings className="w-5 h-5" />
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 ml-auto sm:ml-0">
-                      <button
-                        onClick={() => alert(`Now following @${displayUser.username}`)}
-                        className="px-5 py-1.5 rounded-lg bg-violet hover:bg-violet/90 text-white text-xs font-semibold transition-all active:scale-95 cursor-pointer shadow-sm"
-                      >
-                        Follow
-                      </button>
-                      <button
-                        onClick={() => alert(`Direct messages with @${displayUser.username}`)}
-                        className="px-4 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-ink text-xs font-semibold transition-all cursor-pointer"
-                      >
-                        Message
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Stats Row (Posts, Followers, Following, WC) */}
-                <div className="flex items-center gap-6 sm:gap-8 text-sm text-zinc-700">
-                  <div>
-                    <strong className="font-bold text-ink">{images.length}</strong>{" "}
-                    <span className="text-zinc-500 text-xs sm:text-sm">posts</span>
-                  </div>
-                  <div>
-                    <strong className="font-bold text-ink">
-                      {displayUser.followers_count || 14}
-                    </strong>{" "}
-                    <span className="text-zinc-500 text-xs sm:text-sm">followers</span>
-                  </div>
-                  <div>
-                    <strong className="font-bold text-ink">
-                      {displayUser.following_count || 28}
-                    </strong>{" "}
-                    <span className="text-zinc-500 text-xs sm:text-sm">following</span>
-                  </div>
-                  <Link
-                    href="/wallet"
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan/10 border border-cyan/30 text-cyan text-xs font-mono font-bold hover:bg-cyan/20 transition-colors"
-                    title="Weird Credits Wallet"
-                  >
-                    <Sparkles className="w-3 h-3 text-cyan" />
-                    <span>{totalWC} WC</span>
-                  </Link>
-                </div>
-
-                {/* Bio & Identity Details */}
-                <div className="space-y-1 text-xs sm:text-sm">
-                  <div className="font-semibold text-ink">
-                    {displayUser.display_name || displayUser.username}
-                  </div>
-                  {displayUser.bio ? (
-                    <p className="text-zinc-600 leading-relaxed whitespace-pre-line max-w-lg">
-                      {displayUser.bio}
-                    </p>
-                  ) : (
-                    <p className="text-zinc-400 italic">No bio added yet.</p>
-                  )}
-
-                  {displayUser.website && (
-                    <a
-                      href={
-                        displayUser.website.startsWith("http")
-                          ? displayUser.website
-                          : `https://${displayUser.website}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-violet font-semibold hover:underline mt-1"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>{displayUser.website.replace(/^https?:\/\//, "")}</span>
-                    </a>
-                  )}
-                </div>
-              </div>
+              {/* Bottom-Left: Camera Badge for Profile Photo Management */}
+              {isOwnProfile && (
+                <button
+                  type="button"
+                  id="profile-edit-avatar-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsAvatarModalOpen(true);
+                  }}
+                  className="absolute bottom-0 left-0 p-1.5 rounded-full bg-zinc-900 text-zinc-300 hover:text-white border-2 border-[#09090b] hover:border-cyan/50 hover:bg-zinc-800 shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer z-20"
+                  title="Manage Profile Picture (Upload, DiceBear, Remove)"
+                >
+                  <Camera className="w-3.5 h-3.5 text-cyan" />
+                </button>
+              )}
             </div>
 
-            {/* STORY HIGHLIGHTS ROW */}
-            <div className="flex items-center gap-6 overflow-x-auto pb-2 scrollbar-none">
-              {/* + New Highlight Button */}
+            {/* User Details & 3-Column Stats Row (Matching Reference Image 2) */}
+            <div className="flex-1 min-w-0 space-y-3">
+              
+              {/* Name & Pronouns */}
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="font-display font-bold text-lg sm:text-xl text-white tracking-tight">
+                    {displayUser?.display_name || displayUser?.username || "Aditya Kaushik"}
+                  </h2>
+                  <ShieldCheck className="w-4 h-4 text-cyan shrink-0" />
+                  
+                  {/* Pronouns */}
+                  {displayUser?.pronouns && (
+                    <span className="text-xs font-mono text-zinc-400 bg-zinc-800/60 px-2 py-0.5 rounded-full border border-zinc-700/60">
+                      {displayUser.pronouns}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats Counters Row */}
+              <div className="flex items-center gap-5 sm:gap-7 text-xs sm:text-sm">
+                <div>
+                  <span className="font-bold text-white font-mono">{images.length || 86}</span>{" "}
+                  <span className="text-zinc-400 font-sans">posts</span>
+                </div>
+                
+                {/* Followers Clickable Target */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFollowersType("followers");
+                    setIsFollowersOpen(true);
+                  }}
+                  className="hover:opacity-80 transition-opacity text-left cursor-pointer group"
+                >
+                  <span className="font-bold text-white font-mono group-hover:text-cyan transition-colors">
+                    {displayUser?.followers_count || 472}
+                  </span>{" "}
+                  <span className="text-zinc-400 font-sans group-hover:text-zinc-200">followers</span>
+                </button>
+
+                {/* Following Clickable Target */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFollowersType("following");
+                    setIsFollowersOpen(true);
+                  }}
+                  className="hover:opacity-80 transition-opacity text-left cursor-pointer group"
+                >
+                  <span className="font-bold text-white font-mono group-hover:text-cyan transition-colors">
+                    174
+                  </span>{" "}
+                  <span className="text-zinc-400 font-sans group-hover:text-zinc-200">following</span>
+                </button>
+
+                {/* WC Balance */}
+                <Link
+                  href="/wallet"
+                  className="flex items-center gap-1 text-zinc-300 hover:text-white transition-colors group"
+                  title="Weird Credits Vault"
+                >
+                  <span className="font-bold text-amber-400 font-mono flex items-center gap-1 group-hover:scale-105 transition-transform">
+                    <Coins className="w-3.5 h-3.5" />
+                    {totalWC}
+                  </span>{" "}
+                  <span className="text-zinc-400 font-sans">WC</span>
+                </Link>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Bio, Roles, and Link Pills */}
+          <div className="space-y-2 pt-1">
+            {/* Category / Specialty Tag */}
+            <div className="text-xs font-medium text-zinc-400">
+              {displayUser?.gender || "Entrepreneur / Anomaly Investigator"}
+            </div>
+
+            {/* Bio Text */}
+            <p className="text-xs sm:text-sm text-zinc-300 font-sans leading-relaxed whitespace-pre-line max-w-xl">
+              {displayUser?.bio ||
+                "I am writer, dancer, director, editor, student, researcher, etc.\n💎 I AM THE PRESTIGE\n🔹 Tech & Anomaly Enthusiast"}
+            </p>
+
+            {/* Badges / Links Row */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {/* Website Link Pill */}
+              {displayUser?.website && (
+                <a
+                  href={displayUser.website.startsWith("http") ? displayUser.website : `https://${displayUser.website}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-cyan hover:text-cyan/80 transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span className="truncate max-w-[200px]">
+                    {displayUser.website.replace(/^https?:\/\//, "")}
+                  </span>
+                </a>
+              )}
+
+              {/* AI Creator Badge (Matching Reference Image 1 switch) */}
+              {displayUser?.is_ai_profile && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet/15 border border-violet/30 text-xs font-mono text-violet">
+                  <Sparkles className="w-3 h-3" />
+                  <span>AI Vision Creator</span>
+                </span>
+              )}
+
+              {/* Tier Badge */}
+              <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono border ${tierColors.bg} ${tierColors.text} ${tierColors.border}`}>
+                <Flame className="w-3 h-3" />
+                <span>{tier}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* SECTION 2: EXPLORER DASHBOARD (Matching Reference Image 2)                */}
+          {/* ========================================================================= */}
+          <div
+            id="profile-explorer-dashboard-card"
+            onClick={() => setIsDashboardOpen(true)}
+            className="p-3.5 sm:p-4 rounded-2xl bg-zinc-900/80 hover:bg-zinc-800/80 backdrop-blur-xl border border-zinc-800/90 hover:border-violet/40 transition-all flex items-center justify-between gap-4 shadow-sm group cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet/15 text-violet border border-violet/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-md shadow-violet/10">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="text-xs font-bold text-white flex items-center gap-2">
+                  <span>Explorer dashboard</span>
+                  <span className="flex items-center gap-1 text-[9px] font-mono font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    Active
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400">
+                  1.3K views in the last 30 days{" "}
+                  <span className="text-emerald-400 font-mono font-semibold">+18.4%</span>
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 bg-zinc-800/60 px-2 py-0.5 rounded-md border border-zinc-700/50">
+                Rank #42
+              </span>
+              <div className="p-1 rounded-lg text-zinc-400 group-hover:text-white group-hover:translate-x-0.5 transition-all">
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons: Edit Profile / Share Profile */}
+          <div className="flex items-center gap-3">
+            {isOwnProfile ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="flex-1 py-2 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 hover:border-zinc-700 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  Edit profile
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShareProfile}
+                  className="flex-1 py-2 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 hover:border-zinc-700 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  Share profile
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsFollowing(!isFollowing)}
+                  className={`flex-1 py-2 px-4 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer ${
+                    isFollowing
+                      ? "bg-zinc-900 text-zinc-300 border border-zinc-800"
+                      : "bg-white text-zinc-950 hover:bg-zinc-200"
+                  }`}
+                >
+                  {isFollowing ? "Following" : "Follow"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShareProfile}
+                  className="flex-1 py-2 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  Share profile
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* ========================================================================= */}
+          {/* SECTION 3: EXPEDITION HIGHLIGHTS (Matching Reference Image 2)             */}
+          {/* ========================================================================= */}
+          <div className="pt-2">
+            <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-2 scrollbar-none">
+              {/* Add Highlight Button */}
               {isOwnProfile && (
-                <div className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group" onClick={handleCreateHighlight}>
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-zinc-300 group-hover:border-zinc-500 flex items-center justify-center bg-white transition-all">
-                    <Plus className="w-6 h-6 text-zinc-400 group-hover:text-ink transition-colors" />
-                  </div>
-                  <span className="text-[11px] font-mono text-zinc-600 font-medium">New</span>
+                <div className="flex flex-col items-center gap-1.5 shrink-0 select-none">
+                  <button
+                    type="button"
+                    id="add-new-highlight-btn"
+                    onClick={handleAddHighlight}
+                    className="w-16 h-16 rounded-full border border-zinc-700/80 hover:border-violet bg-zinc-900/90 hover:bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer group shadow-sm hover:shadow-md hover:shadow-violet/20"
+                    title="Add new expedition collection"
+                  >
+                    <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  </button>
+                  <span className="text-[11px] font-medium text-zinc-400">New</span>
                 </div>
               )}
 
-              {/* Highlights */}
-              {highlights.map((h) => (
-                <div key={h.id} className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-0.5 border border-zinc-200 group-hover:border-violet transition-all">
-                    <img
-                      src={h.image}
-                      alt={h.name}
-                      className="w-full h-full rounded-full object-cover bg-zinc-100"
-                    />
+              {/* Existing Highlights */}
+              {highlights.map((h) => {
+                const isSelected = selectedHighlight === h.id;
+                return (
+                  <div
+                    key={h.id}
+                    className="flex flex-col items-center gap-1.5 shrink-0 select-none group relative"
+                  >
+                    <div
+                      id={`highlight-item-${h.id}`}
+                      onClick={() => handleHighlightClick(h)}
+                      className={`w-16 h-16 rounded-full p-[2px] transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-gradient-to-tr from-violet via-fuchsia-500 to-cyan shadow-lg shadow-violet/30 scale-105"
+                          : "bg-zinc-800 hover:bg-zinc-700 hover:scale-105"
+                      }`}
+                    >
+                      <div className="w-full h-full rounded-full overflow-hidden bg-zinc-950 flex items-center justify-center relative">
+                        {h.icon ? (
+                          <div
+                            className={`w-full h-full bg-gradient-to-br ${
+                              h.gradient || "from-zinc-800 to-zinc-950"
+                            } flex items-center justify-center text-2xl select-none group-hover:scale-110 transition-transform duration-300`}
+                          >
+                            {h.icon}
+                          </div>
+                        ) : h.cover_image ? (
+                          <img
+                            src={h.cover_image}
+                            alt={h.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-violet/80 to-cyan/80 flex items-center justify-center text-2xl">
+                            🛸
+                          </div>
+                        )}
+
+                        {/* Story play indicator on hover */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <Play className="w-4 h-4 text-white fill-white drop-shadow" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Edit Highlight Trigger for Owner */}
+                    {isOwnProfile && (
+                      <button
+                        type="button"
+                        id={`edit-highlight-btn-${h.id}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingHighlight(h);
+                          setIsHighlightModalOpen(true);
+                        }}
+                        title="Edit highlight"
+                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow z-10 cursor-pointer"
+                      >
+                        <Pencil className="w-2.5 h-2.5" />
+                      </button>
+                    )}
+
+                    <span
+                      onClick={() => handleHighlightClick(h)}
+                      className={`text-[11px] font-sans max-w-[70px] truncate text-center cursor-pointer transition-colors ${
+                        isSelected ? "text-violet font-bold" : "text-zinc-300 group-hover:text-white"
+                      }`}
+                    >
+                      {h.name}
+                    </span>
                   </div>
-                  <span className="text-[11px] font-mono text-zinc-600 font-medium max-w-[70px] truncate text-center">
-                    {h.name}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* SECTION 4: TABBED MEDIA SHOWCASE (Matching Reference Image 2)            */}
+          {/* ========================================================================= */}
+          <div className="pt-4 border-t border-zinc-800/80">
+            {/* Tab Bar */}
+            <div className="flex items-center justify-around pb-4 border-b border-zinc-800/60">
+              <button
+                type="button"
+                onClick={() => setActiveTab("posts")}
+                className={`flex items-center gap-2 pb-2 text-xs font-semibold transition-all relative cursor-pointer ${
+                  activeTab === "posts" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                <Grid className="w-4 h-4" />
+                <span className="hidden sm:inline">Photographs</span>
+                {activeTab === "posts" && (
+                  <span className="absolute bottom-0 inset-x-0 h-0.5 bg-white rounded-full" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("battles")}
+                className={`flex items-center gap-2 pb-2 text-xs font-semibold transition-all relative cursor-pointer ${
+                  activeTab === "battles" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                <Swords className="w-4 h-4" />
+                <span className="hidden sm:inline">Versus Battles</span>
+                {activeTab === "battles" && (
+                  <span className="absolute bottom-0 inset-x-0 h-0.5 bg-white rounded-full" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("saved")}
+                className={`flex items-center gap-2 pb-2 text-xs font-semibold transition-all relative cursor-pointer ${
+                  activeTab === "saved" ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                <Bookmark className="w-4 h-4" />
+                <span className="hidden sm:inline">Saved</span>
+                {activeTab === "saved" && (
+                  <span className="absolute bottom-0 inset-x-0 h-0.5 bg-white rounded-full" />
+                )}
+              </button>
+            </div>
+
+            {/* Active Highlight Filter Banner */}
+            {selectedHighlight && activeTab === "posts" && (
+              <div className="mt-4 flex items-center justify-between px-3.5 py-2 rounded-xl bg-violet/10 border border-violet/30 text-xs font-mono text-zinc-200 animate-in fade-in">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-violet shrink-0" />
+                  <span>
+                    Filtered by expedition:{" "}
+                    <strong className="text-violet">
+                      {highlights.find((h) => h.id === selectedHighlight)?.name}
+                    </strong>{" "}
+                    ({displayImages.length} captured)
                   </span>
                 </div>
-              ))}
-            </div>
-
-            {/* NAVIGATION TABS (POSTS / SAVED / BATTLES) */}
-            <div className="border-t border-zinc-200">
-              <div className="flex justify-center gap-12 sm:gap-16">
                 <button
-                  onClick={() => setActiveTab("posts")}
-                  className={`flex items-center gap-2 py-3 -mt-px text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
-                    activeTab === "posts"
-                      ? "border-t border-ink text-ink font-bold"
-                      : "text-zinc-400 hover:text-zinc-600"
-                  }`}
+                  type="button"
+                  onClick={() => setSelectedHighlight(null)}
+                  className="text-[11px] text-zinc-400 hover:text-white underline cursor-pointer"
                 >
-                  <Grid className="w-3.5 h-3.5" />
-                  <span>Posts ({images.length})</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab("saved")}
-                  className={`flex items-center gap-2 py-3 -mt-px text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
-                    activeTab === "saved"
-                      ? "border-t border-ink text-ink font-bold"
-                      : "text-zinc-400 hover:text-zinc-600"
-                  }`}
-                >
-                  <Bookmark className="w-3.5 h-3.5" />
-                  <span>Saved</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab("battles")}
-                  className={`flex items-center gap-2 py-3 -mt-px text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
-                    activeTab === "battles"
-                      ? "border-t border-ink text-ink font-bold"
-                      : "text-zinc-400 hover:text-zinc-600"
-                  }`}
-                >
-                  <Swords className="w-3.5 h-3.5 text-magenta" />
-                  <span>Versus</span>
+                  Clear filter
                 </button>
               </div>
-            </div>
+            )}
 
-            {/* TAB CONTENT: POSTS / ANOMALIES */}
-            {activeTab === "posts" && (
-              <>
-                {/* Onboarding Cards (Matching Screenshot 1 when 0 or few posts) */}
-                {images.length === 0 ? (
-                  <div className="space-y-6 pt-2">
-                    <div className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
-                      Getting Started
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Card 1: Share photos */}
-                      <div className="p-6 rounded-2xl border border-zinc-200 bg-white flex flex-col items-center text-center justify-between">
-                        <div className="w-14 h-14 rounded-full border border-zinc-300 flex items-center justify-center text-zinc-700 mb-4 bg-zinc-50">
-                          <Camera className="w-7 h-7" />
-                        </div>
-                        <h4 className="font-semibold text-sm text-ink mb-1">Share photos</h4>
-                        <p className="text-xs text-zinc-500 leading-relaxed mb-6">
-                          When you share photos of real strange things, they will appear on your profile.
-                        </p>
-                        <button
-                          onClick={() => setIsUploadOpen(true)}
-                          className="w-full py-2 px-3 rounded-lg bg-violet hover:bg-violet/90 text-white text-xs font-semibold transition-all active:scale-95 cursor-pointer"
-                        >
-                          Share your first photo
-                        </button>
-                      </div>
-
-                      {/* Card 2: Add phone / info */}
-                      <div className="p-6 rounded-2xl border border-zinc-200 bg-white flex flex-col items-center text-center justify-between">
-                        <div className="w-14 h-14 rounded-full border border-zinc-300 flex items-center justify-center text-zinc-700 mb-4 bg-zinc-50">
-                          <Phone className="w-7 h-7" />
-                        </div>
-                        <h4 className="font-semibold text-sm text-ink mb-1">Add bio & details</h4>
-                        <p className="text-xs text-zinc-500 leading-relaxed mb-6">
-                          Add your biography, links, and region so fellow observers can recognize you.
-                        </p>
-                        <Link
-                          href="/settings"
-                          className="w-full py-2 px-3 rounded-lg bg-violet hover:bg-violet/90 text-white text-xs font-semibold transition-all active:scale-95 text-center"
-                        >
-                          Edit Profile Info
-                        </Link>
-                      </div>
-
-                      {/* Card 3: Add profile photo */}
-                      <div className="p-6 rounded-2xl border border-zinc-200 bg-white flex flex-col items-center text-center justify-between">
-                        <div className="w-14 h-14 rounded-full border border-zinc-300 flex items-center justify-center text-zinc-700 mb-4 bg-zinc-50">
-                          <UserIcon className="w-7 h-7" />
-                        </div>
-                        <h4 className="font-semibold text-sm text-ink mb-1">Add profile photo</h4>
-                        <p className="text-xs text-zinc-500 leading-relaxed mb-6">
-                          Add a profile avatar so friends and the community know it&apos;s you.
-                        </p>
-                        <Link
-                          href="/settings"
-                          className="w-full py-2 px-3 rounded-lg bg-violet hover:bg-violet/90 text-white text-xs font-semibold transition-all active:scale-95 text-center"
-                        >
-                          Change Profile Photo
-                        </Link>
-                      </div>
-                    </div>
+            {/* 3-Column Media Grid (Matching Reference Image 2) */}
+            <div className="pt-4">
+              {loading ? (
+                <div className="grid grid-cols-3 gap-1 sm:gap-2">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div
+                      key={i}
+                      className="aspect-square bg-zinc-900/60 rounded-lg animate-pulse border border-zinc-800/40"
+                    />
+                  ))}
+                </div>
+              ) : activeTab === "battles" ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-mono text-zinc-400">
+                      Active & Past Arena Showdowns ({sampleBattles.length})
+                    </p>
+                    <Link
+                      href="/versus"
+                      className="text-xs font-mono text-violet hover:underline flex items-center gap-1"
+                    >
+                      <span>Versus Arena</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
-                ) : (
-                  /* 3-COLUMN INSTAGRAM SQUARE GRID */
-                  <div className="grid grid-cols-3 gap-1 sm:gap-4">
-                    {images.map((img) => (
-                      <div
-                        key={img.id}
-                        onClick={() => setSelectedImage(img)}
-                        className="group relative aspect-square bg-zinc-100 overflow-hidden cursor-pointer"
-                      >
-                        <img
-                          src={getSafeImageUrl(img.storage_path)}
-                          alt={img.caption || "Anomaly"}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
 
-                        {/* Instagram-style Hover Overlay */}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 text-white p-3 text-center">
-                          <div className="flex items-center gap-4 text-xs font-mono font-bold">
-                            <span className="flex items-center gap-1">
-                              <Sparkles className="w-4 h-4 text-cyan fill-current" />
-                              <span>{img.wica_score}</span>
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Heart className="w-4 h-4 fill-current text-rose-500" />
-                              <span>{img.likes_count || 12}</span>
-                            </span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {sampleBattles.map((battle) => (
+                      <div
+                        key={battle.id}
+                        className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 hover:border-zinc-700/80 transition-all flex flex-col justify-between gap-3 group"
+                      >
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-mono text-zinc-300 font-semibold truncate max-w-[200px]">
+                            {battle.title}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-bold ${
+                              battle.status === "active"
+                                ? "bg-magenta/15 text-magenta border border-magenta/30"
+                                : "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                            }`}
+                          >
+                            {battle.statusLabel}
+                          </span>
+                        </div>
+
+                        {/* Side by side preview */}
+                        <div className="grid grid-cols-2 gap-2 relative">
+                          <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800">
+                            <img
+                              src={battle.postA.image}
+                              alt={battle.postA.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-xs text-[10px] font-mono text-cyan font-bold">
+                              ★ {battle.postA.score}
+                            </div>
+                            <div className="absolute top-1 right-1.5 text-[10px] font-mono text-zinc-300">
+                              {battle.postA.votes} votes
+                            </div>
                           </div>
 
-                          <p className="text-[11px] font-mono text-zinc-200 line-clamp-2 max-w-[85%]">
-                            &ldquo;{img.ai_verdict}&rdquo;
-                          </p>
+                          <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800">
+                            <img
+                              src={battle.postB.image}
+                              alt={battle.postB.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-xs text-[10px] font-mono text-cyan font-bold">
+                              ★ {battle.postB.score}
+                            </div>
+                            <div className="absolute top-1 right-1.5 text-[10px] font-mono text-zinc-300">
+                              {battle.postB.votes} votes
+                            </div>
+                          </div>
+
+                          {/* Centered VS badge */}
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-zinc-900/90 border border-zinc-700 text-white flex items-center justify-center text-[10px] font-bold font-mono shadow-md">
+                            VS
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-800/60">
+                          <span className="text-[11px] font-mono text-amber-400 flex items-center gap-1">
+                            <Coins className="w-3 h-3" />
+                            {battle.prize}
+                          </span>
+                          <Link
+                            href="/versus"
+                            className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-mono text-[11px] font-semibold transition-colors flex items-center gap-1"
+                          >
+                            <span>{battle.status === "active" ? "Vote Now" : "View Result"}</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </Link>
                         </div>
                       </div>
                     ))}
                   </div>
-                )}
-              </>
-            )}
+                </div>
+              ) : activeTab === "saved" ? (
+                savedImages.length === 0 ? (
+                  <div className="py-14 text-center rounded-2xl border border-dashed border-zinc-800 p-6 space-y-3">
+                    <Bookmark className="w-8 h-8 text-zinc-600 mx-auto" />
+                    <p className="text-xs text-zinc-400 font-mono">
+                      No bookmarked anomaly sightings yet.
+                    </p>
+                    <p className="text-[11px] text-zinc-500 font-sans max-w-sm mx-auto">
+                      Click the bookmark icon on any anomaly photograph in the feed or photo detail modal to save it to your private vault.
+                    </p>
+                    <Link
+                      href="/"
+                      className="inline-block px-3.5 py-1.5 rounded-lg bg-white text-zinc-950 text-xs font-semibold hover:bg-zinc-200 transition-colors"
+                    >
+                      Explore World Feed
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-mono text-zinc-400">
+                        Bookmarked Sightings ({savedImages.length})
+                      </p>
+                      <Link
+                        href="/"
+                        className="text-xs font-mono text-violet hover:underline flex items-center gap-1"
+                      >
+                        <span>Find More</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1 sm:gap-2">
+                      {savedImages.map((img) => (
+                        <div
+                          key={`saved-${img.id}`}
+                          onClick={() => setSelectedImage(img)}
+                          className="group relative aspect-square rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800/80 cursor-pointer"
+                        >
+                          <img
+                            src={img.storage_path}
+                            alt={img.caption || "Anomaly capture"}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute top-2 right-2 z-10">
+                            <span className="px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm border border-white/20 text-[10px] font-mono font-bold text-cyan">
+                              ★ {img.wica_score || 90}
+                            </span>
+                          </div>
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white text-xs font-mono font-semibold">
+                            <Bookmark className="w-5 h-5 fill-white text-white" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              ) : displayImages.length === 0 ? (
+                <div className="py-14 text-center rounded-2xl border border-dashed border-zinc-800 p-6 space-y-3">
+                  <Camera className="w-8 h-8 text-zinc-600 mx-auto" />
+                  <p className="text-xs text-zinc-400 font-mono">
+                    No anomaly photographs found in this collection.
+                  </p>
+                  {isOwnProfile && (
+                    <button
+                      type="button"
+                      onClick={() => setIsCreateModalOpen(true)}
+                      className="inline-block px-4 py-2 rounded-xl bg-white text-zinc-950 text-xs font-semibold hover:bg-zinc-200 transition-colors cursor-pointer"
+                    >
+                      Upload Photograph
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-1 sm:gap-2">
+                  {displayImages.map((img) => (
+                    <div
+                      key={img.id}
+                      onClick={() => setSelectedImage(img)}
+                      className="group relative aspect-square rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800/80 cursor-pointer"
+                    >
+                      <img
+                        src={img.storage_path}
+                        alt={img.caption || "Anomaly capture"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      
+                      {/* Top Right Multi-indicator / Score */}
+                      <div className="absolute top-2 right-2 z-10">
+                        <span className="px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm border border-white/20 text-[10px] font-mono font-bold text-cyan">
+                          ★ {img.wica_score || 90}
+                        </span>
+                      </div>
 
-            {/* TAB CONTENT: SAVED */}
-            {activeTab === "saved" && (
-              <div className="py-16 text-center border-2 border-dashed border-zinc-200 rounded-3xl p-8">
-                <Bookmark className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
-                <h3 className="font-display font-bold text-base text-ink">Saved Anomalies</h3>
-                <p className="text-xs text-zinc-500 mt-1 max-w-xs mx-auto">
-                  Only you can see what you&apos;ve saved. Bookmark weird finds across the World Feed to view them here.
-                </p>
-              </div>
-            )}
-
-            {/* TAB CONTENT: BATTLES */}
-            {activeTab === "battles" && (
-              <div className="py-16 text-center border-2 border-dashed border-zinc-200 rounded-3xl p-8">
-                <Swords className="w-10 h-10 text-magenta mx-auto mb-3" />
-                <h3 className="font-display font-bold text-base text-ink">Versus Showdown Record</h3>
-                <p className="text-xs text-zinc-500 mt-1 max-w-xs mx-auto">
-                  Anomalies entered into daily community Versus battles will appear here with win/loss records.
-                </p>
-                <Link
-                  href="/versus"
-                  className="mt-4 inline-block px-4 py-2 rounded-xl bg-magenta text-white text-xs font-semibold"
-                >
-                  Enter Today&apos;s Versus Arena
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {/* INSTAGRAM-STYLE "MORE" BOTTOM POPOVER / SIDEBAR MENU */}
-      <div className="fixed bottom-6 left-6 z-40">
-        <div className="relative">
-          <button
-            onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white border border-zinc-200 text-ink text-xs font-semibold shadow-lg hover:bg-zinc-50 transition-all cursor-pointer"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-            <span className="hidden sm:inline">More</span>
-          </button>
-
-          {isMoreMenuOpen && (
-            <div className="absolute bottom-12 left-0 w-64 rounded-2xl bg-white border border-zinc-200 shadow-2xl p-2 space-y-1 font-mono text-xs animate-in slide-in-from-bottom-2 duration-150 z-50 text-zinc-700">
-              <Link
-                href="/settings"
-                onClick={() => setIsMoreMenuOpen(false)}
-                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-100 transition-colors"
-              >
-                <Settings className="w-4 h-4 text-zinc-500" />
-                <span>Settings</span>
-              </Link>
-
-              <Link
-                href="/wallet"
-                onClick={() => setIsMoreMenuOpen(false)}
-                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-100 transition-colors"
-              >
-                <Activity className="w-4 h-4 text-zinc-500" />
-                <span>Your Activity & Wallet</span>
-              </Link>
-
-              <button
-                onClick={() => {
-                  setActiveTab("saved");
-                  setIsMoreMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-100 transition-colors text-left"
-              >
-                <Bookmark className="w-4 h-4 text-zinc-500" />
-                <span>Saved</span>
-              </button>
-
-              <button
-                onClick={() => alert("Appearance toggle demonstration")}
-                className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-100 transition-colors text-left"
-              >
-                <Moon className="w-4 h-4 text-zinc-500" />
-                <span>Switch appearance</span>
-              </button>
-
-              <Link
-                href="/learn-more"
-                onClick={() => setIsMoreMenuOpen(false)}
-                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-100 transition-colors"
-              >
-                <AlertCircle className="w-4 h-4 text-zinc-500" />
-                <span>Report a problem</span>
-              </Link>
-
-              <div className="pt-1 border-t border-zinc-100 my-1" />
-
-              <button
-                onClick={() => {
-                  loginAsDemo();
-                  setIsMoreMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-100 transition-colors text-left text-violet font-semibold"
-              >
-                <Users className="w-4 h-4" />
-                <span>Switch accounts (Demo)</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  signOut();
-                  setIsMoreMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-zinc-100 transition-colors text-left text-rose-600 font-semibold"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Log out</span>
-              </button>
+                      {/* Hover Overlay with Stats */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white text-xs font-mono font-semibold">
+                        <div className="flex items-center gap-1">
+                          <Heart className="w-4 h-4 fill-white" />
+                          <span>{img.likes_count || 42}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MessageCircle className="w-4 h-4 fill-white" />
+                          <span>{img.comments_count || 7}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
         </div>
+
       </div>
 
-      {/* Universal Modals */}
-      <UploadModal
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-        onSuccess={(newImg) => {
-          setImages((prev) => [newImg, ...prev]);
+      {/* Edit Profile Modal (Matching Reference Image 1) */}
+      {displayUser && (
+        <EditProfileModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          currentUser={displayUser}
+        />
+      )}
+
+      {/* Followers & Observers Modal */}
+      <FollowersModal
+        isOpen={isFollowersOpen}
+        onClose={() => setIsFollowersOpen(false)}
+        type={followersType}
+        username={displayUser?.username || username || "explorer"}
+      />
+
+      {/* Photo Detail Modal */}
+      {selectedImage && (
+        <PhotoDetailModal
+          image={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
+
+      {/* Status Note Modal (Instagram Notes style) */}
+      <StatusNoteModal
+        isOpen={isStatusNoteOpen}
+        onClose={() => setIsStatusNoteOpen(false)}
+        currentNote={displayUser?.note}
+        username={displayUser?.username || username || "explorer"}
+        avatarUrl={displayUser?.avatar_url}
+      />
+
+      {/* Story Viewer Modal (Instagram Stories & Highlight Reels) */}
+      <StoryViewerModal
+        isOpen={isStoryViewerOpen || Boolean(activeHighlightReel)}
+        onClose={() => {
+          setIsStoryViewerOpen(false);
+          setActiveHighlightReel(null);
+        }}
+        stories={activeHighlightReel ? activeHighlightReel.stories : stories}
+        username={
+          activeHighlightReel
+            ? `${displayUser?.username || username || "explorer"} • ${activeHighlightReel.name}`
+            : displayUser?.username || username || "explorer"
+        }
+        avatarUrl={
+          activeHighlightReel?.cover_image ||
+          displayUser?.avatar_url
+        }
+        isOwnStory={Boolean(isOwnProfile && !activeHighlightReel)}
+        onDeleteStory={handleDeleteStory}
+      />
+
+      {/* Add Story Modal */}
+      <AddStoryModal
+        isOpen={isAddStoryOpen}
+        onClose={() => setIsAddStoryOpen(false)}
+        onAddStory={handleAddStory}
+        availablePhotos={images.map((img) => ({
+          id: img.id,
+          url: img.storage_path,
+          caption: img.caption || undefined,
+        }))}
+      />
+
+      {/* Avatar Action Modal (Upload, Generate, Remove Photo) */}
+      <AvatarActionModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        currentAvatarUrl={displayUser?.avatar_url}
+        username={displayUser?.username || username || "explorer"}
+      />
+
+      {/* Explorer Intelligence Dashboard Modal */}
+      <ExplorerDashboardModal
+        isOpen={isDashboardOpen}
+        onClose={() => setIsDashboardOpen(false)}
+        username={displayUser?.username || username || "explorer"}
+        userSightings={images}
+        wcBalance={displayUser?.total_wc || authProfile?.credits_balance || 150}
+        onSelectSighting={(sighting) => setSelectedImage(sighting)}
+      />
+
+      {/* Expedition Highlight Creation & Management Modal */}
+      <HighlightModal
+        isOpen={isHighlightModalOpen}
+        onClose={() => {
+          setIsHighlightModalOpen(false);
+          setEditingHighlight(null);
+        }}
+        onSave={handleSaveHighlight}
+        onDelete={handleDeleteHighlight}
+        editingHighlight={editingHighlight}
+        userSightings={images}
+      />
+
+      {/* Create / Upload Sighting Modal (Live Camera, Canvas Snap, Drafts, Scheduled Posts) */}
+      <CreatePostModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onPostCreated={() => {
+          if (typeof window !== "undefined") {
+            window.location.reload();
+          }
         }}
       />
-      <PhotoDetailModal
-        image={selectedImage}
-        onClose={() => setSelectedImage(null)}
-      />
-      <AuthModal />
-
-      <Footer />
     </div>
   );
 };

@@ -31,9 +31,22 @@ const DEMO_PROFILE: Profile = {
   username: "weca_explorer",
   display_name: "Weca Explorer",
   avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  bio: "Exploring and capturing unique moments.",
-  credits_balance: 0,
+  bio: "Documenting rare environmental glitches and optical anomalies.",
+  pronouns: "they/them",
+  credits_balance: 140,
   created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+};
+
+const getStoredProfile = (): Profile => {
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("weca_custom_profile");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {}
+    }
+  }
+  return DEMO_PROFILE;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -41,6 +54,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [userExtras, setUserExtras] = useState<{
+    pronouns?: string | null;
+    website?: string | null;
+    is_ai_profile?: boolean;
+    note?: string | null;
+    gender?: string | null;
+  }>({
+    pronouns: "they/them",
+    website: "https://weca.ai",
+    is_ai_profile: true,
+    note: "Just curious...",
+    gender: "Explorer",
+  });
 
   const supabase = createClient();
 
@@ -85,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Fallback for demo
         const storedDemo = typeof window !== "undefined" ? localStorage.getItem("weca_demo_user") : null;
         if (storedDemo) {
-          setProfile(DEMO_PROFILE);
+          setProfile(getStoredProfile());
         }
         setLoading(false);
         return;
@@ -102,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Check demo storage
           const storedDemo = typeof window !== "undefined" ? localStorage.getItem("weca_demo_user") : null;
           if (storedDemo) {
-            setProfile(DEMO_PROFILE);
+            setProfile(getStoredProfile());
           }
         }
       } catch (err) {
@@ -229,7 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginAsDemo = () => {
-    setProfile(DEMO_PROFILE);
+    setProfile(getStoredProfile());
     if (typeof window !== "undefined") {
       localStorage.setItem("weca_demo_user", "true");
     }
@@ -253,17 +279,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateProfile = async (data: Partial<User>) => {
+    const updatedExtras = {
+      pronouns: data.pronouns !== undefined ? data.pronouns : userExtras.pronouns,
+      website: data.website !== undefined ? data.website : userExtras.website,
+      is_ai_profile: data.is_ai_profile !== undefined ? data.is_ai_profile : userExtras.is_ai_profile,
+      note: data.note !== undefined ? data.note : userExtras.note,
+      gender: data.gender !== undefined ? data.gender : userExtras.gender,
+    };
+    setUserExtras(updatedExtras);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("weca_user_extras", JSON.stringify(updatedExtras));
+      } catch {}
+    }
+
     if (!profile) return;
     const updated: Profile = {
       ...profile,
       username: data.username ?? profile.username,
       display_name: data.display_name ?? profile.display_name,
-      avatar_url: data.avatar_url ?? profile.avatar_url,
-      bio: data.bio ?? profile.bio,
+      avatar_url: data.avatar_url !== undefined ? data.avatar_url : profile.avatar_url,
+      bio: data.bio !== undefined ? data.bio : profile.bio,
+      pronouns: data.pronouns !== undefined ? data.pronouns : profile.pronouns,
       credits_balance: data.total_wc ?? profile.credits_balance,
     };
     setProfile(updated);
-    if (supabase) {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("weca_custom_profile", JSON.stringify(updated));
+      } catch {}
+    }
+    if (supabase && authUser) {
       try {
         await supabase
           .from("profiles")
@@ -289,16 +335,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         display_name: profile.display_name || profile.username,
         avatar_url: profile.avatar_url,
         bio: profile.bio,
+        pronouns: profile.pronouns || userExtras.pronouns || "they/them",
         total_wc: profile.credits_balance || 0,
         tier: "Certified Weird",
         created_at: profile.created_at,
         country: "Global",
-        website: "",
-        followers_count: 0,
-        following_count: 0,
-        is_ai_profile: false,
+        website: userExtras.website || "",
+        followers_count: 472,
+        following_count: 102,
+        is_ai_profile: userExtras.is_ai_profile ?? true,
         show_suggestions: true,
-        gender: "",
+        gender: userExtras.gender || "Explorer",
+        note: userExtras.note || "Just curious...",
         email: authUser?.email,
       }
     : authUser
@@ -308,16 +356,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         display_name: authUser.email?.split("@")[0] || "user",
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${authUser.id}`,
         bio: "",
+        pronouns: userExtras.pronouns || "they/them",
         total_wc: 0,
         tier: "Mildly Odd",
         created_at: authUser.created_at,
         country: "Global",
-        website: "",
+        website: userExtras.website || "",
         followers_count: 0,
         following_count: 0,
-        is_ai_profile: false,
+        is_ai_profile: userExtras.is_ai_profile ?? false,
         show_suggestions: true,
-        gender: "",
+        gender: userExtras.gender || "",
+        note: userExtras.note || "Just curious...",
         email: authUser.email,
       }
     : null;

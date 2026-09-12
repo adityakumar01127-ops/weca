@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { WicaImage, Comment, getTierFromScore, getTierColor } from "@/lib/types";
 import { useAuth } from "@/context/AuthContext";
-import { X, Heart, MessageSquare, Send, Sparkles, MapPin, Share2, Check } from "lucide-react";
+import { X, Heart, MessageSquare, Send, Sparkles, MapPin, Share2, Check, Bookmark } from "lucide-react";
 import { getSafeImageUrl } from "@/lib/utils/image";
 
 interface PhotoDetailModalProps {
@@ -26,6 +26,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
   const [liked, setLiked] = useState<boolean>(false);
   const [likeCount, setLikeCount] = useState<number>(0);
   const [copied, setCopied] = useState<boolean>(false);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
   useEffect(() => {
     if (!image) return;
@@ -49,6 +50,13 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
       .finally(() => {
         if (!ignore) setLoadingComments(false);
       });
+
+    if (typeof window !== "undefined") {
+      try {
+        const saved = JSON.parse(localStorage.getItem("weca_saved_posts") || "[]");
+        setIsBookmarked(saved.includes(image.id));
+      } catch {}
+    }
 
     return () => {
       ignore = true;
@@ -128,6 +136,24 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
     }
   };
 
+  const handleToggleBookmark = () => {
+    if (!image) return;
+    if (typeof window !== "undefined") {
+      try {
+        const saved = JSON.parse(localStorage.getItem("weca_saved_posts") || "[]");
+        let updated: string[];
+        if (saved.includes(image.id)) {
+          updated = saved.filter((id: string) => id !== image.id);
+          setIsBookmarked(false);
+        } else {
+          updated = [...saved, image.id];
+          setIsBookmarked(true);
+        }
+        localStorage.setItem("weca_saved_posts", JSON.stringify(updated));
+      } catch {}
+    }
+  };
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(
       `Check out this anomaly on Wica: "${image.ai_verdict}" (Wica Score: ${image.wica_score}/100)`
@@ -137,14 +163,14 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-ink/70 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-5xl bg-white rounded-3xl border border-zinc-200 shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[92vh]"
+        className="relative w-full max-w-5xl bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-800/90 shadow-2xl shadow-black/90 overflow-hidden flex flex-col md:flex-row max-h-[92vh] text-zinc-100"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-white/80 hover:bg-white text-zinc-600 hover:text-ink shadow-sm transition-colors"
+          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white shadow-sm transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -160,11 +186,11 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
 
           {/* Category Tag */}
           <div className="absolute top-4 left-4 flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-ink/80 backdrop-blur-md text-xs font-mono font-medium text-white border border-white/10">
+            <span className="px-3 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-xs font-mono font-medium text-white border border-zinc-700/80">
               {image.category}
             </span>
             {image.country && (
-              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-ink/80 backdrop-blur-md text-xs font-mono text-cyan border border-white/10">
+              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-xs font-mono text-cyan border border-zinc-700/80">
                 <MapPin className="w-3 h-3" />
                 <span>{image.country}</span>
               </span>
@@ -173,9 +199,9 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
         </div>
 
         {/* Right Side: Score Rubric & Comments */}
-        <div className="md:w-2/5 flex flex-col h-full bg-white overflow-y-auto">
+        <div className="md:w-2/5 flex flex-col h-full bg-zinc-900/90 overflow-y-auto border-t md:border-t-0 md:border-l border-zinc-800">
           {/* Header & Author */}
-          <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between">
             <Link
               href={`/profile/${image.author?.username || "unknown"}`}
               className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
@@ -183,13 +209,13 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               <img
                 src={image.author?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${image.user_id}`}
                 alt={image.author?.username || "author"}
-                className="w-9 h-9 rounded-full object-cover bg-zinc-100 ring-1 ring-zinc-200"
+                className="w-9 h-9 rounded-full object-cover bg-zinc-800 ring-1 ring-zinc-700"
               />
               <div>
-                <span className="font-mono font-bold text-xs text-ink block">
+                <span className="font-mono font-bold text-xs text-white block">
                   @{image.author?.username || "explorer"}
                 </span>
-                <span className="text-[11px] text-zinc-400">
+                <span className="text-[11px] font-mono text-zinc-400">
                   {new Date(image.created_at).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
@@ -199,17 +225,33 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               </div>
             </Link>
 
-            <button
-              onClick={handleCopyLink}
-              className="p-2 rounded-lg text-zinc-400 hover:text-ink hover:bg-zinc-100 transition-colors"
-              title="Copy share link"
-            >
-              {copied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handleToggleBookmark}
+                className={`p-2 rounded-lg transition-colors cursor-pointer ${
+                  isBookmarked
+                    ? "text-amber-400 hover:bg-amber-400/10"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                }`}
+                title={isBookmarked ? "Remove from Saved" : "Save anomaly"}
+              >
+                <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-amber-400 text-amber-400" : ""}`} />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                title="Copy share link"
+              >
+                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           {/* AI Verdict & Score Badge */}
-          <div className="p-5 border-b border-zinc-100 bg-zinc-50/50">
+          <div className="p-4 sm:p-5 border-b border-zinc-800 bg-zinc-950/40">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-semibold">
                 AI Weirdness Evaluation
@@ -218,39 +260,39 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border shadow-xs ${tierColors.bg} ${tierColors.text} ${tierColors.border}`}
               >
                 <span>{image.wica_score}</span>
-                <span className="text-[10px] text-zinc-500 font-normal">/100</span>
+                <span className="text-[10px] opacity-70 font-normal">/100</span>
                 <span>• {tier}</span>
               </div>
             </div>
 
-            <p className="font-display font-semibold text-ink text-base leading-snug">
+            <p className="font-display font-semibold text-white text-base leading-snug">
               “{image.ai_verdict}”
             </p>
 
             {image.caption && (
-              <p className="text-xs text-zinc-600 mt-2 italic">
+              <p className="text-xs text-zinc-400 mt-2 italic">
                 &ldquo;{image.caption}&rdquo;
               </p>
             )}
 
             {/* Rubric Breakdown Accordion */}
-            <div className="mt-4 pt-3 border-t border-zinc-200/60 space-y-2 text-xs">
+            <div className="mt-4 pt-3 border-t border-zinc-800 space-y-2 text-xs">
               {[
                 { label: "Absurdity", val: image.absurdity, color: "bg-violet" },
                 { label: "Rarity", val: image.rarity, color: "bg-cyan" },
-                { label: "Craft", val: image.craft, color: "bg-zinc-700" },
+                { label: "Craft", val: image.craft, color: "bg-zinc-400" },
                 { label: "Cultural Novelty", val: image.cultural_novelty, color: "bg-magenta" },
                 { label: "Wit", val: image.wit, color: "bg-amber-400" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-zinc-500 text-[11px] font-medium w-28">{item.label}</span>
-                  <div className="flex-1 h-1.5 bg-zinc-200/70 rounded-full mx-2 overflow-hidden">
+                  <span className="text-zinc-400 text-[11px] font-medium w-28">{item.label}</span>
+                  <div className="flex-1 h-1.5 bg-zinc-800 rounded-full mx-2 overflow-hidden">
                     <div
                       className={`h-full rounded-full ${item.color}`}
                       style={{ width: `${(item.val || 5) * 10}%` }}
                     />
                   </div>
-                  <span className="font-mono text-zinc-700 font-bold text-[11px] w-5 text-right">
+                  <span className="font-mono text-zinc-300 font-bold text-[11px] w-5 text-right">
                     {item.val || 5}
                   </span>
                 </div>
@@ -258,17 +300,17 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
             </div>
 
             {/* Like Action Bar */}
-            <div className="mt-4 pt-3 border-t border-zinc-200/60 flex items-center justify-between">
+            <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center justify-between">
               <button
                 type="button"
                 onClick={handleToggleLike}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-medium transition-all cursor-pointer ${
                   liked
-                    ? "bg-pink-50 border-pink-200 text-magenta font-bold"
-                    : "bg-white border-zinc-200 text-zinc-600 hover:border-zinc-300"
+                    ? "bg-rose-950/40 border-rose-800 text-rose-400 font-bold"
+                    : "bg-zinc-950/80 border-zinc-800 text-zinc-300 hover:border-zinc-700"
                 }`}
               >
-                <Heart className={`w-4 h-4 ${liked ? "fill-magenta text-magenta" : ""}`} />
+                <Heart className={`w-4 h-4 ${liked ? "fill-rose-500 text-rose-500" : ""}`} />
                 <span>{likeCount} {likeCount === 1 ? "Like" : "Likes"}</span>
               </button>
 
@@ -280,17 +322,17 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
           </div>
 
           {/* Comments Thread */}
-          <div className="flex-1 p-5 overflow-y-auto space-y-3.5 min-h-[160px]">
+          <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3 min-h-[160px]">
             <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 block mb-1">
               Discussion
             </span>
 
             {loadingComments ? (
-              <div className="py-6 text-center text-xs text-zinc-400 font-mono">
-                Loading comments...
+              <div className="py-6 text-center text-xs text-zinc-500 font-mono">
+                Loading observations...
               </div>
             ) : comments.length === 0 ? (
-              <div className="py-8 text-center text-xs text-zinc-400 font-mono">
+              <div className="py-8 text-center text-xs text-zinc-500 font-mono">
                 No observations yet. Be the first to comment!
               </div>
             ) : (
@@ -299,21 +341,21 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
                   <img
                     src={comment.author?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${comment.user_id}`}
                     alt={comment.author?.username || "commenter"}
-                    className="w-6 h-6 rounded-full object-cover bg-zinc-100 shrink-0 mt-0.5"
+                    className="w-6 h-6 rounded-full object-cover bg-zinc-800 shrink-0 mt-0.5 border border-zinc-700"
                   />
-                  <div className="flex-1 bg-zinc-50 rounded-xl p-2.5 border border-zinc-100">
+                  <div className="flex-1 bg-zinc-950/60 rounded-xl p-2.5 border border-zinc-800">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono font-semibold text-ink text-[11px]">
+                      <span className="font-mono font-semibold text-white text-[11px]">
                         @{comment.author?.username || "user"}
                       </span>
-                      <span className="text-[10px] text-zinc-400 font-mono">
+                      <span className="text-[10px] text-zinc-500 font-mono">
                         {new Date(comment.created_at).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
                       </span>
                     </div>
-                    <p className="text-zinc-700 leading-relaxed">{comment.body}</p>
+                    <p className="text-zinc-300 leading-relaxed">{comment.body}</p>
                   </div>
                 </div>
               ))
@@ -321,23 +363,23 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
           </div>
 
           {/* Post Comment Input */}
-          <form onSubmit={handleAddComment} className="p-3 border-t border-zinc-100 bg-white">
+          <form onSubmit={handleAddComment} className="p-3 border-t border-zinc-800 bg-zinc-950/50">
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder={user ? "Add a reaction or insight..." : "Sign in to join discussion"}
+                placeholder={user ? "Add an insight or score observation..." : "Sign in to join discussion"}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 disabled={!user || submittingComment}
-                className="flex-1 px-3 py-2 text-xs border border-zinc-200 rounded-xl focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-colors placeholder:text-zinc-400 disabled:bg-zinc-50"
+                className="flex-1 px-3 py-2 text-xs border border-zinc-800 bg-zinc-900 text-white rounded-xl focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-colors placeholder:text-zinc-500 disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={!user || !newComment.trim() || submittingComment}
-                className="p-2 rounded-xl bg-ink hover:bg-zinc-800 text-white disabled:opacity-40 transition-colors"
+                className="p-2 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 disabled:opacity-40 transition-colors cursor-pointer"
                 title="Post comment"
               >
-                <Send className="w-4 h-4 text-cyan" />
+                <Send className="w-4 h-4 text-violet" />
               </button>
             </div>
           </form>
