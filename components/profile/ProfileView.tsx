@@ -1508,6 +1508,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         onDeleteStory={handleDeleteStory}
         isHighlight={Boolean(activeHighlightReel)}
         highlightTitle={activeHighlightReel?.name || null}
+        allHighlights={highlights}
+        onSelectHighlight={(h) => setActiveHighlightReel(h)}
       />
 
       {/* Add Story Modal */}
