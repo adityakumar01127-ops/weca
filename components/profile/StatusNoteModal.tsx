@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Sparkles, Check, Trash2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useAuth } from "@/context/AuthContext";
@@ -35,6 +35,15 @@ export const StatusNoteModal: React.FC<StatusNoteModalProps> = ({
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [noteText, setNoteText] = useState(currentNote || "");
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (isOpen !== prevIsOpen) {
     setPrevIsOpen(isOpen);
@@ -86,9 +95,12 @@ export const StatusNoteModal: React.FC<StatusNoteModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div
-        className="relative w-full max-w-sm bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl p-6 text-zinc-900 dark:text-zinc-100 font-sans space-y-6"
+        className="relative w-full max-w-sm max-h-[90vh] overflow-y-auto bg-white dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl p-6 text-zinc-900 dark:text-zinc-100 font-sans space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

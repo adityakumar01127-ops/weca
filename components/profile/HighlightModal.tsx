@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X, Image as ImageIcon, Sparkles, Trash2, Check, Upload, Compass } from "lucide-react";
 import confetti from "canvas-confetti";
 import { WicaImage } from "@/lib/types";
@@ -102,6 +102,15 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
     }
   }
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,8 +187,14 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 text-zinc-900 dark:text-zinc-100 shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-fade-in"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 sm:p-6 text-zinc-900 dark:text-zinc-100 shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]"
+      >
         {/* Glow Effects */}
         <div className="absolute -top-16 -right-16 w-36 h-36 bg-violet/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-cyan/15 rounded-full blur-3xl pointer-events-none" />
@@ -303,14 +318,14 @@ export const HighlightModal: React.FC<HighlightModalProps> = ({
                 {/* Glyph Picker */}
                 <div>
                   <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-2 block">Choose Anomaly Glyph:</span>
-                  <div className="grid grid-cols-6 gap-2">
+                  <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
                     {PRESET_GLYPHS.map((item) => (
                       <button
                         key={item.icon}
                         type="button"
                         onClick={() => setSelectedGlyph(item.icon)}
                         title={item.label}
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all cursor-pointer ${
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-base sm:text-lg transition-all cursor-pointer ${
                           selectedGlyph === item.icon
                             ? "bg-violet/25 border-2 border-violet scale-105 text-white"
                             : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 text-zinc-800 dark:text-zinc-300"

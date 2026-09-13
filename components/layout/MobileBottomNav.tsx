@@ -31,7 +31,7 @@ export const MobileBottomNav: React.FC = () => {
       {/* Mobile Persistent App Dock */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/92 dark:bg-[#09090b]/92 backdrop-blur-2xl border-t border-zinc-200/80 dark:border-zinc-800/80 transition-colors duration-200 select-none"
+        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/92 dark:bg-[#09090b]/92 backdrop-blur-2xl border-t border-zinc-200/80 dark:border-zinc-800/80 transition-colors duration-200 select-none"
         style={{
           paddingBottom: "max(env(safe-area-inset-bottom, 10px), 10px)",
         }}

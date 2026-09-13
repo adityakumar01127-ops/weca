@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X, Upload, Sparkles, Image as ImageIcon, Check } from "lucide-react";
 import confetti from "canvas-confetti";
 import { StoryItem } from "./StoryViewerModal";
@@ -27,6 +27,15 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
   const [selectedImage, setSelectedImage] = useState<string>(availablePhotos[0]?.url || "/anom-1.jpg");
   const [caption, setCaption] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -67,9 +76,12 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div
-        className="relative w-full max-w-sm bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl p-5 text-zinc-900 dark:text-zinc-100 font-sans space-y-4"
+        className="relative w-full max-w-sm max-h-[92vh] overflow-y-auto bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl border border-zinc-200 dark:border-zinc-800/90 shadow-2xl p-5 text-zinc-900 dark:text-zinc-100 font-sans space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

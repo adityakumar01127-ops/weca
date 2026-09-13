@@ -796,6 +796,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
               <>
                 <button
                   type="button"
+                  id="profile-edit-profile-btn"
                   onClick={() => setIsEditModalOpen(true)}
                   className="flex-1 py-2 px-4 rounded-xl bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer shadow-xs"
                 >

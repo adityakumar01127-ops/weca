@@ -25,6 +25,24 @@ interface StoryViewerModalProps {
   onDeleteStory?: (storyId: string) => void;
 }
 
+function formatStoryTime(timeStr?: string | null): string {
+  if (!timeStr) return "Just now";
+  if (timeStr.includes("ago") || timeStr === "Just now") return timeStr;
+  try {
+    const d = new Date(timeStr);
+    if (!isNaN(d.getTime())) {
+      const now = Date.now();
+      const diffSec = Math.max(0, Math.floor((now - d.getTime()) / 1000));
+      if (diffSec < 60) return "Just now";
+      if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+      if (diffSec < 86400 * 7) return `${Math.floor(diffSec / 86400)}d ago`;
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+  } catch {}
+  return timeStr;
+}
+
 const STORY_DURATION = 5000; // 5 seconds per story
 
 export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
@@ -166,10 +184,14 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
   if (!isOpen || stories.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl animate-in fade-in duration-200 select-none">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4 bg-black/95 sm:bg-black/90 backdrop-blur-xl animate-in fade-in duration-200 select-none"
+    >
       {/* Container simulating a mobile phone viewport */}
       <div
-        className="relative w-full max-w-sm h-[90vh] max-h-[750px] bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl shadow-black flex flex-col justify-between"
+        className="relative w-full h-full sm:h-[90vh] sm:max-h-[750px] sm:max-w-sm bg-zinc-950 sm:rounded-3xl overflow-hidden border-0 sm:border sm:border-zinc-800 shadow-2xl shadow-black flex flex-col justify-between"
+        onClick={(e) => e.stopPropagation()}
         onMouseDown={handlePause}
         onMouseUp={handleResume}
         onTouchStart={handlePause}
@@ -180,7 +202,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
         <div className="pointer-events-none absolute -bottom-20 inset-x-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10" />
 
         {/* TOP: Segmented Progress Bars & Header Bar */}
-        <div className="relative z-20 p-3 space-y-2.5">
+        <div className="relative z-20 p-3 pt-4 sm:pt-3 space-y-2.5">
           {/* Progress Segments */}
           <div className="flex items-center gap-1.5 w-full">
             {stories.map((story, idx) => {
@@ -200,17 +222,17 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
           </div>
 
           {/* User Info Bar */}
-          <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between pt-1 gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
               <img
                 src={avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`}
                 alt={username}
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-violet/50 bg-zinc-900"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-violet/50 bg-zinc-900 shrink-0"
               />
-              <div className="flex items-center gap-1.5 text-xs font-mono">
-                <span className="font-bold text-white">@{username}</span>
-                <span className="text-zinc-400">•</span>
-                <span className="text-zinc-400 text-[11px]">{currentStory.created_at}</span>
+              <div className="flex items-center gap-1.5 text-xs font-mono min-w-0">
+                <span className="font-bold text-white truncate max-w-[150px] sm:max-w-[200px]">@{username}</span>
+                <span className="text-zinc-400 shrink-0">•</span>
+                <span className="text-zinc-400 text-[11px] shrink-0">{formatStoryTime(currentStory.created_at)}</span>
               </div>
             </div>
 
@@ -277,7 +299,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
         </div>
 
         {/* BOTTOM: Story Caption & Anomaly Reaction Bar */}
-        <div className="relative z-20 p-4 space-y-3">
+        <div className="relative z-20 p-4 pb-6 sm:pb-4 space-y-3">
           {/* Caption */}
           {currentStory.caption && (
             <div className="px-3.5 py-2 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 text-xs font-mono text-zinc-100 max-w-[90%] mx-auto text-center shadow-lg">
