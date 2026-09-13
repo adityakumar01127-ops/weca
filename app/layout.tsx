@@ -78,8 +78,16 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/wica-logo.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon", type: "image/png", sizes: "32x32" },
+      { url: "/wica-logo.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-icon", sizes: "180x180", type: "image/png" },
+      { url: "/wica-logo.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
   },
 };
 
