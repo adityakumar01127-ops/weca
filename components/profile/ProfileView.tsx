@@ -7,6 +7,7 @@ import { User, WicaImage, getTierColor, getTierFromScore } from "@/lib/types";
 import { PhotoDetailModal } from "@/components/feed/PhotoDetailModal";
 import { useAuth } from "@/context/AuthContext";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
+import { EditPostModal } from "@/components/profile/EditPostModal";
 import { FollowersModal } from "@/components/profile/FollowersModal";
 import { StatusNoteModal } from "@/components/profile/StatusNoteModal";
 import { StoryViewerModal, StoryItem } from "@/components/profile/StoryViewerModal";
@@ -40,6 +41,8 @@ import {
   BarChart3,
   Pencil,
   Play,
+  Edit3,
+  Trash2,
 } from "lucide-react";
 
 interface ProfileViewProps {
@@ -56,6 +59,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
   const [totalWC, setTotalWC] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedImage, setSelectedImage] = useState<WicaImage | null>(null);
+  const [editingImage, setEditingImage] = useState<WicaImage | null>(null);
+  const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"posts" | "battles" | "saved">("posts");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isFollowersOpen, setIsFollowersOpen] = useState(false);
@@ -321,40 +326,165 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
     }
   }, [activeTab]);
 
-  useEffect(() => {
-    async function loadProfile() {
-      setLoading(true);
-      try {
-        const targetUsername = username || currentUser?.username || "weca_explorer";
-        const res = await fetch(`/api/profile?username=${encodeURIComponent(targetUsername)}`);
-        const data = await res.json();
-        
-        if (data.user) {
-          setProfileUser(data.user);
-          const loadedImgs = (data.images && data.images.length > 0) ? data.images : sampleExhibitionImages;
-          setImages(loadedImgs);
-          setAvgScore(data.avgScore || 92);
-          setTotalWC(data.totalWC || data.user.total_wc || authProfile?.credits_balance || 140);
-        } else if (isOwnProfile && currentUser) {
-          setProfileUser(currentUser);
-          setImages(sampleExhibitionImages);
-          setTotalWC(currentUser.total_wc || authProfile?.credits_balance || 140);
-        } else {
-          setImages(sampleExhibitionImages);
+  const loadProfile = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const targetUsername = username || currentUser?.username || "weca_explorer";
+      const res = await fetch(`/api/profile?username=${encodeURIComponent(targetUsername)}`);
+      const data = await res.json();
+      
+      // Check for guest posts in localStorage if viewing own profile
+      let localGuestPosts: WicaImage[] = [];
+      if (isOwnProfile && typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("weca_guest_posts");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            localGuestPosts = parsed.map((gp: any) => ({
+              id: gp.id,
+              user_id: gp.user_id || currentUser?.id || "usr-demo",
+              storage_path: gp.storage_path,
+              category: gp.category || "Objects",
+              country: gp.country,
+              caption: gp.caption,
+              wica_score: gp.wica_score || 94,
+              absurdity: 9,
+              rarity: 9,
+              craft: 8,
+              cultural_novelty: 8,
+              wit: 8,
+              ai_verdict: gp.caption || "Spectacular anomalous specimen logged.",
+              moderation_status: "approved" as const,
+              created_at: gp.created_at || new Date().toISOString(),
+              author: currentUser || {
+                id: "usr-demo",
+                username: "curious_traveler",
+                avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+                total_wc: 180,
+                tier: "Certified Weird",
+                created_at: new Date().toISOString(),
+              },
+              likes_count: gp.likes_count || 0,
+              comments_count: gp.comments_count || 0,
+              user_has_liked: false,
+            }));
+          }
+        } catch (e) {
+          console.warn("Failed to load local guest posts:", e);
         }
-      } catch (err) {
-        console.error("Failed to load profile:", err);
-        if (isOwnProfile && currentUser) {
-          setProfileUser(currentUser);
-          setImages(sampleExhibitionImages);
-        }
-      } finally {
-        setLoading(false);
       }
-    }
 
-    loadProfile();
+      if (data.user) {
+        setProfileUser(data.user);
+        const rawServerImgs = (data.images && data.images.length > 0) ? data.images : sampleExhibitionImages;
+        const merged = new Map<string, WicaImage>();
+        localGuestPosts.forEach((gp) => merged.set(gp.id, gp));
+        rawServerImgs.forEach((img: WicaImage) => {
+          if (!merged.has(img.id)) merged.set(img.id, img);
+        });
+        const combined = Array.from(merged.values());
+        setImages(combined);
+        setAvgScore(data.avgScore || 92);
+        setTotalWC(data.totalWC || data.user.total_wc || authProfile?.credits_balance || 140);
+      } else if (isOwnProfile && currentUser) {
+        setProfileUser(currentUser);
+        const merged = new Map<string, WicaImage>();
+        localGuestPosts.forEach((gp) => merged.set(gp.id, gp));
+        sampleExhibitionImages.forEach((img) => {
+          if (!merged.has(img.id)) merged.set(img.id, img);
+        });
+        setImages(Array.from(merged.values()));
+        setTotalWC(currentUser.total_wc || authProfile?.credits_balance || 140);
+      } else {
+        setImages(sampleExhibitionImages);
+      }
+    } catch (err) {
+      console.error("Failed to load profile:", err);
+      if (isOwnProfile && currentUser) {
+        setProfileUser(currentUser);
+        setImages(sampleExhibitionImages);
+      }
+    } finally {
+      setLoading(false);
+    }
   }, [username, currentUser, isOwnProfile, authProfile?.credits_balance]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      // 1. Remove from localStorage weca_guest_posts if present
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("weca_guest_posts");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const filtered = parsed.filter((p: any) => p.id !== postId);
+            localStorage.setItem("weca_guest_posts", JSON.stringify(filtered));
+          }
+        } catch {}
+      }
+
+      // 2. Call DELETE /api/posts/[id]
+      await fetch(`/api/posts/${encodeURIComponent(postId)}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUser?.id || authProfile?.id || "usr-demo",
+        }),
+      });
+
+      // 3. Remove from local state
+      setImages((prev) => prev.filter((img) => img.id !== postId));
+      if (selectedImage?.id === postId) {
+        setSelectedImage(null);
+      }
+      setDeletingImageId(null);
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+    }
+  };
+
+  const handleEditPost = async (postId: string, newCaption: string) => {
+    try {
+      // 1. Update in localStorage weca_guest_posts if present
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("weca_guest_posts");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const updated = parsed.map((p: any) =>
+              p.id === postId ? { ...p, caption: newCaption } : p
+            );
+            localStorage.setItem("weca_guest_posts", JSON.stringify(updated));
+          }
+        } catch {}
+      }
+
+      // 2. Call PATCH /api/posts/[id]
+      await fetch(`/api/posts/${encodeURIComponent(postId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          caption: newCaption,
+          userId: currentUser?.id || authProfile?.id || "usr-demo",
+        }),
+      });
+
+      // 3. Update local state
+      setImages((prev) =>
+        prev.map((img) => (img.id === postId ? { ...img, caption: newCaption } : img))
+      );
+      if (selectedImage?.id === postId) {
+        setSelectedImage((prev) => (prev ? { ...prev, caption: newCaption } : null));
+      }
+      setEditingImage(null);
+    } catch (err) {
+      console.error("Failed to edit post:", err);
+    }
+  };
 
   // Synchronize when current user updates profile in context
   const displayUser = (isOwnProfile && currentUser) ? currentUser : (profileUser || currentUser);
@@ -1223,16 +1353,43 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                         </span>
                       </div>
 
-                      {/* Hover Overlay with Stats */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white text-xs font-mono font-semibold">
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-4 h-4 fill-white" />
-                          <span>{img.likes_count || 42}</span>
+                      {/* Hover Overlay with Stats & Quick Actions */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 text-white text-xs font-mono font-semibold p-2">
+                        <div className="flex items-center justify-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <Heart className="w-4 h-4 fill-white" />
+                            <span>{img.likes_count || 42}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageCircle className="w-4 h-4 fill-white" />
+                            <span>{img.comments_count || 7}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <MessageCircle className="w-4 h-4 fill-white" />
-                          <span>{img.comments_count || 7}</span>
-                        </div>
+
+                        {/* Quick Owner Actions on Grid Tile */}
+                        {isOwnProfile && (
+                          <div
+                            className="flex items-center gap-2 mt-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setEditingImage(img)}
+                              className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-colors"
+                              title="Edit caption"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeletingImageId(img.id)}
+                              className="p-1.5 rounded-lg bg-rose-500/30 hover:bg-rose-500/50 backdrop-blur-md text-rose-200 transition-colors"
+                              title="Delete post"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -1267,7 +1424,62 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         <PhotoDetailModal
           image={selectedImage}
           onClose={() => setSelectedImage(null)}
+          onDeletePost={handleDeletePost}
+          onEditPost={handleEditPost}
         />
+      )}
+
+      {/* Edit Post Modal */}
+      <EditPostModal
+        isOpen={Boolean(editingImage)}
+        onClose={() => setEditingImage(null)}
+        image={editingImage}
+        onSave={async (imageId, newCaption) => {
+          await handleEditPost(imageId, newCaption);
+        }}
+      />
+
+      {/* Delete Post Confirmation Modal */}
+      {deletingImageId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setDeletingImageId(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  Delete Anomaly Post
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Are you sure you want to delete this anomaly? This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingImageId(null)}
+                className="px-3.5 py-1.5 text-xs font-medium rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeletePost(deletingImageId)}
+                className="px-4 py-1.5 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/20 transition-colors cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Status Note Modal (Instagram Notes style) */}
@@ -1346,9 +1558,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onPostCreated={() => {
-          if (typeof window !== "undefined") {
-            window.location.reload();
-          }
+          setIsCreateModalOpen(false);
+          loadProfile();
         }}
       />
     </div>

@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Post } from "@/lib/types";
 import { getPostById } from "@/lib/supabase/data";
 import { useAuth } from "@/context/AuthContext";
 import { LikeButton } from "@/components/feed/LikeButton";
 import { CommentSection } from "@/components/posts/CommentSection";
-import { ArrowLeft, User as UserIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, User as UserIcon, Sparkles, Edit3, Trash2, Check, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface PostDetailClientProps {
@@ -16,9 +17,21 @@ interface PostDetailClientProps {
 }
 
 export function PostDetailClient({ postId, initialPost }: PostDetailClientProps) {
+  const router = useRouter();
   const { user, profile } = useAuth();
   const [post, setPost] = useState<Post | null>(initialPost || null);
   const [loading, setLoading] = useState<boolean>(!initialPost);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCaption, setEditedCaption] = useState(initialPost?.caption || "");
+  const [savingCaption, setSavingCaption] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (post) {
+      setEditedCaption(post.caption || "");
+    }
+  }, [post?.caption]);
 
   useEffect(() => {
     let ignore = false;
@@ -99,6 +112,52 @@ export function PostDetailClient({ postId, initialPost }: PostDetailClientProps)
   const username = author?.username || "anonymous";
   const hasScores = post.weirdness_score != null && post.uniqueness_score != null;
 
+  const isOwner = Boolean(
+    user &&
+      (user.id === post.user_id ||
+        (user.id === "usr-demo" && (!post.user_id || post.user_id === "usr-demo")))
+  );
+
+  const handleSaveCaption = async () => {
+    if (!post) return;
+    setSavingCaption(true);
+    try {
+      await fetch(`/api/posts/${encodeURIComponent(post.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          caption: editedCaption.trim(),
+          userId: user?.id || "usr-demo",
+        }),
+      });
+      setPost((prev) => (prev ? { ...prev, caption: editedCaption.trim() } : prev));
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Failed to update post:", err);
+    } finally {
+      setSavingCaption(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!post) return;
+    setIsDeleting(true);
+    try {
+      await fetch(`/api/posts/${encodeURIComponent(post.id)}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id || "usr-demo",
+        }),
+      });
+      router.push("/");
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+      setIsDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+
   return (
     <div className="max-w-xl mx-auto px-4 py-8 space-y-6">
       {/* Back button */}
@@ -141,13 +200,39 @@ export function PostDetailClient({ postId, initialPost }: PostDetailClientProps)
             </div>
           </Link>
 
-          <span className="text-xs font-mono text-zinc-400">
-            {new Date(post.created_at).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-zinc-400">
+              {new Date(post.created_at).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+            {isOwner && (
+              <div className="flex items-center gap-1 ml-1 border-l border-zinc-200 dark:border-zinc-800 pl-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(!isEditing)}
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    isEditing
+                      ? "text-violet-500 bg-violet-500/10"
+                      : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  }`}
+                  title="Edit Caption"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                  title="Delete Post"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Image */}
@@ -161,10 +246,73 @@ export function PostDetailClient({ postId, initialPost }: PostDetailClientProps)
 
         {/* Caption, AI Vision Scores & Like */}
         <div className="p-5 space-y-4">
-          {post.caption && (
-            <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
-              {post.caption}
-            </p>
+          {/* Delete Confirmation Warning */}
+          {confirmDelete && (
+            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 space-y-2 animate-in fade-in duration-150">
+              <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+                Are you sure you want to delete this anomaly post? This will permanently remove it.
+              </p>
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={isDeleting}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeletePost}
+                  disabled={isDeleting}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-500 text-white disabled:opacity-50 inline-flex items-center gap-1.5 transition-colors"
+                >
+                  {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  Confirm Delete
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isEditing ? (
+            <div className="space-y-2 p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700">
+              <textarea
+                value={editedCaption}
+                onChange={(e) => setEditedCaption(e.target.value)}
+                className="w-full text-sm p-3 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none"
+                rows={3}
+                placeholder="Update caption..."
+                maxLength={500}
+              />
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditedCaption(post.caption || "");
+                    setIsEditing(false);
+                  }}
+                  disabled={savingCaption}
+                  className="px-3 py-1.5 text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveCaption}
+                  disabled={savingCaption}
+                  className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-50 inline-flex items-center gap-1.5 transition-colors"
+                >
+                  {savingCaption ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                  Save Caption
+                </button>
+              </div>
+            </div>
+          ) : (
+            post.caption && (
+              <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                {post.caption}
+              </p>
+            )
           )}
 
           {/* Phase 2: AI Vision Scoring Metrics */}

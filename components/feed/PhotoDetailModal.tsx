@@ -4,19 +4,23 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { WicaImage, Comment, getTierFromScore, getTierColor } from "@/lib/types";
 import { useAuth } from "@/context/AuthContext";
-import { X, Heart, MessageSquare, Send, Sparkles, MapPin, Share2, Check, Bookmark } from "lucide-react";
+import { X, Heart, MessageSquare, Send, Sparkles, MapPin, Share2, Check, Bookmark, Edit3, Trash2, Loader2 } from "lucide-react";
 import { getSafeImageUrl } from "@/lib/utils/image";
 
 interface PhotoDetailModalProps {
   image: WicaImage | null;
   onClose: () => void;
   onUpdateLikes?: (imageId: string, liked: boolean, count: number) => void;
+  onDeletePost?: (imageId: string) => Promise<void> | void;
+  onEditPost?: (imageId: string, newCaption: string) => Promise<void> | void;
 }
 
 export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
   image,
   onClose,
   onUpdateLikes,
+  onDeletePost,
+  onEditPost,
 }) => {
   const { user, openAuthModal } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
@@ -27,6 +31,11 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
   const [likeCount, setLikeCount] = useState<number>(0);
   const [copied, setCopied] = useState<boolean>(false);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const [isEditingCaption, setIsEditingCaption] = useState<boolean>(false);
+  const [editedCaption, setEditedCaption] = useState<string>(image?.caption || "");
+  const [savingCaption, setSavingCaption] = useState<boolean>(false);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     if (!image) return;
@@ -35,6 +44,9 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
     const timer = setTimeout(() => {
       setLiked(Boolean(image.user_has_liked));
       setLikeCount(image.likes_count || 0);
+      setEditedCaption(image.caption || "");
+      setIsEditingCaption(false);
+      setConfirmDelete(false);
     }, 0);
 
     fetch(`/api/comments?imageId=${image.id}`)
@@ -162,6 +174,62 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isOwner = Boolean(
+    user &&
+      (user.id === image.user_id ||
+        (user.username && user.username === image.author?.username) ||
+        (user.id === "usr-demo" && (!image.user_id || image.user_id === "usr-demo")))
+  );
+
+  const handleSaveCaption = async () => {
+    if (!image) return;
+    setSavingCaption(true);
+    try {
+      if (onEditPost) {
+        await onEditPost(image.id, editedCaption.trim());
+      } else {
+        await fetch(`/api/posts/${encodeURIComponent(image.id)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            caption: editedCaption.trim(),
+            userId: user?.id || "usr-demo",
+          }),
+        });
+        image.caption = editedCaption.trim();
+      }
+      setIsEditingCaption(false);
+    } catch (err) {
+      console.error("Failed to edit post:", err);
+    } finally {
+      setSavingCaption(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!image) return;
+    setIsDeleting(true);
+    try {
+      if (onDeletePost) {
+        await onDeletePost(image.id);
+      } else {
+        await fetch(`/api/posts/${encodeURIComponent(image.id)}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user?.id || "usr-demo",
+          }),
+        });
+      }
+      onClose();
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+    } finally {
+      setIsDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+
   return (
     <div
       onClick={onClose}
@@ -232,6 +300,32 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
             </Link>
 
             <div className="flex items-center gap-1">
+              {isOwner && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingCaption(!isEditingCaption)}
+                    className={`p-2.5 rounded-xl transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                      isEditingCaption
+                        ? "text-violet-500 bg-violet-500/10"
+                        : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    }`}
+                    title="Edit caption"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(true)}
+                    className="p-2.5 rounded-xl text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    title="Delete post"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+
               <button
                 type="button"
                 onClick={handleToggleBookmark}
@@ -256,6 +350,34 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
             </div>
           </div>
 
+          {/* Delete Confirmation Alert Banner */}
+          {confirmDelete && (
+            <div className="p-4 bg-rose-500/10 border-b border-rose-500/20 space-y-2 animate-in fade-in duration-150">
+              <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+                Are you sure you want to delete this anomaly post? This cannot be undone.
+              </p>
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={isDeleting}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeletePost}
+                  disabled={isDeleting}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-sm disabled:opacity-50 inline-flex items-center gap-1.5 transition-colors"
+                >
+                  {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  Confirm Delete
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* AI Verdict & Score Badge */}
           <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40">
             <div className="flex items-center justify-between mb-3">
@@ -275,10 +397,45 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
               “{image.ai_verdict}”
             </p>
 
-            {image.caption && (
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 italic">
-                &ldquo;{image.caption}&rdquo;
-              </p>
+            {isEditingCaption ? (
+              <div className="mt-3 space-y-2 p-3 rounded-xl bg-zinc-100/90 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700">
+                <textarea
+                  value={editedCaption}
+                  onChange={(e) => setEditedCaption(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none"
+                  rows={2}
+                  placeholder="Update caption..."
+                  maxLength={500}
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditedCaption(image.caption || "");
+                      setIsEditingCaption(false);
+                    }}
+                    disabled={savingCaption}
+                    className="px-2.5 py-1 text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveCaption}
+                    disabled={savingCaption}
+                    className="px-3.5 py-1 text-xs font-semibold rounded-lg bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-50 inline-flex items-center gap-1.5 transition-colors"
+                  >
+                    {savingCaption ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                    Save
+                  </button>
+                </div>
+              </div>
+            ) : (
+              image.caption && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 italic">
+                  &ldquo;{image.caption}&rdquo;
+                </p>
+              )
             )}
 
             {/* Rubric Breakdown Accordion */}

@@ -403,6 +403,206 @@ export async function createPost(params: {
   return newPost;
 }
 
+/**
+ * Fetch all posts by a specific user ordered newest-first
+ */
+export async function getPostsByUserId(userId: string, currentUserId?: string): Promise<Post[]> {
+  const supabase = createClient();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .select(`
+          id,
+          user_id,
+          image_url,
+          caption,
+          weirdness_score,
+          uniqueness_score,
+          scoring_status,
+          created_at,
+          profiles!posts_user_id_fkey (
+            id,
+            username,
+            display_name,
+            avatar_url,
+            bio,
+            credits_balance,
+            created_at
+          ),
+          likes (
+            user_id
+          ),
+          comments (
+            id
+          )
+        `)
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        return (data as unknown as PostRow[]).map((item) => ({
+          id: item.id,
+          user_id: item.user_id,
+          image_url: item.image_url,
+          caption: item.caption,
+          weirdness_score: item.weirdness_score,
+          uniqueness_score: item.uniqueness_score,
+          scoring_status: item.scoring_status || (item.weirdness_score != null ? "completed" : "scoring"),
+          created_at: item.created_at,
+          profiles: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles,
+          likes_count: item.likes?.length || 0,
+          comments_count: item.comments?.length || 0,
+          user_has_liked: currentUserId
+            ? item.likes?.some((l: { user_id: string }) => l.user_id === currentUserId)
+            : false,
+        }));
+      }
+    } catch (err) {
+      console.warn("Supabase user posts query failed, falling back to local store:", err);
+    }
+  }
+
+  // In-memory fallback
+  return (global.__WECA_POSTS || [])
+    .filter((p) => p.user_id === userId || (userId === "usr-demo" && (!p.user_id || p.user_id === "usr-demo")))
+    .map((p) => {
+      const postLikes = global.__WECA_LIKES?.[p.id] || new Set();
+      const postComments = global.__WECA_COMMENTS?.[p.id] || [];
+      return {
+        ...p,
+        likes_count: (p.likes_count || 0) + postLikes.size,
+        comments_count: postComments.length,
+        user_has_liked: currentUserId ? postLikes.has(currentUserId) : false,
+      };
+    });
+}
+
+/**
+ * Delete a post (with ownership check)
+ */
+export async function deletePost(
+  postId: string,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+
+  if (supabase) {
+    try {
+      // First delete associated likes and comments
+      await supabase.from("likes").delete().eq("post_id", postId);
+      await supabase.from("comments").delete().eq("post_id", postId);
+
+      const { error } = await supabase
+        .from("posts")
+        .delete()
+        .eq("id", postId)
+        .eq("user_id", userId);
+
+      if (error) {
+        console.error("Supabase delete post error:", error);
+        return { success: false, error: error.message };
+      }
+    } catch (err) {
+      console.warn("Supabase delete post error:", err);
+      return { success: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  }
+
+  // In-memory fallback removal
+  if (global.__WECA_POSTS) {
+    const idx = global.__WECA_POSTS.findIndex(
+      (p) => p.id === postId && (p.user_id === userId || userId === "usr-demo")
+    );
+    if (idx !== -1) {
+      global.__WECA_POSTS.splice(idx, 1);
+    }
+  }
+
+  return { success: true };
+}
+
+/**
+ * Update a post's caption (with ownership check)
+ */
+export async function updatePost(
+  postId: string,
+  userId: string,
+  updates: { caption?: string | null }
+): Promise<{ success: boolean; post?: Post; error?: string }> {
+  const supabase = createClient();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .update({ caption: updates.caption })
+        .eq("id", postId)
+        .eq("user_id", userId)
+        .select(`
+          id,
+          user_id,
+          image_url,
+          caption,
+          weirdness_score,
+          uniqueness_score,
+          scoring_status,
+          created_at,
+          profiles!posts_user_id_fkey (
+            id,
+            username,
+            display_name,
+            avatar_url,
+            bio,
+            credits_balance,
+            created_at
+          )
+        `)
+        .single();
+
+      if (error) {
+        console.error("Supabase update post error:", error);
+        return { success: false, error: error.message };
+      }
+
+      if (data) {
+        const post: Post = {
+          id: data.id,
+          user_id: data.user_id,
+          image_url: data.image_url,
+          caption: data.caption,
+          weirdness_score: data.weirdness_score,
+          uniqueness_score: data.uniqueness_score,
+          scoring_status: data.scoring_status || (data.weirdness_score != null ? "completed" : "scoring"),
+          created_at: data.created_at,
+          profiles: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles,
+          likes_count: 0,
+          comments_count: 0,
+          user_has_liked: false,
+        };
+        return { success: true, post };
+      }
+    } catch (err) {
+      console.warn("Supabase update post error:", err);
+      return { success: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  }
+
+  // In-memory fallback
+  if (global.__WECA_POSTS) {
+    const post = global.__WECA_POSTS.find(
+      (p) => p.id === postId && (p.user_id === userId || userId === "usr-demo")
+    );
+    if (post) {
+      if (updates.caption !== undefined) post.caption = updates.caption;
+      return { success: true, post };
+    }
+  }
+
+  return { success: false, error: "Post not found or unauthorized" };
+}
+
 export const MAX_UPLOADS_PER_HOUR = 5;
 
 /**
