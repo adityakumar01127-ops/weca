@@ -803,14 +803,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                 >
                   Edit profile
                 </button>
-                <Link
-                  href="/messages"
-                  id="profile-message-btn"
+                <button
+                  type="button"
+                  id="profile-share-profile-btn"
+                  onClick={handleShareProfile}
                   className="flex-1 py-2 px-4 rounded-xl bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                 >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  Message
-                </Link>
+                  <Share2 className="w-3.5 h-3.5" />
+                  Share profile
+                </button>
               </>
             ) : (
               <>
@@ -825,34 +826,37 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                 >
                   {isFollowing ? "Following" : "Follow"}
                 </button>
-                <Link
-                  href="/messages"
+                <button
+                  type="button"
                   id="profile-message-user-btn"
                   onClick={() => {
-                    const targetUsername = displayUser?.username || username;
+                    const targetUsername = (!isOwnProfile && username) ? username : (displayUser?.username || username);
                     if (
-                      targetUsername &&
-                      targetUsername !== "user" &&
-                      targetUsername !== "weca_explorer"
+                      !targetUsername ||
+                      targetUsername === "user" ||
+                      targetUsername === "weca_explorer"
                     ) {
-                      const existing = getConversationByUsername(targetUsername);
-                      if (!existing) {
-                        createConversation({
-                          id: `u-${targetUsername.toLowerCase()}`,
-                          username: targetUsername,
-                          displayName: displayUser?.display_name || targetUsername,
-                          avatarUrl:
-                            displayUser?.avatar_url ||
-                            `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUsername}`,
-                        });
-                      }
+                      router.push("/messages");
+                      return;
                     }
+                    let conv = getConversationByUsername(targetUsername);
+                    if (!conv) {
+                      conv = createConversation({
+                        id: `u-${targetUsername.toLowerCase()}`,
+                        username: targetUsername,
+                        displayName: displayUser?.display_name || targetUsername,
+                        avatarUrl:
+                          displayUser?.avatar_url ||
+                          `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUsername}`,
+                      });
+                    }
+                    router.push(`/messages/${conv.id}`);
                   }}
                   className="flex-1 py-2 px-4 rounded-xl bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
                   Message
-                </Link>
+                </button>
               </>
             )}
           </div>
