@@ -476,18 +476,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/30 font-sans pb-16 transition-colors duration-200">
-      {/* Ambient Radial Background Glows */}
-      <div 
-        className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-violet/10 rounded-full blur-[140px] opacity-70"
-        aria-hidden="true" 
-      />
-      <div 
-        className="pointer-events-none absolute top-96 -left-32 w-[500px] h-[450px] bg-cyan/8 rounded-full blur-[160px] opacity-60"
-        aria-hidden="true" 
-      />
+    <div className="relative min-h-screen w-full min-w-0 overflow-x-clip bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/30 font-sans pb-16 transition-colors duration-200">
+      {/* Ambient Radial Background Glows - safely contained */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div 
+          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-violet/10 rounded-full blur-[140px] opacity-70"
+        />
+        <div 
+          className="pointer-events-none absolute top-96 -left-32 w-[500px] h-[450px] bg-cyan/8 rounded-full blur-[160px] opacity-60"
+        />
+      </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-8">
+      <div className="relative z-10 max-w-4xl w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-8">
         
         {/* Navigation / Header Bar */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800/80">
