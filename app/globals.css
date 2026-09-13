@@ -174,6 +174,18 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Eliminate 300ms tap delay on all interactive elements */
+a, button, [role="button"], input, select, textarea, label, summary {
+  touch-action: manipulation;
+}
+
+/* Mobile active state feedback (since we disabled webkit-tap-highlight-color) */
+@media (hover: none) and (pointer: coarse) {
+  a:active, button:active, [role="button"]:active {
+    opacity: 0.85;
+  }
+}
+
 /* Prevent iOS Safari 16px auto-zoom on input focus */
 @media (max-width: 640px) {
   input,

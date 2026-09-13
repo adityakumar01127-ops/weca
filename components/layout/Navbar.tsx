@@ -55,10 +55,10 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header
-        className="sticky top-0 z-40 w-full bg-white/85 dark:bg-[#09090b]/85 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800/80 transition-colors"
+        className="sticky top-0 z-50 w-full bg-white/90 dark:bg-[#09090b]/90 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800/80 transition-colors"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           {/* Brand & Primary Navigation */}
           <div className="flex items-center gap-6 sm:gap-8">
             <Link href="/" className="flex items-center group py-1">
@@ -94,20 +94,21 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
             {/* Strategic Global Messages Link (Desktop, Tablet & Mobile) */}
             <Link
               href="/messages"
               id="global-messages-btn"
-              className="relative w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="relative w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700 active:scale-95 transition-all cursor-pointer select-none"
+              style={{ touchAction: "manipulation" }}
               title="Messages"
               aria-label="Direct Messages"
             >
-              <MessageCircle className="w-5 h-5 sm:w-4 sm:h-4" />
+              <MessageCircle className="w-[22px] h-[22px] sm:w-4 sm:h-4" />
               {unreadCount > 0 && (
                 <span
                   id="navbar-unread-badge"
-                  className="pointer-events-none absolute top-1 right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-violet text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs border-2 border-white dark:border-[#09090b] animate-in zoom-in-50"
+                  className="pointer-events-none absolute top-0.5 right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-violet text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs border-2 border-white dark:border-[#09090b] animate-in zoom-in-50"
                 >
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
@@ -119,7 +120,8 @@ export const Navbar: React.FC = () => {
               type="button"
               id="navbar-upload-btn"
               onClick={() => setIsCreateModalOpen(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 text-xs font-medium transition-all shadow-xs cursor-pointer min-h-[36px]"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-700 text-white dark:bg-white dark:hover:bg-zinc-200 dark:active:bg-zinc-300 dark:text-zinc-950 text-xs font-medium transition-all shadow-xs cursor-pointer min-h-[44px]"
+              style={{ touchAction: "manipulation" }}
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Upload</span>
@@ -189,78 +191,92 @@ export const Navbar: React.FC = () => {
             {/* Mobile / Tablet Menu Button */}
             <button
               type="button"
+              id="navbar-mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="lg:hidden w-11 h-11 flex items-center justify-center rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700 active:scale-95 transition-all cursor-pointer select-none"
+              style={{ touchAction: "manipulation" }}
               aria-label="Toggle Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-[22px] h-[22px]" /> : <Menu className="w-[22px] h-[22px]" />}
             </button>
           </div>
         </div>
 
         {/* Mobile / Tablet Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-md px-4 py-3 space-y-2">
-            {/* Global Messages in Mobile Menu */}
-            <Link
-              href="/messages"
+          <>
+            {/* Backdrop overlay to close menu on tap outside */}
+            <div
+              className="lg:hidden fixed inset-0 top-14 bg-black/20 dark:bg-black/40"
+              style={{ paddingTop: "env(safe-area-inset-top, 0px)", touchAction: "manipulation" }}
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm min-h-[44px] transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
-            >
-              <div className="flex items-center gap-2.5">
-                <MessageCircle className="w-4.5 h-4.5 opacity-80" />
-                <span className="font-medium">Direct Messages</span>
-              </div>
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet text-white">
-                  {unreadCount} unread
-                </span>
-              )}
-            </Link>
-            {navLinks.map((link) => {
-              const active = isActive(link.href);
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm min-h-[44px] transition-colors ${
-                    active
-                      ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold border border-zinc-200 dark:border-zinc-700/50"
-                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    {Icon && <Icon className="w-4.5 h-4.5 opacity-80" />}
-                    <span>{link.label}</span>
-                  </div>
-                  {link.badge && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                      {link.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+              aria-hidden="true"
+            />
+            <div className="lg:hidden relative border-t border-zinc-200 dark:border-zinc-800 bg-white/98 dark:bg-[#09090b]/98 backdrop-blur-xl px-4 py-3 space-y-1.5 shadow-xl shadow-black/10 dark:shadow-black/30 animate-in slide-in-from-top-1 duration-150">
+              {/* Global Messages in Mobile Menu */}
+              <Link
+                href="/messages"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-4 py-3 rounded-xl text-sm min-h-[48px] transition-all active:scale-[0.98] active:bg-zinc-200 dark:active:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 select-none"
+                style={{ touchAction: "manipulation" }}
+              >
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="w-5 h-5 opacity-80" />
+                  <span className="font-medium">Direct Messages</span>
+                </div>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet text-white">
+                    {unreadCount} unread
+                  </span>
+                )}
+              </Link>
+              {navLinks.map((link) => {
+                const active = isActive(link.href);
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm min-h-[48px] transition-all active:scale-[0.98] select-none ${
+                      active
+                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold border border-zinc-200 dark:border-zinc-700/50"
+                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 active:bg-zinc-200 dark:active:bg-zinc-700"
+                    }`}
+                    style={{ touchAction: "manipulation" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      {Icon && <Icon className="w-5 h-5 opacity-80" />}
+                      <span>{link.label}</span>
+                    </div>
+                    {link.badge && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                        {link.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
 
-            {/* Logout on mobile menu if logged in */}
-            {(user || profile) && (
-              <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    signOut();
-                  }}
-                  className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            )}
-          </div>
+              {/* Logout on mobile menu if logged in */}
+              {(user || profile) && (
+                <div className="pt-2 mt-1 border-t border-zinc-200 dark:border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      signOut();
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 active:bg-rose-100 dark:active:bg-rose-950/50 active:scale-[0.98] transition-all cursor-pointer min-h-[48px] select-none"
+                    style={{ touchAction: "manipulation" }}
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="font-medium">Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </header>
 

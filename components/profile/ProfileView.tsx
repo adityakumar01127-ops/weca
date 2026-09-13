@@ -675,7 +675,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
 
         {/* Copy Link Toast Notification */}
         {copyToast && (
-          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 dark:bg-zinc-900/95 border border-violet/50 text-xs font-mono text-zinc-900 dark:text-white shadow-2xl shadow-violet/20 animate-in fade-in slide-in-from-top-3">
+          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 dark:bg-zinc-900/95 border border-violet/50 text-xs font-mono text-zinc-900 dark:text-white shadow-2xl shadow-violet/20 animate-in fade-in slide-in-from-top-3">
             <Check className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
             <span>Profile link copied to clipboard!</span>
           </div>
