@@ -20,6 +20,7 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
   const isAllowedPage =
     pathname?.startsWith("/login") ||
     pathname?.startsWith("/signup") ||
+    pathname?.startsWith("/reset-password") ||
     pathname?.startsWith("/terms") ||
     pathname?.startsWith("/privacy") ||
     pathname?.startsWith("/cancellation-and-refund") ||

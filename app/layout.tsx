@@ -17,6 +17,7 @@ import {
 import { WebsiteAndOrgJsonLd } from "@/components/seo/JsonLd";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -115,6 +116,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <MobileBottomNav />
+            <AuthModal />
             <PwaRegister />
             <InstallPrompt />
           </AuthProvider>

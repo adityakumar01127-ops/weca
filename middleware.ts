@@ -163,9 +163,10 @@ export async function middleware(req: NextRequest) {
   const isProtectedApi = PROTECTED_API_ROUTES.some((r) => pathname.startsWith(r));
 
   if (isProtectedPage || isProtectedApi) {
-    // Create Supabase server client from cookies
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseUrl =
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://qaaeshezrdxfsaxlpmzo.supabase.co";
+    const supabaseAnonKey =
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_b6LZZeIIuTHXEvIr17jYBQ_VoI1toIY";
 
     if (!supabaseUrl || !supabaseAnonKey) {
       // Supabase not configured — block protected routes

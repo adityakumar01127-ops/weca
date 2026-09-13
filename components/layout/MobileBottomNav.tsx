@@ -31,6 +31,7 @@ export const MobileBottomNav: React.FC = () => {
     pathname.startsWith("/messages") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
+    pathname.startsWith("/reset-password") ||
     pathname.startsWith("/terms") ||
     pathname.startsWith("/privacy") ||
     pathname.startsWith("/cancellation-and-refund") ||

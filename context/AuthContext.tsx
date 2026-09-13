@@ -11,15 +11,19 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
+  updatePassword: (password: string) => Promise<{ error?: string }>;
+  signInWithOAuth: (provider: "google" | "github") => Promise<{ error?: string }>;
   loginAsDemo: () => void;
   // Compatibility aliases
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
-  signUpWithEmail: (email: string, password: string, username: string) => Promise<{ error?: string }>;
-  openAuthModal: (mode?: unknown) => void;
+  signUpWithEmail: (email: string, password: string, username: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
+  openAuthModal: (mode?: "signin" | "signup" | unknown) => void;
   closeAuthModal: () => void;
   isAuthModalOpen: boolean;
+  authModalMode: "signin" | "signup";
   updateProfile: (data: Partial<User>) => Promise<void>;
   updateUserWC: (delta: number) => void;
 }
@@ -43,6 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
   const [userExtras, setUserExtras] = useState<{
     pronouns?: string | null;
     website?: string | null;
@@ -60,7 +65,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const supabase = createClient();
 
   // Helper to fetch profile from public.profiles
-  const fetchProfile = async (userId: string, email?: string) => {
+  const fetchProfile = async (
+    userId: string,
+    email?: string,
+    metadata?: Record<string, any>
+  ) => {
     if (!supabase) return null;
 
     try {
@@ -74,20 +83,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return data as Profile;
       }
 
-      // If no profile exists yet, create one
-      const rawUsername = email ? email.split("@")[0] : `user_${userId.slice(0, 6)}`;
+      // If no profile exists yet, create one using signup / OAuth metadata
+      const rawUsername =
+        metadata?.username ||
+        (metadata?.user_name as string) ||
+        (email ? email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "") : `user_${userId.slice(0, 6)}`);
+
+      const displayName =
+        metadata?.display_name ||
+        metadata?.full_name ||
+        metadata?.name ||
+        rawUsername;
+
+      const avatarUrl =
+        metadata?.avatar_url ||
+        metadata?.picture ||
+        `https://api.dicebear.com/7.x/initials/svg?seed=${rawUsername}`;
+
       const newProfile: Profile = {
         id: userId,
         username: rawUsername,
-        display_name: rawUsername,
-        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${rawUsername}`,
+        display_name: displayName,
+        avatar_url: avatarUrl,
         bio: "",
-        credits_balance: 0,
+        credits_balance: 50,
         created_at: new Date().toISOString(),
       };
 
-      await supabase.from("profiles").insert(newProfile);
-      return newProfile;
+      const { data: upserted } = await supabase
+        .from("profiles")
+        .upsert(newProfile, { onConflict: "id" })
+        .select()
+        .maybeSingle();
+
+      return (upserted as Profile) || newProfile;
     } catch (err) {
       console.warn("Error fetching user profile:", err);
       return null;
@@ -106,7 +135,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (session?.user) {
           setAuthUser(session.user);
-          const p = await fetchProfile(session.user.id, session.user.email);
+          const p = await fetchProfile(
+            session.user.id,
+            session.user.email,
+            session.user.user_metadata
+          );
           setProfile(p);
         } else {
           setAuthUser(null);
@@ -122,7 +155,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
         if (session?.user) {
           setAuthUser(session.user);
-          const p = await fetchProfile(session.user.id, session.user.email);
+          const p = await fetchProfile(
+            session.user.id,
+            session.user.email,
+            session.user.user_metadata
+          );
           setProfile(p);
         } else {
           setAuthUser(null);
@@ -151,12 +188,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        if (error.message.toLowerCase().includes("email not confirmed")) {
+          return { error: "Please confirm your email address before signing in. Check your inbox for the verification link." };
+        }
+        if (error.message.toLowerCase().includes("invalid login credentials")) {
+          return { error: "Invalid email or password. Please check your credentials." };
+        }
         return { error: error.message };
       }
 
       if (data.user) {
         setAuthUser(data.user);
-        const p = await fetchProfile(data.user.id, data.user.email);
+        const p = await fetchProfile(data.user.id, data.user.email, data.user.user_metadata);
         setProfile(p);
       }
 
@@ -172,16 +215,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     username: string,
     displayName?: string
-  ): Promise<{ error?: string }> => {
+  ): Promise<{ error?: string; requiresEmailConfirmation?: boolean }> => {
     if (!supabase) {
       return { error: "Authentication service unavailable. Missing configuration." };
     }
 
     try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: `${origin}/auth/callback`,
           data: {
             username,
             display_name: displayName || username,
@@ -194,15 +239,77 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: error.message };
       }
 
+      // Check if Supabase requires email verification before session creation
+      if (data.user && !data.session) {
+        return { requiresEmailConfirmation: true };
+      }
+
       if (data.user) {
         setAuthUser(data.user);
-        const p = await fetchProfile(data.user.id, data.user.email);
+        const p = await fetchProfile(data.user.id, data.user.email, data.user.user_metadata);
         setProfile(p);
       }
 
       return {};
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to sign up";
+      return { error: msg };
+    }
+  };
+
+  const resetPassword = async (email: string): Promise<{ error?: string }> => {
+    if (!supabase) {
+      return { error: "Authentication service unavailable. Missing configuration." };
+    }
+    try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${origin}/auth/callback?next=/reset-password`,
+      });
+      if (error) {
+        return { error: error.message };
+      }
+      return {};
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to send reset email";
+      return { error: msg };
+    }
+  };
+
+  const updatePassword = async (newPassword: string): Promise<{ error?: string }> => {
+    if (!supabase) {
+      return { error: "Authentication service unavailable. Missing configuration." };
+    }
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        return { error: error.message };
+      }
+      return {};
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update password";
+      return { error: msg };
+    }
+  };
+
+  const signInWithOAuth = async (provider: "google" | "github"): Promise<{ error?: string }> => {
+    if (!supabase) {
+      return { error: "Authentication service unavailable. Missing configuration." };
+    }
+    try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        return { error: error.message };
+      }
+      return {};
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to initiate OAuth sign-in";
       return { error: msg };
     }
   };
@@ -234,7 +341,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const openAuthModal = (..._args: unknown[]) => {
+  const openAuthModal = (mode?: "signin" | "signup" | unknown) => {
+    if (mode === "signup" || mode === "signin") {
+      setAuthModalMode(mode);
+    }
     setIsAuthModalOpen(true);
   };
 
@@ -355,12 +465,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signIn,
         signUp,
         signOut,
+        resetPassword,
+        updatePassword,
+        signInWithOAuth,
         loginAsDemo,
         signInWithEmail: signIn,
         signUpWithEmail: (email, pass, user) => signUp(email, pass, user),
         openAuthModal,
         closeAuthModal,
         isAuthModalOpen,
+        authModalMode,
         updateProfile,
         updateUserWC,
       }}

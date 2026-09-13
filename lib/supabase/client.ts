@@ -14,16 +14,14 @@ let clientInstance: SupabaseClient | null = null;
  * In browser environment, maintains a singleton instance to prevent
  * connection exhaustion, memory bloat, and duplicated realtime subscriptions.
  */
+const DEFAULT_SUPABASE_URL = "https://qaaeshezrdxfsaxlpmzo.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_b6LZZeIIuTHXEvIr17jYBQ_VoI1toIY";
+
 export function createClient(): SupabaseClient | null {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    if (process.env.NODE_ENV === "production") {
-      console.error(
-        "FATAL: Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in environment."
-      );
-    }
     return null;
   }
 
