@@ -911,7 +911,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                           setIsHighlightModalOpen(true);
                         }}
                         title="Edit highlight"
-                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-xs z-10 cursor-pointer"
+                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-xs z-10 cursor-pointer"
                       >
                         <Pencil className="w-2.5 h-2.5" />
                       </button>

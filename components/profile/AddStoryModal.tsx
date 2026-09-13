@@ -143,6 +143,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
             {availablePhotos.map((photo) => (
               <button
                 key={photo.id}
+                id={`candidate-story-photo-${photo.id}`}
                 type="button"
                 onClick={() => {
                   setSelectedImage(photo.url);
@@ -163,6 +164,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
         {/* Caption Input */}
         <div className="space-y-1">
           <input
+            id="story-caption-input"
             type="text"
             maxLength={75}
             value={caption}
@@ -174,6 +176,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
 
         {/* Share Button */}
         <button
+          id="story-share-submit-btn"
           type="button"
           onClick={handlePublish}
           className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer shadow-md flex items-center justify-center gap-1.5"

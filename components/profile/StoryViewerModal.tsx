@@ -167,7 +167,8 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleNext, handlePrev, onClose]);
 
-  const currentStory = stories[currentIndex];
+  const safeIndex = Math.min(currentIndex, Math.max(0, stories.length - 1));
+  const currentStory = stories[safeIndex];
 
   const handleReact = (emoji: string) => {
     setReactionSent(emoji);
@@ -181,7 +182,20 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
     setTimeout(() => setReactionSent(null), 1800);
   };
 
-  if (!isOpen || stories.length === 0) return null;
+  const handleDeleteCurrentStory = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteStory && currentStory) {
+      if (stories.length <= 1) {
+        onClose();
+      } else if (currentIndex >= stories.length - 1) {
+        setCurrentIndex((prev) => Math.max(0, prev - 1));
+        setProgress(0);
+      }
+      onDeleteStory(currentStory.id);
+    }
+  };
+
+  if (!isOpen || stories.length === 0 || !currentStory) return null;
 
   return (
     <div
@@ -207,8 +221,8 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
           <div className="flex items-center gap-1.5 w-full">
             {stories.map((story, idx) => {
               let width = "0%";
-              if (idx < currentIndex) width = "100%";
-              else if (idx === currentIndex) width = `${progress}%`;
+              if (idx < safeIndex) width = "100%";
+              else if (idx === safeIndex) width = `${progress}%`;
 
               return (
                 <div key={story.id} className="h-1 flex-1 bg-white/25 rounded-full overflow-hidden">
@@ -240,10 +254,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
               {isOwnStory && onDeleteStory && (
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteStory(currentStory.id);
-                  }}
+                  onClick={handleDeleteCurrentStory}
                   className="p-1.5 rounded-full text-zinc-400 hover:text-rose-400 hover:bg-zinc-800 transition-colors cursor-pointer"
                   title="Delete this story"
                 >
@@ -253,6 +264,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
 
               <button
                 type="button"
+                id="story-viewer-close-btn"
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose();
