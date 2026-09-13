@@ -5,9 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { Plus, Swords, Trophy, Wallet, LogOut, User as UserIcon, Menu, X, Sparkles, Globe2, BookOpen } from "lucide-react";
+import { Plus, Swords, Trophy, Wallet, LogOut, User as UserIcon, Menu, X, Sparkles, Globe2, BookOpen, MessageCircle } from "lucide-react";
 import { CreatePostModal } from "@/components/upload/CreatePostModal";
 import { Logo } from "@/components/brand/Logo";
+import { getTotalUnreadCount } from "@/lib/messages";
 
 export const Navbar: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -15,6 +16,21 @@ export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  React.useEffect(() => {
+    const updateCount = () => {
+      setUnreadCount(getTotalUnreadCount());
+    };
+    updateCount();
+
+    window.addEventListener("weca_messages_updated", updateCount);
+    window.addEventListener("storage", updateCount);
+    return () => {
+      window.removeEventListener("weca_messages_updated", updateCount);
+      window.removeEventListener("storage", updateCount);
+    };
+  }, []);
 
   const isActive = (path: string) => {
     if (path === "/" && pathname === "/") return true;
@@ -30,6 +46,11 @@ export const Navbar: React.FC = () => {
     { label: "Directory", href: "/directory", icon: BookOpen },
     { label: "Wallet", href: "/wallet", icon: Wallet },
   ];
+
+  // Hide top navigation when in messaging system (has its own dedicated header)
+  if (pathname.startsWith("/messages")) {
+    return null;
+  }
 
   return (
     <>
@@ -82,6 +103,25 @@ export const Navbar: React.FC = () => {
               aria-label="Map"
             >
               <Globe2 className="w-4 h-4" />
+            </Link>
+
+            {/* Strategic Global Messages Link (Desktop, Tablet & Mobile) */}
+            <Link
+              href="/messages"
+              id="global-messages-btn"
+              className="relative p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Messages"
+              aria-label="Direct Messages"
+            >
+              <MessageCircle className="w-4 h-4" />
+              {unreadCount > 0 && (
+                <span
+                  id="navbar-unread-badge"
+                  className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-violet text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs border-2 border-white dark:border-[#09090b] animate-in zoom-in-50"
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </Link>
 
             {/* Desktop Upload Button (Mobile uses the center dock action) */}
@@ -169,6 +209,22 @@ export const Navbar: React.FC = () => {
         {/* Mobile / Tablet Menu Dropdown */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-md px-4 py-3 space-y-2">
+            {/* Global Messages in Mobile Menu */}
+            <Link
+              href="/messages"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+            >
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 opacity-70" />
+                <span>Messages</span>
+              </div>
+              {unreadCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet text-white">
+                  {unreadCount} unread
+                </span>
+              )}
+            </Link>
             {navLinks.map((link) => {
               const active = isActive(link.href);
               const Icon = link.icon;

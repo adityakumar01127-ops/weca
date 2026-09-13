@@ -26,6 +26,11 @@ export const MobileBottomNav: React.FC = () => {
     setIsCreateOpen(true);
   };
 
+  // Hide the bottom dock when inside the messaging system
+  if (pathname.startsWith("/messages")) {
+    return null;
+  }
+
   return (
     <>
       {/* Mobile Persistent App Dock */}

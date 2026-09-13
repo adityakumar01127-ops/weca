@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Download, X, Share, PlusSquare, Sparkles, CheckCircle2 } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -10,6 +11,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function InstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
@@ -74,7 +76,7 @@ export function InstallPrompt() {
     localStorage.setItem("weca_pwa_dismissed", Date.now().toString());
   };
 
-  if (isStandalone || dismissed) {
+  if (isStandalone || dismissed || pathname.startsWith("/messages")) {
     return null;
   }
 
