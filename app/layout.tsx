@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider, ThemeScript } from "@/context/ThemeContext";
 import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import {
   SITE_NAME,
@@ -112,6 +113,7 @@ export default function RootLayout({
             <main className="flex-1 w-full min-w-0 pb-[calc(5.5rem+env(safe-area-inset-bottom,12px))] md:pb-0">
               {children}
             </main>
+            <Footer />
             <MobileBottomNav />
             <PwaRegister />
             <InstallPrompt />

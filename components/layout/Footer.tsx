@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand/Logo";
 import { Globe, ChevronDown, Sparkles, Swords, MapPin, Trophy } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
@@ -12,9 +13,14 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
   const { resolvedTheme } = useTheme();
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/messages")) {
+    return null;
+  }
 
   return (
-    <footer className="w-full py-12 text-xs text-zinc-600 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-[#09090b] transition-colors">
+    <footer className="w-full py-12 pb-28 md:pb-12 text-xs text-zinc-600 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-[#09090b] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-10">
         {!minimal && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-10 border-b border-zinc-200 dark:border-zinc-800">
