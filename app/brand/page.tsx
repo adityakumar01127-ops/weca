@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { getCanonicalUrl, SITE_NAME } from "@/lib/seo";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { BrandKitViewer } from "@/components/brand/BrandKitViewer";
-import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
 import { ArrowLeft, Sparkles } from "lucide-react";
 
@@ -70,8 +69,6 @@ export default function BrandPage() {
         {/* Interactive Viewer & Download Suite */}
         <BrandKitViewer />
       </main>
-
-      <Footer />
     </div>
   );
 }

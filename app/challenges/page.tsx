@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Footer } from "@/components/layout/Footer";
 import { ChallengesView } from "@/components/challenges/ChallengesView";
 import { Flame } from "lucide-react";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -58,8 +57,6 @@ export default function ChallengesPage() {
         {/* Challenges View Component */}
         <ChallengesView />
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { ScoringSimulator } from "@/components/scoring/ScoringSimulator";
 import { 
   Sliders, 
@@ -285,8 +284,6 @@ Return strict JSON only:
           </Link>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

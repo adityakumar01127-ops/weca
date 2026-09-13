@@ -146,6 +146,13 @@ export async function POST(req: NextRequest) {
         payoutId: payoutEntity.id,
         referenceId: payoutEntity.reference_id,
       });
+      if (resolvedEventId && supabase) {
+        await supabase
+          .from("processed_webhook_events")
+          .delete()
+          .eq("event_id", resolvedEventId)
+          .catch(() => {});
+      }
       return NextResponse.json(
         { success: false, error: "Matching payout request not found" },
         { status: 404 }

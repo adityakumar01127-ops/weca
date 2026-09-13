@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { Battle } from "@/lib/types";
 import { getBattles } from "@/lib/supabase/data";
@@ -274,8 +273,6 @@ export function VersusClient() {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

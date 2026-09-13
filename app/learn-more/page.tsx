@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { ContactOptOutForm } from "@/components/privacy/ContactOptOutForm";
 import { Users, Lock, ShieldCheck, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 
@@ -121,8 +120,6 @@ export default function LearnMorePage() {
           </Link>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

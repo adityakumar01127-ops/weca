@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { 
   ShieldAlert, 
   CheckCircle2, 
@@ -240,8 +239,6 @@ export default function CommunityGuidelinesPage() {
           </Link>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

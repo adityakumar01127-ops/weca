@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { VerifiedAnomaliesClient } from "@/components/anomalies/VerifiedAnomaliesClient";
 import { Award, ShieldCheck, ArrowRight } from "lucide-react";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -84,8 +83,6 @@ export default function VerifiedAnomaliesPage() {
         {/* Verified Anomalies Grid */}
         <VerifiedAnomaliesClient />
       </main>
-
-      <Footer />
     </div>
   );
 }

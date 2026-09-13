@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Footer } from "@/components/layout/Footer";
 import { WorldMapExplorer } from "@/components/map/WorldMapExplorer";
 import { Globe2 } from "lucide-react";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -58,8 +57,6 @@ export default function MapPage() {
         {/* Interactive World Map Component */}
         <WorldMapExplorer />
       </main>
-
-      <Footer />
     </div>
   );
 }

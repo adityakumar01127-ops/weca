@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { CodeSnippetViewer } from "@/components/api/CodeSnippetViewer";
 import { 
   Cpu, 
@@ -220,8 +219,6 @@ export default function GeminiVisionApiPage() {
           </Link>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

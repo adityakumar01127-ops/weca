@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Footer } from "@/components/layout/Footer";
 import { ProView } from "@/components/pro/ProView";
 import { Sparkles } from "lucide-react";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -58,8 +57,6 @@ export default function ProPage() {
         {/* Pro View Component */}
         <ProView />
       </main>
-
-      <Footer />
     </div>
   );
 }

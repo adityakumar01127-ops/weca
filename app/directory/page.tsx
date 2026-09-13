@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Footer } from "@/components/layout/Footer";
 import { AnomalyDirectoryClient } from "@/components/directory/AnomalyDirectoryClient";
 import { BookOpen } from "lucide-react";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -58,8 +57,6 @@ export default function DirectoryPage() {
         {/* Directory Client */}
         <AnomalyDirectoryClient />
       </main>
-
-      <Footer />
     </div>
   );
 }

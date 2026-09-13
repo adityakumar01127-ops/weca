@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import confetti from "canvas-confetti";
-import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { Battle } from "@/lib/types";
 import { getBattleById } from "@/lib/supabase/data";
@@ -172,7 +171,6 @@ export function BattleDetailClient({ battleId, initialBattle }: BattleDetailClie
             Return to Arena
           </Link>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -507,8 +505,6 @@ export function BattleDetailClient({ battleId, initialBattle }: BattleDetailClie
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

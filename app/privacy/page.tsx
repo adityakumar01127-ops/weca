@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { ShieldCheck, Lock, Eye, FileText, ArrowRight, UserCheck } from "lucide-react";
 
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -191,8 +190,6 @@ export default function PrivacyPage() {
           </Link>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

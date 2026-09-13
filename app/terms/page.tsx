@@ -1,7 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/layout/Footer";
 import { Scale, FileText, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -177,8 +176,6 @@ export default function TermsPage() {
           </Link>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

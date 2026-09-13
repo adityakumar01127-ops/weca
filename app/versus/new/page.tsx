@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/ui/ProtectedRoute";
-import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { Post } from "@/lib/types";
 import { getPosts, checkBattleCreationRateLimit } from "@/lib/supabase/data";
@@ -331,8 +330,6 @@ export default function NewBattlePage() {
             )}
           </div>
         </main>
-
-        <Footer />
       </div>
     </ProtectedRoute>
   );
