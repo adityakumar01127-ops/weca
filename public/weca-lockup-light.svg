@@ -1,0 +1,79 @@
+<svg width="240" height="48" viewBox="0 0 240 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Electric Violet Gradient -->
+    <linearGradient id="bladeVioletLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+
+    <!-- Neon Cyan Gradient -->
+    <linearGradient id="bladeCyanLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <!-- Chromatic Rose Gradient -->
+    <linearGradient id="bladeRoseLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF385C" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+
+    <!-- Central Singularity Radial Glow -->
+    <radialGradient id="coreGlowLight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="35%" stop-color="#06B6D4" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Emblem Icon: Left Group -->
+  <g transform="translate(0, 0)">
+    <!-- Outer Optical Chassis Ring -->
+    <circle cx="24" cy="24" r="22" stroke="#E4E4E7" stroke-width="1.5" stroke-dasharray="4 2" />
+
+    <!-- Tri-Sector Calibration Notches at 0°, 120°, 240° -->
+    <line x1="24" y1="2" x2="24" y2="4.5" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="43.1" y1="35" x2="40.9" y2="33.7" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="4.9" y1="35" x2="7.1" y2="33.7" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round" />
+
+    <!-- Three Precision Interlocking Chromatic Blades -->
+    <!-- Blade 1: Electric Violet -->
+    <path
+      d="M 24 5.5 A 18.5 18.5 0 0 1 40 14.8 C 32 17.5, 26 21.5, 23 24.5 C 23.5 20, 23.8 11.5, 24 5.5 Z"
+      fill="url(#bladeVioletLight)"
+    />
+
+    <!-- Blade 2: Chromatic Rose -->
+    <path
+      d="M 40 14.8 A 18.5 18.5 0 0 1 24 42.5 C 23.5 35, 20 29.5, 16 26.5 C 21 24, 31 18.5, 40 14.8 Z"
+      fill="url(#bladeRoseLight)"
+    />
+
+    <!-- Blade 3: Neon Cyan -->
+    <path
+      d="M 24 42.5 A 18.5 18.5 0 0 1 8 14.8 C 16 17.5, 21.5 21, 24.5 24 C 20.5 28.5, 22.5 36, 24 42.5 Z"
+      fill="url(#bladeCyanLight)"
+    />
+
+    <!-- Inner Negative Space Pupil -->
+    <circle cx="24" cy="24" r="5" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="1" />
+
+    <!-- Optical Singularity Core Flare -->
+    <circle cx="24" cy="24" r="3.5" fill="url(#coreGlowLight)" />
+    <circle cx="24" cy="24" r="1.5" fill="#0891B2" />
+
+    <!-- Micro Anamorphic Flare Spikes -->
+    <line x1="24" y1="19.5" x2="24" y2="28.5" stroke="#0891B2" stroke-width="0.75" stroke-linecap="round" opacity="0.95" />
+    <line x1="19.5" y1="24" x2="28.5" y2="24" stroke="#0891B2" stroke-width="0.75" stroke-linecap="round" opacity="0.95" />
+  </g>
+
+  <!-- Wordmark: weca -->
+  <text x="58" y="32" fill="#09090B" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="28" letter-spacing="-0.04em">weca</text>
+
+  <!-- Optical Singularity Dot -->
+  <circle cx="134" cy="29" r="3.5" fill="#0891B2" />
+
+  <!-- Sub-label / Tagline badge -->
+  <text x="148" y="24" fill="#52525B" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="8.5" letter-spacing="0.16em">GLOBAL</text>
+  <text x="148" y="33" fill="#71717A" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="8.5" letter-spacing="0.16em">INDEX</text>
+</svg>

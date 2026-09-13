@@ -90,7 +90,7 @@ export const SubmissionChecklist: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           {isReady
-            ? "Your anomaly meets all 5 baseline standards for the Wica Index!"
+            ? "Your anomaly meets all 5 baseline standards for the Weca Index!"
             : "Check all 5 criteria to verify submission qualification."}
         </p>
 

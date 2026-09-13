@@ -410,7 +410,7 @@ export const AnomalyDirectoryClient: React.FC = () => {
                 <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-semibold text-zinc-900 dark:text-white">
-                      Composite Wica Score
+                      Composite Weca Score
                     </span>
                     <span className="font-mono font-bold text-sm text-violet">
                       {selectedAnomaly.score}/100 ({selectedAnomaly.tier})

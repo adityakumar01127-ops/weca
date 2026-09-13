@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Offline • Weca Radar</title>
+  <meta name="theme-color" content="#09090b" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #09090b;
+      color: #fafafa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(34, 211, 238, 0.08) 0%, transparent 40%);
+    }
+    .container {
+      max-width: 440px;
+      width: 100%;
+      background: rgba(18, 18, 22, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 40px 28px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .emblem-wrap {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pulse-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1px dashed rgba(139, 92, 246, 0.4);
+      animation: spin 20s linear infinite;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      color: #a1a1aa;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    button.retry-btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #09090b;
+      background: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 8px 24px -4px rgba(139, 92, 246, 0.4);
+    }
+    button.retry-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+    button.retry-btn:active {
+      transform: translateY(1px);
+    }
+    .status-note {
+      margin-top: 24px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      color: #71717a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emblem-wrap">
+      <div class="pulse-ring"></div>
+      <img src="/weca-emblem.svg" alt="Weca Emblem" width="64" height="64" />
+    </div>
+
+    <div class="badge">
+      <span class="dot"></span>
+      <span>Telemetry Disconnected</span>
+    </div>
+
+    <h1>Radar Offline</h1>
+    <p>
+      Weca requires a network link to query real-time anomaly feeds and upload optical captures. You are currently offline.
+    </p>
+
+    <div class="actions">
+      <button class="retry-btn" onclick="retryConnection()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+        </svg>
+        <span>Reconnect Radar</span>
+      </button>
+    </div>
+
+    <div class="status-note" id="status-text">
+      Auto-resuming when internet connectivity returns.
+    </div>
+  </div>
+
+  <script>
+    function retryConnection() {
+      const btn = document.querySelector('.retry-btn span');
+      btn.textContent = 'Checking signal...';
+      if (navigator.onLine) {
+        window.location.reload();
+      } else {
+        setTimeout(() => {
+          btn.textContent = 'Still Offline • Try Again';
+        }, 600);
+      }
+    }
+
+    window.addEventListener('online', () => {
+      document.getElementById('status-text').textContent = 'Connection restored! Syncing...';
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

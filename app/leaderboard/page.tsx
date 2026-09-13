@@ -9,14 +9,14 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Global Leaderboard — Hall of Fame & Top Spotters",
   description:
-    "Rankings of the world's premier anomaly hunters. Filter by highest Wica Score, Weird Credits balance, Versus accuracy, and hunting streaks.",
+    "Rankings of the world's premier anomaly hunters. Filter by highest Weca Score, Weird Credits balance, Versus accuracy, and hunting streaks.",
   alternates: {
     canonical: `${SITE_URL}/leaderboard`,
   },
   openGraph: {
     title: `Global Leaderboard — Hall of Fame & Top Spotters | ${SITE_NAME}`,
     description:
-      "Rankings of the world's premier anomaly hunters. Filter by highest Wica Score, Weird Credits, and Versus accuracy.",
+      "Rankings of the world's premier anomaly hunters. Filter by highest Weca Score, Weird Credits, and Versus accuracy.",
     url: `${SITE_URL}/leaderboard`,
     siteName: SITE_NAME,
     type: "website",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Global Leaderboard — Hall of Fame & Top Spotters | ${SITE_NAME}`,
     description:
-      "Rankings of the world's premier anomaly hunters. Filter by highest Wica Score, Weird Credits, and Versus accuracy.",
+      "Rankings of the world's premier anomaly hunters. Filter by highest Weca Score, Weird Credits, and Versus accuracy.",
   },
 };
 

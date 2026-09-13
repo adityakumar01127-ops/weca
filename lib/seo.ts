@@ -1,4 +1,4 @@
-export const SITE_NAME = "Wica";
+export const SITE_NAME = "Weca";
 export const BRAND_ALT_NAME = "Weca";
 export const SITE_TAGLINE = "The Global Weirdness Index";
 export const SITE_SUBTITLE = "Real-World Candid Anomalies & Gemini Vision Multimodal Scoring";
@@ -22,9 +22,11 @@ export const DEFAULT_DESCRIPTION =
   "The decentralized ledger and social discovery platform for authentic, unedited real-world anomalies. Candid photographs scored 0-100 by Google Gemini Vision for surrealism and rarity.";
 
 export const DEFAULT_KEYWORDS = [
-  "Wica",
   "Weca",
+  "weca.app",
+  "Weca App",
   "The Global Weirdness Index",
+  "Weca Score",
   "real world anomalies",
   "candid photography",
   "Gemini Vision AI",
@@ -39,7 +41,7 @@ export const DEFAULT_KEYWORDS = [
   "street photography anomalies",
 ];
 
-export const TWITTER_HANDLE = "@wica_app";
+export const TWITTER_HANDLE = "@weca_app";
 
 export function getCanonicalUrl(path: string = "/"): string {
   const cleanPath = path.startsWith("/") ? path : `/${path}`;

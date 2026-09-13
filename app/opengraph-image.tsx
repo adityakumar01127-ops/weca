@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
 
-export const alt = "Wica — The Global Weirdness Index";
+export const alt = "Weca — The Global Weirdness Index";
 export const size = {
   width: 1200,
   height: 630,
@@ -46,7 +46,7 @@ export default function Image() {
             fontFamily: "monospace",
           }}
         >
-          <span>WICA PROTOCOL v2.0</span>
+          <span>WECA PROTOCOL v2.0</span>
           <span>GEMINI VISION 5-D TELEMETRY</span>
         </div>
 

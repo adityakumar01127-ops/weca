@@ -187,7 +187,7 @@ export const VerifiedAnomaliesClient: React.FC = () => {
                 />
                 <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 shadow-sm flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-cyan" />
-                  <span>{item.score} Wica</span>
+                  <span>{item.score} Weca</span>
                 </div>
               </div>
 
@@ -250,7 +250,7 @@ export const VerifiedAnomaliesClient: React.FC = () => {
                 <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-white font-mono text-xs">
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 backdrop-blur-md border border-amber-400/40 text-amber-300">
                     <Award className="w-4 h-4 text-amber-400" />
-                    <span>WICA PERMANENT ARCHIVE • SEAL OF TRUTH</span>
+                    <span>WECA PERMANENT ARCHIVE • SEAL OF TRUTH</span>
                   </div>
                   <span className="text-zinc-300">{activeDossier.code}</span>
                 </div>
@@ -278,7 +278,7 @@ export const VerifiedAnomaliesClient: React.FC = () => {
                 <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-4">
                   <div className="flex items-baseline justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                     <span className="font-mono text-xs font-bold text-zinc-600 dark:text-zinc-300 uppercase">
-                      Composite Wica Score
+                      Composite Weca Score
                     </span>
                     <span className="font-display font-black text-2xl text-zinc-900 dark:text-white">
                       {activeDossier.score} / 100

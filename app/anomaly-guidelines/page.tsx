@@ -20,14 +20,14 @@ import { BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Anomaly Guidelines — Field Handbook & Submission Criteria",
   description:
-    "Official Wica submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
+    "Official Weca submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
   alternates: {
     canonical: `${SITE_URL}/anomaly-guidelines`,
   },
   openGraph: {
     title: `Anomaly Guidelines — Field Handbook & Submission Criteria | ${SITE_NAME}`,
     description:
-      "Official Wica submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
+      "Official Weca submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
     url: `${SITE_URL}/anomaly-guidelines`,
     siteName: SITE_NAME,
     type: "website",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Anomaly Guidelines — Field Handbook & Submission Criteria | ${SITE_NAME}`,
     description:
-      "Official Wica submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
+      "Official Weca submission criteria: what qualifies as a genuine anomaly, photography best practices, and our interactive pre-flight checklist.",
   },
 };
 
@@ -47,7 +47,7 @@ const GUIDELINE_FAQS = [
       "A candid, unposed physical phenomenon encountered serendipitously in everyday reality, free from digital manipulation, CGI, or generative AI.",
   },
   {
-    question: "What are photography best practices for Wica?",
+    question: "What are photography best practices for Weca?",
     answer:
       "Capture the discovery in clear natural lighting with wide enough context to prove authenticity. Keep original EXIF sensor metadata intact.",
   },
@@ -81,7 +81,7 @@ export default function AnomalyGuidelinesPage() {
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-lg sm:text-xl leading-relaxed max-w-3xl">
-            What separates an authentic anomaly from an everyday photograph? This guide establishes the baseline standards for submitting candid discoveries to the Wica index.
+            What separates an authentic anomaly from an everyday photograph? This guide establishes the baseline standards for submitting candid discoveries to the Weca index.
           </p>
         </div>
 

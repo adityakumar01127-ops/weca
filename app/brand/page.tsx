@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Brand Guidelines & Logo System | ${SITE_NAME}`,
     description:
-      "Explore official Weca & Wica vector logos, Golden Ledger archival seals, and brand color tokens.",
+      "Explore official Weca vector logos, Golden Ledger archival seals, and brand color tokens.",
   },
 };
 

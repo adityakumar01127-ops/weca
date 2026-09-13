@@ -21,14 +21,14 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Community Guidelines — Preserving the Integrity of Weirdness",
   description:
-    "Read the official Wica Community Guidelines: our strict No-AI policy, safety protocols, honest attribution, and moderation enforcement.",
+    "Read the official Weca Community Guidelines: our strict No-AI policy, safety protocols, honest attribution, and moderation enforcement.",
   alternates: {
     canonical: `${SITE_URL}/community-guidelines`,
   },
   openGraph: {
     title: `Community Guidelines — Preserving the Integrity of Weirdness | ${SITE_NAME}`,
     description:
-      "Read the official Wica Community Guidelines: our strict No-AI policy, safety protocols, and honest attribution.",
+      "Read the official Weca Community Guidelines: our strict No-AI policy, safety protocols, and honest attribution.",
     url: `${SITE_URL}/community-guidelines`,
     siteName: SITE_NAME,
     type: "website",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Community Guidelines — Preserving the Integrity of Weirdness | ${SITE_NAME}`,
     description:
-      "Read the official Wica Community Guidelines: our strict No-AI policy, safety protocols, and honest attribution.",
+      "Read the official Weca Community Guidelines: our strict No-AI policy, safety protocols, and honest attribution.",
   },
 };
 
@@ -63,7 +63,7 @@ export default function CommunityGuidelinesPage() {
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-lg sm:text-xl leading-relaxed max-w-3xl">
-            Wica exists because real-world wonder is worth protecting. To maintain an authentic global archive, all anomaly hunters and contributors adhere to our community charter.
+            Weca exists because real-world wonder is worth protecting. To maintain an authentic global archive, all anomaly hunters and contributors adhere to our community charter.
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export default function CommunityGuidelinesPage() {
                   Accurate Context & Honest Attribution
                 </h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                  If you fabricated an oddity yourself (e.g. an art installation or quirky craft), state it openly in your caption. Wica celebrates intentional craft, but claiming an engineered art piece was a &ldquo;spontaneous natural miracle&rdquo; corrupts the index.
+                  If you fabricated an oddity yourself (e.g. an art installation or quirky craft), state it openly in your caption. Weca celebrates intentional craft, but claiming an engineered art piece was a &ldquo;spontaneous natural miracle&rdquo; corrupts the index.
                 </p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
                   Do not upload generic viral images from Reddit or Twitter claiming you discovered them this morning. Original candid discoveries receive archival preference.
@@ -228,7 +228,7 @@ export default function CommunityGuidelinesPage() {
         <section className="pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-xs text-zinc-500 dark:text-zinc-400">
             Have concerns about a specific submission? Reach our moderation board at{" "}
-            <span className="text-zinc-900 dark:text-zinc-100 font-mono font-medium">integrity@wica.io</span>
+            <span className="text-zinc-900 dark:text-zinc-100 font-mono font-medium">integrity@weca.io</span>
           </div>
 
           <Link

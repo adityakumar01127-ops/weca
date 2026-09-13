@@ -162,7 +162,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
               >
                 <img
                   src="/anom-1.jpg"
-                  alt="Cheerful cat anomaly scored by Wica"
+                  alt="Cheerful cat anomaly scored by Weca"
                   className="w-full h-full object-cover"
                 />
 
@@ -194,7 +194,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
                 <div className="absolute top-20 left-4 z-20">
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white font-mono text-[11px] font-bold shadow-lg">
                     <Sparkles className="w-3 h-3 text-cyan" />
-                    <span>94 Wica Score</span>
+                    <span>94 Weca Score</span>
                   </div>
                 </div>
 
@@ -273,7 +273,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
               {/* Header */}
               <div className="mb-6 text-left">
                 <h2 className="font-display font-bold text-2xl sm:text-[26px] text-zinc-900 dark:text-white tracking-tight">
-                  {isSignUp ? "Join the Weirdness Index" : "Log in to Wica"}
+                  {isSignUp ? "Join the Weirdness Index" : "Log in to Weca"}
                 </h2>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                   {isSignUp 
@@ -421,7 +421,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
           {/* Navigation Links */}
           <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-[11px] text-zinc-500 dark:text-zinc-400">
             <button onClick={onExploreFeed} className="hover:text-zinc-900 dark:hover:text-white transition-colors">World Feed</button>
-            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About Wica</Link>
+            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About Weca</Link>
             <Link href="/scoring-engine" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Scoring Engine</Link>
             <Link href="/rarity-tiers" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Rarity Tiers</Link>
             <Link href="/directory" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Anomaly Directory</Link>
@@ -441,7 +441,7 @@ export const LoginPageView: React.FC<LoginPageViewProps> = ({ onExploreFeed }) =
               <span>English (US)</span>
               <ChevronDown className="w-3 h-3" />
             </div>
-            <span>© 2026 Wica — The Global Weirdness Index</span>
+            <span>© 2026 Weca — The Global Weirdness Index</span>
           </div>
         </div>
       </footer>

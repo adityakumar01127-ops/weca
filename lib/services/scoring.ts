@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { ScoreBreakdown, getTierFromScore } from "../types";
 
-export const WICA_SYSTEM_PROMPT = `You are the Wica Weirdness Engine. Analyze the attached image and score it
+export const WICA_SYSTEM_PROMPT = `You are the Weca Weirdness Engine. Analyze the attached image and score it
 0-10 on each dimension:
 
 1. Absurdity — how unexpected or incongruous is the combination of elements?
@@ -85,7 +85,7 @@ export async function scoreImageWithGemini(input: ScoreInput): Promise<ScoreBrea
           ? parsed.one_line_verdict 
           : "An unexpected glitch in everyday reality.";
 
-        // Composite Wica Score = five dimensions summed (0..50) and scaled to 0..100
+        // Composite Weca Score = five dimensions summed (0..50) and scaled to 0..100
         const composite_score = (absurdity + rarity + craft + cultural_novelty + wit) * 2;
 
         return {

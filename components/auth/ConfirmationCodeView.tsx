@@ -187,7 +187,7 @@ export const ConfirmationCodeView: React.FC<ConfirmationCodeViewProps> = ({
         <div className="max-w-6xl mx-auto px-4 sm:px-8 flex flex-col items-center gap-4 text-center">
           <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-[11px] text-zinc-500 dark:text-zinc-400">
             <Link href="/" className="hover:text-zinc-900 dark:hover:text-white transition-colors">World Feed</Link>
-            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About Wica</Link>
+            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About Weca</Link>
             <Link href="/scoring-engine" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Scoring Engine</Link>
             <Link href="/rarity-tiers" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Rarity Tiers</Link>
             <Link href="/directory" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Anomaly Directory</Link>
@@ -206,7 +206,7 @@ export const ConfirmationCodeView: React.FC<ConfirmationCodeViewProps> = ({
               <span>English (US)</span>
               <ChevronDown className="w-3 h-3" />
             </div>
-            <span>© 2026 Wica — The Global Weirdness Index</span>
+            <span>© 2026 Weca — The Global Weirdness Index</span>
           </div>
         </div>
       </footer>

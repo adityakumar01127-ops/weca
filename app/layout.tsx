@@ -14,6 +14,8 @@ import {
   TWITTER_HANDLE,
 } from "@/lib/seo";
 import { WebsiteAndOrgJsonLd } from "@/components/seo/JsonLd";
+import { PwaRegister } from "@/components/pwa/PwaRegister";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -35,7 +37,7 @@ export const metadata: Metadata = {
   },
   description: DEFAULT_DESCRIPTION,
   keywords: DEFAULT_KEYWORDS,
-  authors: [{ name: "Wica Network", url: SITE_URL }],
+  authors: [{ name: "Weca Network", url: SITE_URL }],
   creator: SITE_NAME,
   publisher: `${SITE_NAME} Inc.`,
   alternates: {
@@ -69,7 +71,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: SITE_NAME,
   },
   formatDetection: {
@@ -80,12 +82,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon", type: "image/png", sizes: "32x32" },
-      { url: "/wica-logo.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+      { url: "/weca-logo.svg", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/apple-icon", sizes: "180x180", type: "image/png" },
-      { url: "/wica-logo.svg", type: "image/svg+xml" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/weca-logo.svg", type: "image/svg+xml" },
     ],
     shortcut: "/favicon.ico",
   },
@@ -110,6 +113,8 @@ export default function RootLayout({
               {children}
             </main>
             <MobileBottomNav />
+            <PwaRegister />
+            <InstallPrompt />
           </AuthProvider>
         </ThemeProvider>
       </body>

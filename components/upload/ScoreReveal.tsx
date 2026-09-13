@@ -77,7 +77,7 @@ export const ScoreReveal: React.FC<ScoreRevealProps> = ({
 
   const handleCopyVerdict = () => {
     navigator.clipboard.writeText(
-      `Wica Score: ${breakdown.composite_score}/100 [${breakdown.tier}]\n"${breakdown.one_line_verdict}" — scored by the Wica Weirdness Engine`
+      `Weca Score: ${breakdown.composite_score}/100 [${breakdown.tier}]\n"${breakdown.one_line_verdict}" — scored by the Weca Weirdness Engine`
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

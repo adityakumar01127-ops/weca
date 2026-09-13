@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { SettingsView } from "@/components/settings/SettingsView";
 
 export const metadata: Metadata = {
-  title: "Settings • Edit Profile | Wica",
-  description: "Customize your Wica profile, manage notification preferences, account privacy, and download 4K archival anomalies.",
+  title: "Settings • Edit Profile | Weca",
+  description: "Customize your Weca profile, manage notification preferences, account privacy, and download 4K archival anomalies.",
   robots: {
     index: false,
     follow: false,

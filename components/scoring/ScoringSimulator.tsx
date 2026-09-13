@@ -51,7 +51,7 @@ export const ScoringSimulator: React.FC = () => {
             Test the 5-Dimensional Algorithm
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            Adjust the dimension sliders below to simulate how Gemini Vision computes the composite Wica Score.
+            Adjust the dimension sliders below to simulate how Gemini Vision computes the composite Weca Score.
           </p>
         </div>
 
@@ -164,7 +164,7 @@ export const ScoringSimulator: React.FC = () => {
           />
 
           <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 dark:text-zinc-500 mb-2">
-            Composite Wica Score
+            Composite Weca Score
           </span>
 
           <div className="flex items-baseline justify-center gap-1 mb-2">

@@ -133,7 +133,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ image, onOpenDetail }) => 
         ) : (
           <img
             src={getSafeImageUrl(image.storage_path)}
-            alt={image.caption || image.ai_verdict || "Wica strange photo"}
+            alt={image.caption || image.ai_verdict || "Weca strange photo"}
             loading="lazy"
             decoding="async"
             onError={() => setImageError(true)}

@@ -10,23 +10,23 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Privacy Policy — Data Protection & Security",
   description:
-    "Read the Wica Privacy Policy: understand how we process photos, AI vision inference data, contact uploads, and protect your digital privacy rights.",
+    "Read the Weca Privacy Policy: understand how we process photos, AI vision inference data, contact uploads, and protect your digital privacy rights.",
   alternates: {
     canonical: `${SITE_URL}/privacy`,
   },
   openGraph: {
-    title: `Privacy Policy — Data Protection & Security | ${SITE_NAME}`,
+    title: `Privacy Policy — Data Autonomy & Transparency | ${SITE_NAME}`,
     description:
-      "Read the Wica Privacy Policy: understand how we process photos, AI vision inference data, and protect your privacy rights.",
+      "Read the Weca Privacy Policy: understand how we process photos, AI vision inference data, and protect your privacy rights.",
     url: `${SITE_URL}/privacy`,
     siteName: SITE_NAME,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `Privacy Policy — Data Protection & Security | ${SITE_NAME}`,
+    title: `Privacy Policy — Data Autonomy & Transparency | ${SITE_NAME}`,
     description:
-      "Read the Wica Privacy Policy: understand how we process photos, AI vision inference data, and protect your privacy rights.",
+      "Read the Weca Privacy Policy: understand how we process photos, AI vision inference data, and protect your privacy rights.",
   },
 };
 
@@ -48,11 +48,11 @@ export default function PrivacyPage() {
           </div>
 
           <h1 className="font-display font-black text-4xl sm:text-5xl text-zinc-900 dark:text-white tracking-tight mb-4">
-            Wica Privacy Policy
+            Weca Privacy Policy
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg leading-relaxed">
-            Your privacy and digital autonomy are paramount. This policy outlines how Wica (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;the Platform&rdquo;) collects, processes, and protects your information when you interact with our service.
+            Your privacy and digital autonomy are paramount. This policy outlines how Weca (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;the Platform&rdquo;) collects, processes, and protects your information when you interact with our service.
           </p>
         </div>
 
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
                 <strong>Account Information:</strong> When you register, we collect your email address, username, encrypted password hashes, and optional avatar image.
               </li>
               <li>
-                <strong>User Content & Photographic Media:</strong> Photos, captions, category tags, and optional geographic locations you upload to be scored on the Wica index.
+                <strong>User Content & Photographic Media:</strong> Photos, captions, category tags, and optional geographic locations you upload to be scored on the Weca index.
               </li>
               <li>
                 <strong>Contact Information:</strong> If you choose to sync your contacts or invite friends, we process phone numbers and email addresses using one-way cryptographic hashing (SHA-256). We never store unhashed address book contents.
@@ -101,10 +101,10 @@ export default function PrivacyPage() {
               3. Contact Uploads & Non-User Protection
             </h2>
             <p>
-              Wica enables users to discover friends who are already active anomaly spotters. If an active user uploads their address book, our servers generate irreversibly salted hashes to detect matching accounts.
+              Weca enables users to discover friends who are already active anomaly spotters. If an active user uploads their address book, our servers generate irreversibly salted hashes to detect matching accounts.
             </p>
             <p>
-              If your contact information was uploaded by a friend and you do not hold a Wica account, your raw identity is never revealed. You may permanently suppress your phone number or email from our matching system at any time using our{" "}
+              If your contact information was uploaded by a friend and you do not hold a Weca account, your raw identity is never revealed. You may permanently suppress your phone number or email from our matching system at any time using our{" "}
               <Link href="/learn-more" className="text-violet hover:underline font-semibold">
                 Contact Opt-Out Tool
               </Link>.
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
             <h2 className="font-display font-bold text-xl text-zinc-900 dark:text-white">
               5. Your Global Privacy Rights (GDPR & CCPA)
             </h2>
-            <p>Regardless of your geographic jurisdiction, Wica affords you complete control over your digital footprint:</p>
+            <p>Regardless of your geographic jurisdiction, Weca affords you complete control over your digital footprint:</p>
             <div className="grid sm:grid-cols-2 gap-4 pt-2">
               <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60">
                 <h4 className="font-bold text-zinc-900 dark:text-white mb-1">Right to Access & Portability</h4>
@@ -154,7 +154,7 @@ export default function PrivacyPage() {
               6. Security Standards
             </h2>
             <p>
-              All traffic between your browser and Wica is encrypted using TLS 1.3. Database storage utilizes hardened Row-Level Security (RLS) policies ensuring no user can read or modify another user&apos;s private credentials.
+              All traffic between your browser and Weca is encrypted using TLS 1.3. Database storage utilizes hardened Row-Level Security (RLS) policies ensuring no user can read or modify another user&apos;s private credentials.
             </p>
           </section>
 
@@ -167,7 +167,7 @@ export default function PrivacyPage() {
               For privacy requests, GDPR inquiries, or data deletion petitions, email our Data Protection team at:
             </p>
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-900 dark:text-zinc-100 inline-block">
-              privacy@wica.io • Subject: Privacy Request
+              privacy@weca.io • Subject: Privacy Request
             </div>
           </section>
         </div>

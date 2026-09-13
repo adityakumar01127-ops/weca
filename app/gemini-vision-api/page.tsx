@@ -21,14 +21,14 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Gemini Vision API — Multimodal Architecture",
   description:
-    "Learn how Wica leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis, zero-shot multimodal scoring, and forensic detection.",
+    "Learn how Weca leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis, zero-shot multimodal scoring, and forensic detection.",
   alternates: {
     canonical: `${SITE_URL}/gemini-vision-api`,
   },
   openGraph: {
     title: `Gemini Vision API — Multimodal Architecture | ${SITE_NAME}`,
     description:
-      "Learn how Wica leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis and zero-shot scoring.",
+      "Learn how Weca leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis and zero-shot scoring.",
     url: `${SITE_URL}/gemini-vision-api`,
     siteName: SITE_NAME,
     type: "website",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Gemini Vision API — Multimodal Architecture | ${SITE_NAME}`,
     description:
-      "Learn how Wica leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis and zero-shot scoring.",
+      "Learn how Weca leverages Google's Gemini Vision models for real-time 5-dimensional anomaly analysis and zero-shot scoring.",
   },
 };
 
@@ -63,7 +63,7 @@ export default function GeminiVisionApiPage() {
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-lg sm:text-xl leading-relaxed max-w-3xl">
-            Wica uses Google Gemini&apos;s multimodal models to evaluate uncompressed optical imagery in sub-second inference passes, transforming visual absurdity into verifiable structured data.
+            Weca uses Google Gemini&apos;s multimodal models to evaluate uncompressed optical imagery in sub-second inference passes, transforming visual absurdity into verifiable structured data.
           </p>
         </div>
 

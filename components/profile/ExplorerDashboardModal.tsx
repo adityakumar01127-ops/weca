@@ -60,7 +60,7 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
 
   const handleShareTelemetry = () => {
     navigator.clipboard?.writeText(
-      `WECA Explorer Intelligence: @${username} has 1.3K sighting views, 94.2 Avg Wica Score, and Rank #42 on Weca!`
+      `WECA Explorer Intelligence: @${username} has 1.3K sighting views, 94.2 Avg Weca Score, and Rank #42 on Weca!`
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -171,7 +171,7 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
             {/* Metric 3: Avg Wica Score */}
             <div className="p-3.5 rounded-2xl bg-zinc-50/90 dark:bg-zinc-950/70 border border-zinc-200/80 dark:border-zinc-800/80 relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
               <div className="flex items-center justify-between text-zinc-500 dark:text-zinc-400 mb-2">
-                <span className="text-[11px] font-medium">Avg Wica Score</span>
+                <span className="text-[11px] font-medium">Avg Weca Score</span>
                 <ShieldCheck className="w-4 h-4 text-amber-500 dark:text-amber-400" />
               </div>
               <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">94.2</div>
@@ -304,7 +304,7 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
                           {s.caption || s.category}
                         </div>
                         <div className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">
-                          {s.category} • Wica Score {s.wica_score}
+                          {s.category} • Weca Score {s.wica_score}
                         </div>
                       </div>
                     </div>

@@ -37,7 +37,7 @@ export const ContactOptOutForm: React.FC = () => {
         </h3>
 
         <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
-          Enter your phone number or email address below. We will calculate a salted cryptographic hash and append it to our permanent suppression registry. Your contact will never be suggested, queried, or matched on Wica.
+          Enter your phone number or email address below. We will calculate a salted cryptographic hash and append it to our permanent suppression registry. Your contact will never be suggested, queried, or matched on Weca.
         </p>
 
         {status === "success" ? (

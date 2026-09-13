@@ -106,7 +106,7 @@ export const SignUpPageView: React.FC<SignUpPageViewProps> = ({
           
           {/* Header Title & Subtitle */}
           <h1 className="font-display font-bold text-2xl sm:text-[28px] text-zinc-900 dark:text-white tracking-tight mb-2">
-            Get started on Wica
+            Get started on Weca
           </h1>
           <p className="text-xs sm:text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
             Sign up to discover and score rare anomalies with the world.
@@ -275,11 +275,11 @@ export const SignUpPageView: React.FC<SignUpPageViewProps> = ({
             {/* Legal Disclaimers (Matching Image 2) */}
             <div className="pt-2 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2 leading-relaxed">
               <p>
-                People who use our service may have uploaded your contact information to Wica.{" "}
+                People who use our service may have uploaded your contact information to Weca.{" "}
                 <Link href="/learn-more" className="text-violet hover:underline cursor-pointer">Learn more</Link>
               </p>
               <p>
-                By tapping Submit, you agree to create an account and to Wica&apos;s{" "}
+                By tapping Submit, you agree to create an account and to Weca&apos;s{" "}
                 <Link href="/terms" className="text-violet hover:underline cursor-pointer">Terms</Link>,{" "}
                 <Link href="/privacy" className="text-violet hover:underline cursor-pointer">Privacy Policy</Link> and{" "}
                 <Link href="/anomaly-guidelines" className="text-violet hover:underline cursor-pointer">Anomaly Guidelines</Link>.
@@ -318,7 +318,7 @@ export const SignUpPageView: React.FC<SignUpPageViewProps> = ({
         <div className="max-w-6xl mx-auto px-4 sm:px-8 flex flex-col items-center gap-4 text-center">
           <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-[11px] text-zinc-500 dark:text-zinc-400">
             <Link href="/" className="hover:text-zinc-900 dark:hover:text-white transition-colors">World Feed</Link>
-            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About Wica</Link>
+            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About Weca</Link>
             <Link href="/scoring-engine" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Scoring Engine</Link>
             <Link href="/rarity-tiers" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Rarity Tiers</Link>
             <Link href="/directory" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Anomaly Directory</Link>
@@ -337,7 +337,7 @@ export const SignUpPageView: React.FC<SignUpPageViewProps> = ({
               <span>English (US)</span>
               <ChevronDown className="w-3 h-3" />
             </div>
-            <span>© 2026 Wica — The Global Weirdness Index</span>
+            <span>© 2026 Weca — The Global Weirdness Index</span>
           </div>
         </div>
       </footer>

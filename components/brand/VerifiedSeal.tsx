@@ -111,7 +111,7 @@ export const VerifiedSeal: React.FC<VerifiedSealProps> = ({
             letterSpacing="0.18em"
           >
             <textPath href={`#${curveTop}`} startOffset="50%" textAnchor="middle">
-              GLOBAL WEIRDNESS INDEX
+              WECA WEIRDNESS INDEX
             </textPath>
           </text>
           <text

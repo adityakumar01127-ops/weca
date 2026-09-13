@@ -26,7 +26,7 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
               <ul className="space-y-2 text-xs">
                 <li>
                   <Link href="/about" className="hover:text-zinc-950 dark:hover:text-white transition-colors">
-                    About Wica
+                    About Weca
                   </Link>
                 </li>
                 <li>
@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
                 </li>
                 <li>
                   <Link href="/pro" className="hover:text-violet font-semibold transition-colors flex items-center gap-1">
-                    <span>Wica Pro & Licensing</span>
+                    <span>Weca Pro & Licensing</span>
                     <span className="text-[9px] px-1.5 py-0.2 rounded bg-violet/20 text-violet border border-violet/30">NEW</span>
                   </Link>
                 </li>
@@ -162,7 +162,7 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
             <Link href="/leaderboard" className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">Leaderboard</Link>
             <Link href="/challenges" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Challenges</Link>
             <Link href="/wallet" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Wallet</Link>
-            <Link href="/pro" className="hover:text-violet transition-colors font-semibold">Wica Pro</Link>
+            <Link href="/pro" className="hover:text-violet transition-colors font-semibold">Weca Pro</Link>
             <Link href="/about" className="hover:text-zinc-950 dark:hover:text-white transition-colors">About</Link>
             <Link href="/scoring-engine" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Scoring Engine</Link>
             <Link href="/rarity-tiers" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Rarity Tiers</Link>
@@ -178,7 +178,7 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
               <span>English (US)</span>
               <ChevronDown className="w-3 h-3" />
             </div>
-            <span>© 2026 Wica — The Global Weirdness Index</span>
+            <span>© 2026 Weca — The Global Weirdness Index</span>
           </div>
         </div>
       </div>

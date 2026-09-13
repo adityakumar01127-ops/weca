@@ -278,7 +278,7 @@ export const ChallengesView: React.FC = () => {
                             {ch.winner.anomaly_title}
                           </h5>
                           <span className="text-[11px] font-mono text-cyan font-bold block mt-1">
-                            Wica Score: {ch.winner.wica_score}/100
+                            Weca Score: {ch.winner.wica_score}/100
                           </span>
                           <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
                             Awarded +{ch.reward_wc} Weird Credits

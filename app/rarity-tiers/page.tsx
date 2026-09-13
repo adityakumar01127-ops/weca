@@ -97,7 +97,7 @@ const TIERS = [
     probability: "< 3% of all submissions",
     hallmark: "Geological miracles, once-in-a-century coincidences, museum-grade anomalies",
     description:
-      "The crown jewel of the Wica index. Truly singular phenomena that may occur once in a decade. Submissions in this tier receive the permanent Gold Verified Ledger Seal.",
+      "The crown jewel of the Weca index. Truly singular phenomena that may occur once in a decade. Submissions in this tier receive the permanent Gold Verified Ledger Seal.",
     example: "A functioning 1970s rotary telephone half-fused into freshly solidified basalt lava in Iceland.",
   },
 ];
@@ -124,7 +124,7 @@ export default function RarityTiersPage() {
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-lg sm:text-xl leading-relaxed max-w-3xl">
-            Not all anomalies are created equal. The Wica classification framework organizes discoveries into four distinct tiers based on their composite score, encounter probability, and visual disruption.
+            Not all anomalies are created equal. The Weca classification framework organizes discoveries into four distinct tiers based on their composite score, encounter probability, and visual disruption.
           </p>
         </div>
 
@@ -235,7 +235,7 @@ export default function RarityTiersPage() {
           </h2>
 
           <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-            Weird Credits are the reputation currency of Wica. They cannot be purchased with real money; they can only be earned by discovering and documenting genuine real-world anomalies.
+            Weird Credits are the reputation currency of Weca. They cannot be purchased with real money; they can only be earned by discovering and documenting genuine real-world anomalies.
           </p>
 
           <div className="grid sm:grid-cols-3 gap-4 text-xs font-mono">

@@ -44,9 +44,9 @@ export const metadata: Metadata = {
 
 const ABOUT_FAQS = [
   {
-    question: "What is Wica?",
+    question: "What is Weca?",
     answer:
-      "Wica is a decentralized public ledger and social discovery platform dedicated to documenting the statistically improbable, surreal, and inexplicable phenomena found in real, unedited physical reality.",
+      "Weca is a decentralized public ledger and social discovery platform dedicated to documenting the statistically improbable, surreal, and inexplicable phenomena found in real, unedited physical reality.",
   },
   {
     question: "How does the AI Scoring Engine work?",
@@ -54,14 +54,14 @@ const ABOUT_FAQS = [
       "Every uploaded photo is evaluated zero-shot by Google Gemini Vision across 5 calibrated dimensions: Absurdity, Rarity, Compositional Craft, Cultural Novelty, and Cognitive Wit.",
   },
   {
-    question: "Are synthetic or AI-generated images allowed on Wica?",
+    question: "Are synthetic or AI-generated images allowed on Weca?",
     answer:
-      "No. Wica is strictly designed as an antidote to synthetic slop. Only authentic, candid photographs of real-world phenomena are accepted and verified.",
+      "No. Weca is strictly designed as an antidote to synthetic slop. Only authentic, candid photographs of real-world phenomena are accepted and verified.",
   },
   {
     question: "What are Weird Credits?",
     answer:
-      "Weird Credits are the reputation currency of Wica earned by discovering verified anomalies and voting accurately in community Versus battles.",
+      "Weird Credits are the reputation currency of Weca earned by discovering verified anomalies and voting accurately in community Versus battles.",
   },
 ];
 
@@ -88,7 +88,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-300 text-lg sm:text-xl leading-relaxed max-w-3xl">
-            Wica is a public ledger and social discovery platform dedicated to documenting the statistically improbable, the surreal, and the beautifully inexplicable phenomena found in real, unedited physical reality.
+            Weca is a public ledger and social discovery platform dedicated to documenting the statistically improbable, the surreal, and the beautifully inexplicable phenomena found in real, unedited physical reality.
           </p>
         </div>
 
@@ -112,10 +112,10 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Why Wica Exists (The Genesis) */}
+        {/* Why Weca Exists (The Genesis) */}
         <section className="mb-16 space-y-6">
           <h2 className="font-display font-bold text-2xl sm:text-3xl text-zinc-900 dark:text-white tracking-tight">
-            Why Wica? The Crisis of Real Wonder
+            Why Weca? The Crisis of Real Wonder
           </h2>
           <div className="text-zinc-600 dark:text-zinc-300 leading-relaxed space-y-4 text-base">
             <p>
@@ -125,7 +125,7 @@ export default function AboutPage() {
               Yet our physical world remains stubbornly, delightfully strange. A telephone encased in cooling Icelandic basalt; a mushroom glowing upside down in a New Zealand limestone grotto; an accidental architectural glitch that produces a staircase leading straight into a solid concrete wall.
             </p>
             <p>
-              These moments cannot be staged on demand. They are rare gifts of observational serendipity. Wica was founded to build a permanent, verified archive for these anomalies—ranked not by influencer popularity or rage-bait, but by genuine rarity and absurdity.
+              These moments cannot be staged on demand. They are rare gifts of observational serendipity. Weca was founded to build a permanent, verified archive for these anomalies—ranked not by influencer popularity or rage-bait, but by genuine rarity and absurdity.
             </p>
           </div>
         </section>
@@ -163,7 +163,7 @@ export default function AboutPage() {
               </div>
               <h3 className="font-display font-bold text-lg text-zinc-900 dark:text-white mb-2">3. The Anti-Algorithm</h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                No engagement optimization, no clickbait amplification. The Wica World Feed ranks anomalies strictly by their rarity tier and composite score. The strangest finds rise to the top naturally.
+                No engagement optimization, no clickbait amplification. The Weca World Feed ranks anomalies strictly by their rarity tier and composite score. The strangest finds rise to the top naturally.
               </p>
             </div>
 
@@ -179,7 +179,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* How the Wica Loop Operates */}
+        {/* How the Weca Loop Operates */}
         <section className="mb-16 p-8 rounded-3xl bg-zinc-900 border border-zinc-800 text-white">
           <div className="max-w-3xl">
             <span className="text-xs font-mono uppercase tracking-widest text-cyan mb-2 block">

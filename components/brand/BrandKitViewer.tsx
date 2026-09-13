@@ -581,10 +581,10 @@ export const BrandKitViewer: React.FC = () => {
           </div>
           <div className="space-y-2">
             <div className="font-mono text-zinc-900 dark:text-white font-semibold uppercase tracking-wider">
-              3. Dual Nomenclature
+              3. Platform Identity
             </div>
             <p className="leading-relaxed">
-              <strong className="text-zinc-900 dark:text-zinc-200 font-bold">weca.</strong> is the official consumer wordmark and codebase identifier. <strong className="text-zinc-900 dark:text-zinc-200 font-bold">Wica</strong> designates the Global Weirdness Index scoring engine and archival institution.
+              <strong className="text-zinc-900 dark:text-zinc-200 font-bold">Weca</strong> (<strong className="text-zinc-900 dark:text-zinc-200 font-bold">weca.</strong>) is the official platform name, consumer wordmark, and codebase identifier for The Global Weirdness Index.
             </p>
           </div>
         </div>

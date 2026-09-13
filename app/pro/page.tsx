@@ -35,7 +35,7 @@ export default function ProPage() {
       <BreadcrumbJsonLd
         items={[
           { name: "Home", path: "/" },
-          { name: "Wica Pro & Marketplace", path: "/pro" },
+          { name: "Weca Pro & Marketplace", path: "/pro" },
         ]}
       />
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -47,7 +47,7 @@ export default function ProPage() {
           </div>
 
           <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-zinc-900 dark:text-white tracking-tight leading-[1.1] mb-3">
-            Wica Pro: Power the <span className="underline decoration-violet decoration-wavy underline-offset-6">Archive.</span>
+            Weca Pro: Power the <span className="underline decoration-violet decoration-wavy underline-offset-6">Archive.</span>
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">

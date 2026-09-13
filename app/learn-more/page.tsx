@@ -11,14 +11,14 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Contact Information Disclosure & Privacy",
   description:
-    "Learn how Wica handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
+    "Learn how Weca handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
   alternates: {
     canonical: `${SITE_URL}/learn-more`,
   },
   openGraph: {
     title: `Contact Information Disclosure & Privacy | ${SITE_NAME}`,
     description:
-      "Learn how Wica handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
+      "Learn how Weca handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
     url: `${SITE_URL}/learn-more`,
     siteName: SITE_NAME,
     type: "website",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Contact Information Disclosure & Privacy | ${SITE_NAME}`,
     description:
-      "Learn how Wica handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
+      "Learn how Weca handles address book synchronization, non-user privacy, cryptographic hashing, and how to opt out.",
   },
 };
 
@@ -49,11 +49,11 @@ export default function LearnMorePage() {
           </div>
 
           <h1 className="font-display font-black text-4xl sm:text-5xl text-zinc-900 dark:text-white tracking-tight leading-[1.08] mb-6">
-            Understanding <span className="underline decoration-violet decoration-wavy underline-offset-8">contact uploads</span> on Wica.
+            Understanding <span className="underline decoration-violet decoration-wavy underline-offset-8">contact uploads</span> on Weca.
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg leading-relaxed">
-            During account registration or onboarding, you may notice the disclosure: <em>&ldquo;People who use our service may have uploaded your contact information to Wica.&rdquo;</em> Here is an exact explanation of what that means and how your privacy is protected.
+            During account registration or onboarding, you may notice the disclosure: <em>&ldquo;People who use our service may have uploaded your contact information to Weca.&rdquo;</em> Here is an exact explanation of what that means and how your privacy is protected.
           </p>
         </div>
 
@@ -63,7 +63,7 @@ export default function LearnMorePage() {
             How Contact Synchronization Works
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-            When an active Wica user opts to sync their phone contacts, it helps them discover which of their friends are already active anomaly spotters on the platform.
+            When an active Weca user opts to sync their phone contacts, it helps them discover which of their friends are already active anomaly spotters on the platform.
           </p>
           <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
             To prevent storing plain text telephone numbers or email addresses, our system immediately converts each contact into an irreversible, salted cryptographic hash (SHA-256) on device or in transit.
@@ -75,7 +75,7 @@ export default function LearnMorePage() {
           <div className="p-6 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/50">
             <div className="flex items-center gap-2 font-bold text-sm text-emerald-800 dark:text-emerald-300 mb-3">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>What Wica DOES</span>
+              <span>What Weca DOES</span>
             </div>
             <ul className="space-y-2 text-xs text-emerald-900 dark:text-emerald-200/90 leading-relaxed">
               <li>• Compares cryptographic hashes to match existing friends.</li>
@@ -87,7 +87,7 @@ export default function LearnMorePage() {
           <div className="p-6 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/50">
             <div className="flex items-center gap-2 font-bold text-sm text-rose-800 dark:text-rose-300 mb-3">
               <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-              <span>What Wica NEVER Does</span>
+              <span>What Weca NEVER Does</span>
             </div>
             <ul className="space-y-2 text-xs text-rose-900 dark:text-rose-200/90 leading-relaxed">
               <li>• We NEVER sell or rent contact lists to data brokers or ad networks.</li>

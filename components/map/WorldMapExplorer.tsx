@@ -280,7 +280,7 @@ export const WorldMapExplorer: React.FC = () => {
           <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white tracking-tight">
             Anomalies in {selectedRegion === "All" ? "Every Hemisphere" : selectedRegion} ({filteredAnomalies.length})
           </h3>
-          <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">Sorted by Wica Score</span>
+          <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">Sorted by Weca Score</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

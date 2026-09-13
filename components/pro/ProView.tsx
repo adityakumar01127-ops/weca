@@ -26,7 +26,7 @@ export const ProView: React.FC = () => {
   const faqs = [
     {
       q: "What is 'Stock Weirdness' licensing?",
-      a: "Wica provides a commercial clearinghouse for real, candid, un-staged anomalies. Creative studios, advertising agencies, and editorial publications can legally license verified real-world curiosities directly from the original spotters, with 70% of royalty revenues going directly to the creator via Stripe Connect."
+      a: "Weca provides a commercial clearinghouse for real, candid, un-staged anomalies. Creative studios, advertising agencies, and editorial publications can legally license verified real-world curiosities directly from the original spotters, with 70% of royalty revenues going directly to the creator via Stripe Connect."
     },
     {
       q: "Can I cancel my Hunter Pro subscription anytime?",
@@ -180,7 +180,7 @@ export const ProView: React.FC = () => {
           </div>
 
           <button
-            onClick={() => alert("Wica Pro Stripe checkout demonstration initialized!")}
+            onClick={() => alert("Weca Pro Stripe checkout demonstration initialized!")}
             className="w-full py-3.5 px-4 rounded-xl bg-violet hover:bg-violet/90 text-white font-mono text-xs font-bold text-center block transition-all shadow-md active:scale-95 cursor-pointer"
           >
             Upgrade to Pro
@@ -230,7 +230,7 @@ export const ProView: React.FC = () => {
           </div>
 
           <button
-            onClick={() => alert("Brand partnership team contacted: team@wica.world")}
+            onClick={() => alert("Brand partnership team contacted: team@weca.world")}
             className="w-full py-3 px-4 rounded-xl bg-cyan hover:bg-cyan/90 text-zinc-950 font-mono text-xs font-bold text-center block transition-all active:scale-95 cursor-pointer"
           >
             Contact Brand Licensing
@@ -249,7 +249,7 @@ export const ProView: React.FC = () => {
             The World&apos;s Only Real-World Surrealism Marketplace
           </h3>
           <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-            Brands tired of generic stock imagery and synthetic AI hallucination turn to Wica&apos;s catalog of 14,000+ verified candid photographs for campaigns that stop the scroll with authentic wonder.
+            Brands tired of generic stock imagery and synthetic AI hallucination turn to Weca&apos;s catalog of 14,000+ verified candid photographs for campaigns that stop the scroll with authentic wonder.
           </p>
         </div>
 

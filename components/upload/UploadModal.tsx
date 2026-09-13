@@ -310,7 +310,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-cyan" />
-                <span>Upload & Calculate Wica Score</span>
+                <span>Upload & Calculate Weca Score</span>
               </>
             )}
           </button>

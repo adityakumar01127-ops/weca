@@ -12,14 +12,14 @@ import { VerifiedSeal } from "@/components/brand/VerifiedSeal";
 export const metadata: Metadata = {
   title: "Verified Anomalies — The Golden Ledger of Reality Glitches",
   description:
-    "Explore the Wica Golden Ledger: the world's most rigorously peer-reviewed, multi-angle verified real-world candid anomalies.",
+    "Explore the Weca Golden Ledger: the world's most rigorously peer-reviewed, multi-angle verified real-world candid anomalies.",
   alternates: {
     canonical: `${SITE_URL}/verified-anomalies`,
   },
   openGraph: {
     title: `Verified Anomalies — The Golden Ledger of Reality Glitches | ${SITE_NAME}`,
     description:
-      "Explore the Wica Golden Ledger: the world's most rigorously peer-reviewed, multi-angle verified real-world candid anomalies.",
+      "Explore the Weca Golden Ledger: the world's most rigorously peer-reviewed, multi-angle verified real-world candid anomalies.",
     url: `${SITE_URL}/verified-anomalies`,
     siteName: SITE_NAME,
     type: "website",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Verified Anomalies — The Golden Ledger of Reality Glitches | ${SITE_NAME}`,
     description:
-      "Explore the Wica Golden Ledger: the world's most rigorously peer-reviewed, multi-angle verified real-world candid anomalies.",
+      "Explore the Weca Golden Ledger: the world's most rigorously peer-reviewed, multi-angle verified real-world candid anomalies.",
   },
 };
 

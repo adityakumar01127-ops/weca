@@ -21,29 +21,29 @@ import { BreadcrumbJsonLd, FaqJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Scoring Engine — 5-D Multimodal Rubric",
   description:
-    "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Wica.",
+    "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Weca.",
   alternates: {
     canonical: `${SITE_URL}/scoring-engine`,
   },
   openGraph: {
-    title: `Scoring Engine — 5-D Multimodal Rubric | ${SITE_NAME}`,
+    title: `The 5-D Scoring Engine Architecture | ${SITE_NAME}`,
     description:
-      "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Wica.",
+      "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Weca.",
     url: `${SITE_URL}/scoring-engine`,
     siteName: SITE_NAME,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `Scoring Engine — 5-D Multimodal Rubric | ${SITE_NAME}`,
+    title: `The 5-D Scoring Engine Architecture | ${SITE_NAME}`,
     description:
-      "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Wica.",
+      "Explore the 5-dimensional rubric, mathematical formula, and Google Gemini Vision multimodal prompt architecture that powers Weca.",
   },
 };
 
 const SCORING_FAQS = [
   {
-    question: "What are the 5 dimensions of Wica anomaly scoring?",
+    question: "What are the 5 dimensions of Weca anomaly scoring?",
     answer:
       "Submissions are evaluated across Absurdity (35%), Rarity (25%), Cultural Novelty (20%), Compositional Craft (10%), and Cognitive Wit (10%).",
   },
@@ -74,15 +74,15 @@ export default function ScoringEnginePage() {
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan/10 border border-cyan/20 text-cyan text-xs font-mono mb-4">
             <Cpu className="w-3.5 h-3.5" />
-            <span>Wica Weirdness Engine v1.0</span>
+            <span>Weca Weirdness Engine v1.0</span>
           </div>
 
           <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-zinc-900 dark:text-white tracking-tight leading-[1.08] mb-6">
-            Scoring the <span className="underline decoration-violet decoration-wavy underline-offset-8">improbable.</span>
+            The 5-D <span className="underline decoration-violet decoration-wavy underline-offset-8">scoring rubric.</span>
           </h1>
 
-          <p className="text-zinc-600 dark:text-zinc-300 text-lg sm:text-xl leading-relaxed max-w-3xl">
-            Wica does not rank photos by follower count, vanity likes, or hashtags. Every submission is analyzed by multimodal artificial intelligence against an uncompromising 5-dimensional rubric of physical uniqueness.
+          <p className="text-zinc-600 dark:text-zinc-400 text-lg sm:text-xl leading-relaxed max-w-3xl">
+            Weca does not rank photos by follower count, vanity likes, or hashtags. Every submission is analyzed by multimodal artificial intelligence against an uncompromising 5-dimensional rubric of physical uniqueness.
           </p>
         </div>
 
@@ -152,7 +152,7 @@ export default function ScoringEnginePage() {
                 <span className="font-mono text-xs text-zinc-600 dark:text-zinc-400 font-semibold">0 – 10 Points</span>
               </div>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed pl-10">
-                Assesses whether the weirdness represents a candid, naturally occurring phenomenon or an intentional, human-crafted installation. Both are valid in the Wica index, but craft is tracked neutrally to ensure transparency in community records.
+                Assesses whether the weirdness represents a candid, naturally occurring phenomenon or an intentional, human-crafted installation. Both are valid in the Weca index, but craft is tracked neutrally to ensure transparency in community records.
               </p>
             </div>
 
@@ -198,15 +198,15 @@ export default function ScoringEnginePage() {
           </div>
 
           <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight mb-4">
-            Composite Wica Score Formula
+            Composite Weca Score Formula
           </h2>
 
-          <div className="p-4 rounded-xl bg-zinc-800/80 border border-zinc-700 font-mono text-sm sm:text-base text-cyan mb-6 overflow-x-auto">
-            Wica_Score = (Absurdity + Rarity + Craft + Cultural_Novelty + Wit) × 2
+          <div className="p-4 sm:p-6 rounded-2xl bg-zinc-800/80 border border-zinc-700 font-mono text-cyan text-sm sm:text-base leading-relaxed overflow-x-auto mb-6">
+            Weca_Score = (Absurdity + Rarity + Craft + Cultural_Novelty + Wit) × 2
           </div>
 
-          <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-            By summing the 5 dimensions (maximum raw score of 50) and applying a scalar multiplier of 2, the composite Wica score seamlessly resolves into an intuitive 0 to 100 percentage-style index.
+          <p className="text-zinc-400 text-sm leading-relaxed mb-4">
+            By summing the 5 dimensions (maximum raw score of 50) and applying a scalar multiplier of 2, the composite Weca score seamlessly resolves into an intuitive 0 to 100 percentage-style index.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-4 text-xs font-mono">
@@ -241,7 +241,7 @@ export default function ScoringEnginePage() {
 
           <div className="p-5 rounded-2xl bg-zinc-950 text-zinc-300 font-mono text-xs leading-relaxed overflow-x-auto border border-zinc-800">
             <pre className="text-emerald-400">
-{`You are the Wica Weirdness Engine. Analyze the attached image and score it
+{`You are the Weca Weirdness Engine. Analyze the attached image and score it
 0-10 on each dimension:
 
 1. Absurdity — how unexpected or incongruous is the combination of elements?

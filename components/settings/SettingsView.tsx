@@ -749,7 +749,7 @@ export const SettingsView: React.FC = () => {
                       <span>Interface Appearance & Theme</span>
                     </h2>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-1">
-                      Customize how Wica looks on your screen. Light Mode is the platform default.
+                      Customize how Weca looks on your screen. Light Mode is the platform default.
                     </p>
                   </div>
 
@@ -877,7 +877,7 @@ export const SettingsView: React.FC = () => {
                           Sample Anomaly Card UI
                         </div>
                         <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
-                          94 Wica Score • Rarity Tier: Glitch In Matrix
+                          94 Weca Score • Rarity Tier: Glitch In Matrix
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

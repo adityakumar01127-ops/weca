@@ -26,7 +26,7 @@ export async function scoreAnomaly(imageBase64: string, category: string) {
             },
           },
           {
-            text: \`You are the Wica Weirdness Engine. Analyze this \${category} image.
+            text: \`You are the Weca Weirdness Engine. Analyze this \${category} image.
 Return strict JSON with dimensions: absurdity, rarity, craft, cultural_novelty, wit,
 one_line_verdict, and flags.\`,
           },
@@ -65,7 +65,7 @@ def score_anomaly(image_bytes: bytes, category: str):
         model="gemini-3.6-flash",
         contents=[
             types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
-            f"Analyze this {category} image for Wica. Score 0-10 on absurdity, rarity, craft, cultural_novelty, wit."
+            f"Analyze this {category} image for Weca. Score 0-10 on absurdity, rarity, craft, cultural_novelty, wit."
         ]
     )
     return json.loads(response.text)

@@ -275,7 +275,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                 <div className="absolute top-16 left-4">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-cyan/40 text-white font-mono text-[11px] font-bold shadow-lg shadow-cyan/10">
                     <Sparkles className="w-3.5 h-3.5 text-cyan" />
-                    <span>94 Wica Score</span>
+                    <span>94 Weca Score</span>
                   </div>
                 </div>
 

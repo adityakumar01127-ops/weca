@@ -10,14 +10,14 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "Terms of Service — Platform Agreement",
   description:
-    "Read the Wica Terms of Service: user photo ownership, licensing, Weird Credit rules, acceptable use, and platform disclaimers.",
+    "Read the Weca Terms of Service: user photo ownership, licensing, Weird Credit rules, acceptable use, and platform disclaimers.",
   alternates: {
     canonical: `${SITE_URL}/terms`,
   },
   openGraph: {
     title: `Terms of Service — Platform Agreement | ${SITE_NAME}`,
     description:
-      "Read the Wica Terms of Service: user photo ownership, licensing, Weird Credit rules, acceptable use, and platform disclaimers.",
+      "Read the Weca Terms of Service: user photo ownership, licensing, Weird Credit rules, acceptable use, and platform disclaimers.",
     url: `${SITE_URL}/terms`,
     siteName: SITE_NAME,
     type: "website",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Terms of Service — Platform Agreement | ${SITE_NAME}`,
     description:
-      "Read the Wica Terms of Service: user photo ownership, licensing, Weird Credit rules, acceptable use, and platform disclaimers.",
+      "Read the Weca Terms of Service: user photo ownership, licensing, Weird Credit rules, acceptable use, and platform disclaimers.",
   },
 };
 
@@ -48,11 +48,11 @@ export default function TermsPage() {
           </div>
 
           <h1 className="font-display font-black text-4xl sm:text-5xl text-zinc-900 dark:text-white tracking-tight mb-4">
-            Wica Terms of Service
+            Weca Terms of Service
           </h1>
 
           <p className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg leading-relaxed">
-            Welcome to Wica. These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Wica&apos;s website, mobile applications, and AI vision scoring services.
+            Welcome to Weca. These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Weca&apos;s website, mobile applications, and AI vision scoring services.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function TermsPage() {
               1. Acceptance & Eligibility
             </h2>
             <p>
-              By accessing Wica or creating an account, you enter into a legally binding agreement with Wica Inc. You must be at least 13 years of age (or the minimum age of digital consent in your jurisdiction) to use the platform.
+              By accessing Weca or creating an account, you enter into a legally binding agreement with Weca Inc. You must be at least 13 years of age (or the minimum age of digital consent in your jurisdiction) to use the platform.
             </p>
           </section>
 
@@ -74,10 +74,10 @@ export default function TermsPage() {
               2. Your Content & Intellectual Property Ownership
             </h2>
             <p className="font-semibold text-zinc-900 dark:text-white">
-              You own your photos. Wica does not claim ownership over the images you capture.
+              You own your photos. Weca does not claim ownership over the images you capture.
             </p>
             <p>
-              By uploading media to Wica, you grant Wica a worldwide, non-exclusive, royalty-free, transferable license to store, process, display, analyze with AI models, and catalog your submissions on the public World Feed and anomaly directory.
+              By uploading media to Weca, you grant Weca a worldwide, non-exclusive, royalty-free, transferable license to store, process, display, analyze with AI models, and catalog your submissions on the public World Feed and anomaly directory.
             </p>
             <p>
               You represent and warrant that you hold all necessary rights, permissions, or copyright to any media you submit, and that your uploads do not infringe upon any third party&apos;s intellectual property or privacy rights.
@@ -117,7 +117,7 @@ export default function TermsPage() {
             <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-xs font-mono space-y-1 text-zinc-600 dark:text-zinc-400">
               <p>• Have no cash, monetary, or fiat value.</p>
               <p>• Cannot be sold, transferred, or exchanged for real currency.</p>
-              <p>• May be revoked or recalibrated at Wica&apos;s sole discretion in cases of fraudulent submissions.</p>
+              <p>• May be revoked or recalibrated at Weca&apos;s sole discretion in cases of fraudulent submissions.</p>
             </div>
           </section>
 
@@ -127,10 +127,10 @@ export default function TermsPage() {
               5. Disclaimer of Warranties & AI Verdicts
             </h2>
             <p>
-              Wica is provided on an &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo; basis. While our Gemini Vision engine analyzes anomalies rigorously, AI verdicts, rarity scores, and classifications are intended for entertainment, curiosity, and cultural indexing.
+              Weca is provided on an &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo; basis. While our Gemini Vision engine analyzes anomalies rigorously, AI verdicts, rarity scores, and classifications are intended for entertainment, curiosity, and cultural indexing.
             </p>
             <p>
-              Wica makes no representations regarding the definitive scientific, geological, or historical authenticity of user-submitted anomalies.
+              Weca makes no representations regarding the definitive scientific, geological, or historical authenticity of user-submitted anomalies.
             </p>
           </section>
 
@@ -140,7 +140,7 @@ export default function TermsPage() {
               6. Limitation of Liability
             </h2>
             <p>
-              To the fullest extent permitted by applicable law, Wica Inc., its officers, and affiliates shall not be liable for any indirect, incidental, punitive, or consequential damages arising out of your use of the platform.
+              To the fullest extent permitted by applicable law, Weca Inc., its officers, and affiliates shall not be liable for any indirect, incidental, punitive, or consequential damages arising out of your use of the platform.
             </p>
           </section>
 
@@ -153,7 +153,7 @@ export default function TermsPage() {
               If you have questions regarding these terms, contact our legal counsel at:
             </p>
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-900 dark:text-zinc-100 inline-block">
-              legal@wica.io • Subject: Terms Inquiry
+              legal@weca.app • Subject: Terms Inquiry
             </div>
           </section>
         </div>

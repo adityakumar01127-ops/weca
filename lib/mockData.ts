@@ -663,7 +663,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   {
     id: "ach-2",
     title: "Reality Shatterer",
-    description: "Obtain a verified Wica Score of 85 or above on any candid physical photo.",
+    description: "Obtain a verified Weca Score of 85 or above on any candid physical photo.",
     reward_wc: 250,
     iconName: "Sparkles",
     unlocked: true,
@@ -711,7 +711,7 @@ export const MOCK_TRANSACTIONS: WalletTransaction[] = [
   {
     id: "tx-1",
     amount: 190,
-    reason: "Wica Score Award (Score: 95) • Basalt Telephone",
+    reason: "Weca Score Award (Score: 95) • Basalt Telephone",
     type: "earn",
     created_at: "2026-03-10T14:32:00Z",
   },

@@ -91,7 +91,7 @@ export const LeaderboardView: React.FC = () => {
             }`}
           >
             <Crown className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-            <span>Highest Wica Score</span>
+            <span>Highest Weca Score</span>
           </button>
 
           <button

@@ -156,7 +156,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(
-      `Check out this anomaly on Wica: "${image.ai_verdict}" (Wica Score: ${image.wica_score}/100)`
+      `Check out this anomaly on Weca: "${image.ai_verdict}" (Weca Score: ${image.wica_score}/100)`
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

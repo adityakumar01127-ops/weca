@@ -1,0 +1,81 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Rich Gold Gradients -->
+    <linearGradient id="goldOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A" />
+      <stop offset="30%" stop-color="#F59E0B" />
+      <stop offset="70%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#78350F" />
+    </linearGradient>
+
+    <linearGradient id="goldInner" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#92400E" />
+      <stop offset="40%" stop-color="#F59E0B" />
+      <stop offset="70%" stop-color="#FDE68A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FEF3C7" stop-opacity="0.3" />
+      <stop offset="60%" stop-color="#F59E0B" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#09090B" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Circular Path for Top Curving Text -->
+    <path id="curveTop" d="M 28 80 A 52 52 0 1 1 132 80" fill="none" />
+    <!-- Circular Path for Bottom Curving Text -->
+    <path id="curveBottom" d="M 132 80 A 52 52 0 1 1 28 80" fill="none" />
+  </defs>
+
+  <!-- Background Ambience -->
+  <circle cx="80" cy="80" r="76" fill="#09090B" />
+  <circle cx="80" cy="80" r="72" fill="url(#goldGlow)" />
+
+  <!-- Outer Serrated / Calibrated Measurement Ring -->
+  <circle cx="80" cy="80" r="74" stroke="url(#goldOuter)" stroke-width="2" stroke-dasharray="3 3" />
+  <circle cx="80" cy="80" r="68" stroke="url(#goldOuter)" stroke-width="1" />
+
+  <!-- Concentric Inner Ring Frame -->
+  <circle cx="80" cy="80" r="54" stroke="url(#goldInner)" stroke-width="1.5" />
+  <circle cx="80" cy="80" r="48" stroke="url(#goldOuter)" stroke-width="0.75" stroke-dasharray="2 2" />
+
+  <!-- Circular Archival Inscription Text -->
+  <text fill="#FDE68A" font-family="-apple-system, BlinkMacSystemFont, 'Inter', monospace" font-size="7.5" font-weight="800" letter-spacing="0.18em">
+    <textPath href="#curveTop" startOffset="50%" text-anchor="middle">
+      WECA WEIRDNESS INDEX
+    </textPath>
+  </text>
+  <text fill="#FBBF24" font-family="-apple-system, BlinkMacSystemFont, 'Inter', monospace" font-size="7" font-weight="700" letter-spacing="0.22em">
+    <textPath href="#curveBottom" startOffset="50%" text-anchor="middle">
+      • ARCHIVAL SPECIMEN •
+    </textPath>
+  </text>
+
+  <!-- Cardinal Coordinates Calibration Stars -->
+  <polygon points="80,12 82,16 86,16 83,19 84,23 80,20 76,23 77,19 74,16 78,16" fill="#FDE68A" />
+  <polygon points="80,148 82,144 86,144 83,141 84,137 80,140 76,137 77,141 74,144 78,144" fill="#FDE68A" />
+
+  <!-- Central Archival Sigil -->
+  <g transform="translate(80, 80)">
+    <!-- 8-Point Geometric Singularity Star -->
+    <polygon points="0,-24 5,-7 22,-9 9,3 17,19 2,11 -9,21 -6,6 -23,0 -7,-5" fill="url(#goldOuter)" opacity="0.35" />
+
+    <!-- Center Precision Aperture -->
+    <circle cx="0" cy="0" r="16" fill="#18181B" stroke="url(#goldOuter)" stroke-width="1.5" />
+
+    <!-- Mini Chromatic Aperture Blades in Metallic Gold Tone -->
+    <path d="M 0 -13 A 13 13 0 0 1 11.2 -6.5 C 5 -4, 2 0, 0 0 Z" fill="#FDE68A" />
+    <path d="M 11.2 -6.5 A 13 13 0 0 1 0 13 C -2 6, -4 2, 0 0 Z" fill="#F59E0B" />
+    <path d="M 0 13 A 13 13 0 0 1 -11.2 -6.5 C -4 -4, 0 -2, 0 0 Z" fill="#D97706" />
+
+    <!-- Core Golden Sparkle -->
+    <circle cx="0" cy="0" r="3.5" fill="#FFFFFF" />
+    <circle cx="0" cy="0" r="2" fill="#FDE68A" />
+  </g>
+
+  <!-- Horizontal Ribbon / Badge Overlay -->
+  <g transform="translate(0, 70)">
+    <rect x="36" y="0" width="88" height="20" rx="3" fill="#09090B" stroke="url(#goldOuter)" stroke-width="1.5" />
+    <text x="80" y="14" fill="#FDE68A" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="8.5" font-weight="900" letter-spacing="0.14em" text-anchor="middle">VERIFIED</text>
+  </g>
+</svg>

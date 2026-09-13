@@ -212,7 +212,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
               onClick={() => setMobileMenuOpen(false)}
               className="text-zinc-600 hover:text-ink"
             >
-              About Wica →
+              About Weca →
             </Link>
           </div>
         </div>
