@@ -15,7 +15,17 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
   const { resolvedTheme } = useTheme();
   const pathname = usePathname();
 
-  if (pathname?.startsWith("/messages")) {
+  // Keep footer only on login, signup, and regulatory legal compliance pages
+  // to preserve a clean native app feel across the main platform
+  const isAllowedPage =
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/signup") ||
+    pathname?.startsWith("/terms") ||
+    pathname?.startsWith("/privacy") ||
+    pathname?.startsWith("/cancellation-and-refund") ||
+    pathname?.startsWith("/contact");
+
+  if (!isAllowedPage) {
     return null;
   }
 

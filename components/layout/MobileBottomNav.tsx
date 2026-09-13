@@ -26,8 +26,16 @@ export const MobileBottomNav: React.FC = () => {
     setIsCreateOpen(true);
   };
 
-  // Hide the bottom dock when inside the messaging system
-  if (pathname.startsWith("/messages")) {
+  // Hide the bottom dock when inside messaging or on auth/compliance pages
+  if (
+    pathname.startsWith("/messages") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/cancellation-and-refund") ||
+    pathname.startsWith("/contact")
+  ) {
     return null;
   }
 

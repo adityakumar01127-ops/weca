@@ -607,24 +607,6 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
 
         </div>
       </main>
-
-      {/* Subtle Bottom Global Footer */}
-      <footer className="relative z-10 w-full py-5 text-xs text-zinc-500 border-t border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1.5 text-[11px] font-mono">
-            <Link href="/about" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">About</Link>
-            <Link href="/scoring-engine" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Scoring Engine</Link>
-            <Link href="/rarity-tiers" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Rarity Tiers</Link>
-            <Link href="/community-guidelines" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Guidelines</Link>
-            <Link href="/brand" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Brand Kit</Link>
-            <Link href="/privacy" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Terms</Link>
-          </div>
-          <div className="text-[11px] font-mono text-zinc-500">
-            © 2026 Weca Platform • Powered by Gemini Vision AI
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
