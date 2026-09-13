@@ -1287,17 +1287,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
           setActiveHighlightReel(null);
         }}
         stories={activeHighlightReel ? activeHighlightReel.stories : stories}
-        username={
-          activeHighlightReel
-            ? `${displayUser?.username || username || "explorer"} • ${activeHighlightReel.name}`
-            : displayUser?.username || username || "explorer"
-        }
+        username={displayUser?.username || username || "explorer"}
         avatarUrl={
           activeHighlightReel?.cover_image ||
           displayUser?.avatar_url
         }
         isOwnStory={Boolean(isOwnProfile && !activeHighlightReel)}
         onDeleteStory={handleDeleteStory}
+        isHighlight={Boolean(activeHighlightReel)}
+        highlightTitle={activeHighlightReel?.name || null}
       />
 
       {/* Add Story Modal */}
