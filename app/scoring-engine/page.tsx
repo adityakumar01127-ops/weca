@@ -60,7 +60,7 @@ const SCORING_FAQS = [
 
 export default function ScoringEnginePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen w-full min-w-0 bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
       <BreadcrumbJsonLd
         items={[
           { name: "Home", path: "/" },
@@ -68,7 +68,7 @@ export default function ScoringEnginePage() {
         ]}
       />
       <FaqJsonLd items={SCORING_FAQS} />
-      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <div className="max-w-5xl w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         {/* Header */}
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan/10 border border-cyan/20 text-cyan text-xs font-mono mb-4">
@@ -190,7 +190,7 @@ export default function ScoringEnginePage() {
         </section>
 
         {/* Mathematical Formulation & Weighting */}
-        <section className="mb-16 p-8 rounded-3xl bg-zinc-900 border border-zinc-800 text-white">
+        <section className="mb-16 p-5 sm:p-8 rounded-3xl bg-zinc-900 border border-zinc-800 text-white w-full min-w-0">
           <div className="flex items-center gap-2 text-xs font-mono text-cyan uppercase tracking-wider mb-2">
             <Calculator className="w-4 h-4" />
             <span>Mathematical Specification</span>
@@ -200,7 +200,7 @@ export default function ScoringEnginePage() {
             Composite Weca Score Formula
           </h2>
 
-          <div className="p-4 sm:p-6 rounded-2xl bg-zinc-800/80 border border-zinc-700 font-mono text-cyan text-sm sm:text-base leading-relaxed overflow-x-auto mb-6">
+          <div className="p-4 sm:p-6 rounded-2xl bg-zinc-800/80 border border-zinc-700 font-mono text-cyan text-xs sm:text-base leading-relaxed overflow-x-auto mb-6 break-words">
             Weca_Score = (Absurdity + Rarity + Craft + Cultural_Novelty + Wit) × 2
           </div>
 
@@ -226,7 +226,7 @@ export default function ScoringEnginePage() {
         </section>
 
         {/* System Prompt Architecture */}
-        <section className="mb-16">
+        <section className="mb-16 w-full min-w-0">
           <div className="flex items-center gap-2 mb-4">
             <Terminal className="w-5 h-5 text-violet" />
             <h2 className="font-display font-bold text-2xl text-zinc-900 dark:text-white tracking-tight">
@@ -238,8 +238,8 @@ export default function ScoringEnginePage() {
             Here is the exact zero-shot rubric prompt passed to the Google GenAI vision tensor model:
           </p>
 
-          <div className="p-5 rounded-2xl bg-zinc-950 text-zinc-300 font-mono text-xs leading-relaxed overflow-x-auto border border-zinc-800">
-            <pre className="text-emerald-400">
+          <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 text-zinc-300 font-mono text-xs leading-relaxed overflow-x-auto border border-zinc-800 w-full min-w-0">
+            <pre className="text-emerald-400 whitespace-pre-wrap break-words">
 {`You are the Weca Weirdness Engine. Analyze the attached image and score it
 0-10 on each dimension:
 
@@ -283,7 +283,7 @@ Return strict JSON only:
             <ArrowRight className="w-4 h-4" />
           </Link>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

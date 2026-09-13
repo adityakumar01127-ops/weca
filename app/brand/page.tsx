@@ -33,10 +33,10 @@ export default function BrandPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen w-full min-w-0 bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
       <BreadcrumbJsonLd items={breadcrumbItems} />
 
-      <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 w-full">
+      <div className="max-w-6xl w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
         {/* Back Navigation & Breadcrumb */}
         <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-8">
           <Link
@@ -68,7 +68,7 @@ export default function BrandPage() {
 
         {/* Interactive Viewer & Download Suite */}
         <BrandKitViewer />
-      </main>
+      </div>
     </div>
   );
 }

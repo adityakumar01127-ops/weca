@@ -32,14 +32,14 @@ export const metadata: Metadata = {
 
 export default function LearnMorePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen w-full min-w-0 bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
       <BreadcrumbJsonLd
         items={[
           { name: "Home", path: "/" },
           { name: "Contact Uploads Disclosure", path: "/learn-more" },
         ]}
       />
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
+      <div className="max-w-4xl w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         {/* Header */}
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet/10 border border-violet/20 text-violet text-xs font-mono mb-4">
@@ -119,7 +119,7 @@ export default function LearnMorePage() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         </section>
-      </main>
+      </div>
     </div>
   );
 }
