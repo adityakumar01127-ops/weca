@@ -33,7 +33,10 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white/85 dark:bg-[#09090b]/85 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800/80 transition-colors">
+      <header
+        className="sticky top-0 z-40 w-full bg-white/85 dark:bg-[#09090b]/85 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800/80 transition-colors"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           {/* Brand & Primary Navigation */}
           <div className="flex items-center gap-6 sm:gap-8">
@@ -41,8 +44,8 @@ export const Navbar: React.FC = () => {
               <Logo size={28} showWordmark={true} dark={resolvedTheme === "dark"} className="transition-opacity group-hover:opacity-90" />
             </Link>
 
-            {/* Desktop Links */}
-            <nav className="hidden md:flex items-center gap-1 text-xs font-medium">
+            {/* Desktop Links (lg and above to ensure 0 overflow on tablet 768px) */}
+            <nav className="hidden lg:flex items-center gap-1 text-xs font-medium">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 const Icon = link.icon;
@@ -71,10 +74,10 @@ export const Navbar: React.FC = () => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-1.5 sm:gap-2.5">
-            {/* Quick Map Link on Mobile */}
+            {/* Quick Map Link on Mobile & Tablet */}
             <Link
               href="/map"
-              className="p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors md:hidden"
+              className="p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors lg:hidden"
               title="Anomaly World Map"
               aria-label="Map"
             >
@@ -152,10 +155,10 @@ export const Navbar: React.FC = () => {
               </div>
             )}
 
-            {/* Mobile Menu Button */}
+            {/* Mobile / Tablet Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="lg:hidden p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
               aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -163,9 +166,9 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile / Tablet Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-md px-4 py-3 space-y-2">
+          <div className="lg:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-md px-4 py-3 space-y-2">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               const Icon = link.icon;

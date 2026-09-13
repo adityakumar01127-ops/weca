@@ -89,7 +89,7 @@ export function InstallPrompt() {
       {!isOpen && (
         <aside
           aria-label="Install Weca Application"
-          className="fixed bottom-20 md:bottom-6 left-4 z-40 animate-slide-up"
+          className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-4 z-40 animate-slide-up"
         >
           <div className="flex items-center gap-2 p-1.5 pl-3 rounded-full bg-zinc-900/90 dark:bg-zinc-950/90 border border-zinc-700/60 dark:border-zinc-800 backdrop-blur-xl shadow-xl hover:border-violet/60 transition-all">
             <button

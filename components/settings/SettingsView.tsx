@@ -245,16 +245,16 @@ export const SettingsView: React.FC = () => {
   const tierColors = getTierColor(tier);
 
   return (
-    <div className="relative min-h-screen bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/30 font-sans pb-20 transition-colors duration-200">
-      {/* Radial Ambient Glows */}
-      <div
-        className="pointer-events-none absolute -top-32 left-1/3 -translate-x-1/2 w-[700px] h-[400px] bg-violet/10 rounded-full blur-[140px] opacity-70 dark:opacity-70 opacity-40"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute top-96 -right-24 w-[500px] h-[450px] bg-cyan/8 rounded-full blur-[160px] opacity-60 dark:opacity-60 opacity-30"
-        aria-hidden="true"
-      />
+    <div className="relative min-h-screen w-full min-w-0 overflow-x-clip bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/30 font-sans pb-20 transition-colors duration-200">
+      {/* Radial Ambient Glows - safely contained to eliminate overflow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute -top-32 left-1/3 -translate-x-1/2 w-[700px] h-[400px] bg-violet/10 rounded-full blur-[140px] opacity-70 dark:opacity-70 opacity-40"
+        />
+        <div
+          className="pointer-events-none absolute top-96 -right-24 w-[500px] h-[450px] bg-cyan/8 rounded-full blur-[160px] opacity-60 dark:opacity-60 opacity-30"
+        />
+      </div>
 
       {/* Floating Success Notification */}
       {toastMessage && (
@@ -309,7 +309,7 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Main Settings Console Layout */}
-      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-12">
+      <div className="relative z-10 max-w-6xl w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-12">
         {/* Mobile Horizontal Pill Tab Navigation (Fast thumb switching) */}
         <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none">
           {[
@@ -1380,7 +1380,7 @@ export const SettingsView: React.FC = () => {
           </section>
 
         </div>
-      </main>
+      </div>
     </div>
   );
 };

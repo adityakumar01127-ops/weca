@@ -54,10 +54,10 @@ export const WorldMapExplorer: React.FC = () => {
   return (
     <div className="w-full space-y-6">
       {/* Top Controls & Filter Strip */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 w-full min-w-0">
         {/* Region Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-zinc-500 dark:text-zinc-400 font-mono flex items-center gap-1 mr-1">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs min-w-0">
+          <span className="text-zinc-500 dark:text-zinc-400 font-mono flex items-center gap-1 mr-1 shrink-0">
             <Compass className="w-3.5 h-3.5 text-violet" />
             <span>Region:</span>
           </span>
@@ -65,7 +65,7 @@ export const WorldMapExplorer: React.FC = () => {
             <button
               key={reg}
               onClick={() => setSelectedRegion(reg)}
-              className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-all cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg font-mono text-xs transition-all cursor-pointer ${
                 selectedRegion === reg
                   ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 font-semibold shadow-sm"
                   : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
@@ -77,11 +77,11 @@ export const WorldMapExplorer: React.FC = () => {
         </div>
 
         {/* Category & Search Filter */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full lg:w-auto min-w-0">
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs font-mono text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-violet"
+            className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs font-mono text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-violet"
           >
             <option value="All">All Categories</option>
             {CATEGORIES.map((c) => (
@@ -91,14 +91,14 @@ export const WorldMapExplorer: React.FC = () => {
             ))}
           </select>
 
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-initial min-w-0">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
             <input
               type="text"
               placeholder="Search coordinates or city..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-violet w-40 sm:w-56"
+              className="w-full sm:w-56 pl-8 pr-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-violet"
             />
           </div>
         </div>
@@ -108,6 +108,7 @@ export const WorldMapExplorer: React.FC = () => {
       <div className="relative w-full aspect-16/9 min-h-[420px] rounded-3xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl flex flex-col justify-between">
         {/* Background Graticule Grid & Stylized Continents */}
         <svg
+          viewBox="0 0 800 450"
           className="absolute inset-0 w-full h-full opacity-30 pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -140,7 +141,7 @@ export const WorldMapExplorer: React.FC = () => {
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan animate-ping" />
             <span className="font-mono text-xs text-zinc-300">
-              WICA GLOBAL CARTOGRAPHY ENGINE • {filteredAnomalies.length} LOCATIONS ACTIVE
+              WECA GLOBAL CARTOGRAPHY ENGINE • {filteredAnomalies.length} LOCATIONS ACTIVE
             </span>
           </div>
 

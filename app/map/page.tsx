@@ -30,14 +30,14 @@ export const metadata: Metadata = {
 
 export default function MapPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen w-full min-w-0 bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 transition-colors">
       <BreadcrumbJsonLd
         items={[
           { name: "Home", path: "/" },
           { name: "World Map Explorer", path: "/map" },
         ]}
       />
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-7xl w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title Header */}
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan/10 border border-cyan/20 text-cyan text-xs font-mono mb-3">
@@ -56,7 +56,7 @@ export default function MapPage() {
 
         {/* Interactive World Map Component */}
         <WorldMapExplorer />
-      </main>
+      </div>
     </div>
   );
 }

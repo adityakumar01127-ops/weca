@@ -67,7 +67,7 @@ export function PwaRegister() {
         <aside
           role="status"
           aria-live="polite"
-          className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-full bg-zinc-900/95 dark:bg-zinc-950/95 border border-red-500/40 text-white shadow-2xl backdrop-blur-md animate-slide-up"
+          className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-full bg-zinc-900/95 dark:bg-zinc-950/95 border border-red-500/40 text-white shadow-2xl backdrop-blur-md animate-slide-up"
         >
           <div className="relative flex items-center justify-center">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute" />
@@ -92,7 +92,7 @@ export function PwaRegister() {
         <aside
           role="status"
           aria-live="polite"
-          className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 shadow-2xl backdrop-blur-md animate-fade-in"
+          className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 shadow-2xl backdrop-blur-md animate-fade-in"
         >
           <Wifi className="w-3.5 h-3.5 text-emerald-400" />
           <span className="text-xs font-mono font-medium">Radar Reconnected • Telemetry Active</span>

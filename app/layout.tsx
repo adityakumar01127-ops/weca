@@ -105,11 +105,11 @@ export default function RootLayout({
         <ThemeScript />
         <WebsiteAndOrgJsonLd />
       </head>
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-violet/20 dark:selection:bg-zinc-800 transition-colors duration-200">
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-violet/20 dark:selection:bg-zinc-800 transition-colors duration-200 overflow-x-hidden min-w-0 max-w-full">
         <ThemeProvider>
           <AuthProvider>
             <Navbar />
-            <main className="flex-1 w-full pb-20 md:pb-0">
+            <main className="flex-1 w-full min-w-0 pb-[calc(5.5rem+env(safe-area-inset-bottom,12px))] md:pb-0">
               {children}
             </main>
             <MobileBottomNav />

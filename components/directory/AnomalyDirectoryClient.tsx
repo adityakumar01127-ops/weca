@@ -216,9 +216,9 @@ export const AnomalyDirectoryClient: React.FC = () => {
   }, [searchQuery, selectedCategory, selectedTier]);
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       {/* Search & Filter Controls */}
-      <div className="p-6 rounded-3xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 mb-10 space-y-4">
+      <div className="p-4 sm:p-6 rounded-3xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 mb-8 sm:mb-10 space-y-4 w-full min-w-0 overflow-hidden">
         <div className="flex flex-col sm:flex-row items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
@@ -257,7 +257,7 @@ export const AnomalyDirectoryClient: React.FC = () => {
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 text-xs scrollbar-none w-full min-w-0">
           <button
             onClick={() => setSelectedCategory("All")}
             className={`px-3 py-1.5 rounded-full font-mono text-xs whitespace-nowrap transition-colors ${
