@@ -98,6 +98,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   // Live Camera state
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [isFlashing, setIsFlashing] = useState<boolean>(false);
+  const [isFlashOn, setIsFlashOn] = useState<boolean>(false);
   const [showGrid, setShowGrid] = useState<boolean>(true);
   const [isSimulated, setIsSimulated] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -175,6 +176,27 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       setIsSimulated(true);
     }
   }, [facingMode, stopCamera]);
+
+  // Toggle torch/flash if supported, or simulated illumination boost
+  const toggleFlash = useCallback(async () => {
+    const next = !isFlashOn;
+    setIsFlashOn(next);
+    if (streamRef.current) {
+      const track = streamRef.current.getVideoTracks()[0];
+      if (track) {
+        try {
+          const capabilities = (track.getCapabilities?.() || {}) as Record<string, unknown>;
+          if ("torch" in capabilities) {
+            await track.applyConstraints({
+              advanced: [{ torch: next } as MediaTrackConstraintSet],
+            });
+          }
+        } catch {
+          // torch constraint handled visually
+        }
+      }
+    }
+  }, [isFlashOn]);
 
   // Activate camera when modal is open and on live tab without photo preview
   useEffect(() => {
@@ -340,6 +362,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           setAnomalyRating(Number((89 + Math.random() * 10.2).toFixed(1)));
           stopCamera();
           setError(null);
+          // Advance directly into the posting studio!
+          setActiveTab("upload");
         }
       },
       "image/jpeg",
@@ -347,11 +371,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     );
   };
 
-  // Reset live capture to take another photo
+  // Reset live capture to take another photo in full-size camera
   const handleRetakeLive = () => {
     setFile(null);
     setPreviewUrl(null);
     setError(null);
+    setActiveTab("live");
   };
 
   // File selection from dropzone
@@ -621,6 +646,230 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
   if (!isOpen || !mounted) return null;
 
+  // 1. COMPLETE FULL-SIZE CAMERA MODE
+  // When activeTab is "live" and no photo has been captured yet,
+  // render the full-viewport immersive camera directly!
+  if (activeTab === "live" && !previewUrl) {
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] bg-black text-white flex flex-col justify-between overflow-hidden select-none animate-in fade-in duration-200">
+        {/* Shutter White Flash Overlay */}
+        {isFlashing && (
+          <div className="absolute inset-0 bg-white z-[60] transition-opacity duration-200 pointer-events-none" />
+        )}
+
+        {/* Video / Hardware Camera */}
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className={`w-full h-full object-cover absolute inset-0 ${isSimulated ? "hidden" : "block"} ${
+            facingMode === "user" ? "scale-x-[-1]" : ""
+          }`}
+        />
+
+        {/* Simulated Cybernetic Anomaly Sensor Canvas (fallback) */}
+        <canvas
+          ref={simCanvasRef}
+          className={`w-full h-full object-cover absolute inset-0 ${isSimulated ? "block" : "hidden"}`}
+        />
+
+        {/* Torch / Flash Simulated Illumination Overlay when enabled */}
+        {isFlashOn && (
+          <div className="absolute inset-0 bg-amber-200/15 mix-blend-overlay pointer-events-none z-10" />
+        )}
+
+        {/* Rule-of-Thirds Grid Overlay (full screen) */}
+        {showGrid && (
+          <div className="absolute inset-0 pointer-events-none grid grid-cols-3 grid-rows-3 z-10 border border-white/10 divide-x divide-y divide-white/10">
+            <div /><div /><div />
+            <div /><div /><div />
+            <div /><div /><div />
+          </div>
+        )}
+
+        {/* Optical Scanning HUD Overlay */}
+        <div className="absolute inset-6 sm:inset-12 pointer-events-none z-20 flex items-center justify-center">
+          {/* Cybernetic Corner Brackets */}
+          <div className="w-8 h-8 border-t-2 border-l-2 border-cyan absolute top-0 left-0" />
+          <div className="w-8 h-8 border-t-2 border-r-2 border-cyan absolute top-0 right-0" />
+          <div className="w-8 h-8 border-b-2 border-l-2 border-cyan absolute bottom-0 left-0" />
+          <div className="w-8 h-8 border-b-2 border-r-2 border-cyan absolute bottom-0 right-0" />
+
+          {/* Center Targeting Reticle */}
+          <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full border border-dashed border-cyan/40 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full border border-violet/60 flex items-center justify-center">
+              <div className="w-2.5 h-2.5 rounded-full bg-cyan animate-ping" />
+            </div>
+            {/* Crosshair ticks */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-cyan/70" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-cyan/70" />
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-0.5 bg-cyan/70" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-0.5 bg-cyan/70" />
+          </div>
+
+          {/* Spectrum Readout Chip */}
+          <div className="absolute bottom-2 px-3.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-cyan/30 text-[11px] font-mono text-cyan tracking-wider shadow-lg">
+            ⚡ OPTICAL SPECTRUM: {anomalyRating}% ANOMALY INDEX
+          </div>
+        </div>
+
+        {/* TOP FLOATING HUD BAR */}
+        <div className="relative z-30 pt-safe px-4 sm:px-6 pt-4 pb-2 flex items-center justify-between gap-3 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
+          {/* Close button */}
+          <button
+            type="button"
+            id="close-full-camera-btn"
+            onClick={handleClose}
+            className="w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-lg"
+            title="Close Camera"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Live Status Badge */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-xs font-mono text-white shadow-lg">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+            <span className="font-bold text-rose-400">LIVE</span>
+            <span className="text-zinc-300">• OPTICAL SCANNER</span>
+          </div>
+
+          {/* Top Actions: Flash, Grid, Flip, Switch to File */}
+          <div className="flex items-center gap-2">
+            {/* Flash / Torch Toggle */}
+            <button
+              type="button"
+              id="toggle-camera-flash-btn"
+              onClick={toggleFlash}
+              className={`w-10 h-10 rounded-full backdrop-blur-md border transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-95 ${
+                isFlashOn
+                  ? "bg-amber-400 border-amber-300 text-zinc-950 font-bold shadow-amber-400/30"
+                  : "bg-black/50 hover:bg-black/80 border-white/20 text-zinc-300 hover:text-white"
+              }`}
+              title={isFlashOn ? "Torch On" : "Torch Off"}
+            >
+              <Zap className="w-4 h-4" />
+            </button>
+
+            {/* Grid Toggle */}
+            <button
+              type="button"
+              id="toggle-camera-grid-btn"
+              onClick={() => setShowGrid(!showGrid)}
+              className={`w-10 h-10 rounded-full backdrop-blur-md border transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-95 ${
+                showGrid
+                  ? "bg-cyan/30 border-cyan text-cyan shadow-cyan/20"
+                  : "bg-black/50 hover:bg-black/80 border-white/20 text-zinc-300 hover:text-white"
+              }`}
+              title="Toggle Rule-of-Thirds Grid"
+            >
+              <GridIcon className="w-4 h-4" />
+            </button>
+
+            {/* Switch to File Upload Studio */}
+            <button
+              type="button"
+              id="switch-to-upload-btn"
+              onClick={() => {
+                stopCamera();
+                setActiveTab("upload");
+              }}
+              className="w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/20 text-zinc-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95"
+              title="Switch to File Upload Studio"
+            >
+              <Upload className="w-4 h-4 text-cyan" />
+            </button>
+          </div>
+        </div>
+
+        {/* BOTTOM FLOATING CONTROLS BAR */}
+        <div className="relative z-30 pb-safe px-6 pb-8 pt-4 flex flex-col items-center gap-3 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+          {/* Guide hint */}
+          <span className="text-[11px] font-mono text-zinc-400 tracking-wide">
+            Align optical anomaly in reticle & tap shutter to capture
+          </span>
+
+          <div className="w-full max-w-sm flex items-center justify-around gap-6">
+            {/* Gallery / Files Picker */}
+            <button
+              type="button"
+              id="open-gallery-picker-btn"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-12 h-12 rounded-2xl bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-zinc-300 hover:text-white flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer active:scale-95 shadow-lg group"
+              title="Pick from Photos / Files"
+            >
+              <Upload className="w-4 h-4 text-violet group-hover:scale-110 transition-transform" />
+              <span className="text-[9px] font-mono">Files</span>
+            </button>
+
+            {/* COMPLETE FULL-SIZE TACTILE SHUTTER BUTTON */}
+            <button
+              type="button"
+              id="live-camera-shutter-btn"
+              onClick={capturePhoto}
+              className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1.5 bg-gradient-to-tr from-cyan via-violet to-fuchsia-500 shadow-2xl shadow-cyan/40 hover:shadow-cyan/70 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center group"
+              title="Click Picture"
+            >
+              <div className="w-full h-full rounded-full bg-white dark:bg-black p-1 flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-white group-hover:bg-zinc-100 transition-colors shadow-inner flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-rose-500 animate-pulse" />
+                </div>
+              </div>
+            </button>
+
+            {/* Camera Flip button */}
+            <button
+              type="button"
+              id="flip-camera-btn"
+              onClick={() =>
+                setFacingMode((prev) => (prev === "environment" ? "user" : "environment"))
+              }
+              className="w-12 h-12 rounded-2xl bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-white flex flex-col items-center justify-center gap-0.5 transition-all active:rotate-180 duration-300 cursor-pointer active:scale-95 shadow-lg group"
+              title="Flip Camera (Front/Rear)"
+            >
+              <RefreshCw className="w-4 h-4 text-cyan group-hover:scale-110 transition-transform" />
+              <span className="text-[9px] font-mono">Flip</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Hidden inputs for gallery & native camera */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              handleFileSelect(f);
+              stopCamera();
+              setActiveTab("upload");
+            }
+          }}
+        />
+        <input
+          ref={nativeCameraInputRef}
+          id="native-camera-btn"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              handleFileSelect(f);
+              stopCamera();
+              setActiveTab("upload");
+            }
+          }}
+        />
+      </div>,
+      document.body
+    );
+  }
+
+  // 2. STANDARD POST CREATION STUDIO (When photo is captured or file upload/drafts/scheduled tab is selected)
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 dark:bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
       <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 border-t sm:border border-zinc-200 dark:border-zinc-800 rounded-t-[32px] sm:rounded-3xl p-4 sm:p-7 text-zinc-900 dark:text-zinc-100 shadow-2xl relative flex flex-col max-h-[94vh] sm:max-h-[92vh] overflow-hidden animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300">
@@ -670,11 +919,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
               setFile(null);
               setActiveTab("live");
             }}
-            className={`flex-1 py-1.5 px-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activeTab === "live"
-                ? "bg-violet text-white shadow-sm font-semibold"
-                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
-            }`}
+            className="flex-1 py-1.5 px-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
           >
             <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping mr-0.5" />
             <Camera className="w-3.5 h-3.5" />
@@ -685,13 +930,13 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             id="tab-upload-file"
             onClick={() => setActiveTab("upload")}
             className={`flex-1 py-1.5 px-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activeTab === "upload"
+              activeTab === "upload" || activeTab === "live"
                 ? "bg-violet text-white shadow-sm font-semibold"
                 : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>Upload File</span>
+            <span>Post Studio</span>
           </button>
           <button
             type="button"
@@ -747,270 +992,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* TAB 1: LIVE CAMERA & 1-TAP POST                                           */}
-        {/* ========================================================================= */}
-        {activeTab === "live" && (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-            {!previewUrl ? (
-              /* Sub-view A: Live Camera Viewfinder & HUD */
-              <div className="flex flex-col flex-1 min-h-0 space-y-3">
-                <div className="relative rounded-2xl overflow-hidden bg-black border border-zinc-800 aspect-[4/3] sm:aspect-video flex items-center justify-center shadow-2xl group select-none">
-                  {/* Flash Animation Overlay */}
-                  {isFlashing && (
-                    <div className="absolute inset-0 bg-white z-50 transition-opacity duration-200 pointer-events-none" />
-                  )}
-
-                  {/* Hardware Camera Video Stream */}
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className={`w-full h-full object-cover ${isSimulated ? "hidden" : "block"} ${
-                      facingMode === "user" ? "scale-x-[-1]" : ""
-                    }`}
-                  />
-
-                  {/* Simulated Anomaly Sensor Canvas (graceful fallback) */}
-                  <canvas
-                    ref={simCanvasRef}
-                    className={`w-full h-full object-cover ${isSimulated ? "block" : "hidden"}`}
-                  />
-
-                  {/* Rule-of-Thirds Grid Overlay */}
-                  {showGrid && (
-                    <div className="absolute inset-0 pointer-events-none grid grid-cols-3 grid-rows-3 z-10">
-                      <div className="border-r border-b border-white/15" />
-                      <div className="border-r border-b border-white/15" />
-                      <div className="border-b border-white/15" />
-                      <div className="border-r border-b border-white/15" />
-                      <div className="border-r border-b border-white/15" />
-                      <div className="border-b border-white/15" />
-                      <div className="border-r border-b border-white/15" />
-                      <div className="border-r border-b border-white/15" />
-                      <div />
-                    </div>
-                  )}
-
-                  {/* Optical Reticle Corner Brackets */}
-                  <div className="absolute inset-3 pointer-events-none z-20">
-                    <div className="w-6 h-6 border-t-2 border-l-2 border-cyan absolute top-0 left-0" />
-                    <div className="w-6 h-6 border-t-2 border-r-2 border-cyan absolute top-0 right-0" />
-                    <div className="w-6 h-6 border-b-2 border-l-2 border-cyan absolute bottom-0 left-0" />
-                    <div className="w-6 h-6 border-b-2 border-r-2 border-cyan absolute bottom-0 right-0" />
-                  </div>
-
-                  {/* Top HUD Controls */}
-                  <div className="absolute top-3 inset-x-3 flex items-center justify-between z-30 pointer-events-auto">
-                    {/* Live Status Badge */}
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[11px] font-mono text-white shadow-md">
-                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                      <span className="font-bold text-rose-400">LIVE</span>
-                      <span className="text-zinc-300">• OPTICAL SCANNER</span>
-                    </div>
-
-                    {/* Camera Controls */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        id="toggle-camera-grid-btn"
-                        onClick={() => setShowGrid(!showGrid)}
-                        className={`p-2 rounded-full backdrop-blur-md border transition-all cursor-pointer ${
-                          showGrid
-                            ? "bg-cyan/25 border-cyan text-cyan"
-                            : "bg-black/60 border-white/15 text-zinc-400 hover:text-white"
-                        }`}
-                        title="Toggle Alignment Grid"
-                      >
-                        <GridIcon className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        id="flip-camera-btn"
-                        onClick={() =>
-                          setFacingMode((prev) => (prev === "environment" ? "user" : "environment"))
-                        }
-                        className="p-2 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/15 text-white transition-all active:rotate-180 duration-300 cursor-pointer shadow-md"
-                        title="Flip Camera (Front/Back)"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Bottom Shutter Controls Bar */}
-                  <div className="absolute bottom-4 inset-x-0 flex items-center justify-center gap-8 z-30 pointer-events-auto">
-                    {/* Switch to File Upload */}
-                    <button
-                      type="button"
-                      id="switch-to-upload-btn"
-                      onClick={() => setActiveTab("upload")}
-                      className="p-3 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white border border-white/15 backdrop-blur-md transition-all cursor-pointer shadow-md"
-                      title="Upload from Device Files"
-                    >
-                      <Upload className="w-4 h-4 text-cyan" />
-                    </button>
-
-                    {/* Big Tactile Shutter Button */}
-                    <button
-                      type="button"
-                      id="live-camera-shutter-btn"
-                      onClick={capturePhoto}
-                      className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-full p-1 bg-gradient-to-tr from-cyan via-violet to-fuchsia-500 shadow-xl shadow-cyan/25 hover:shadow-cyan/50 transition-all active:scale-95 cursor-pointer flex items-center justify-center group"
-                      title="Click Live Photo"
-                    >
-                      <div className="w-full h-full rounded-full bg-white dark:bg-zinc-950 p-1 flex items-center justify-center">
-                        <div className="w-full h-full rounded-full bg-white group-hover:bg-zinc-100 dark:bg-white dark:group-hover:bg-zinc-200 transition-colors shadow-inner flex items-center justify-center">
-                          <div className="w-3.5 h-3.5 rounded-full bg-rose-500 animate-pulse" />
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Native Camera Trigger */}
-                    <button
-                      type="button"
-                      id="native-camera-btn"
-                      onClick={() => nativeCameraInputRef.current?.click()}
-                      className="p-3 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white border border-white/15 backdrop-blur-md transition-all cursor-pointer shadow-md"
-                      title="Device Native Camera"
-                    >
-                      <Camera className="w-4 h-4 text-violet" />
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-center text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
-                  Align optical anomaly within reticle and tap shutter to snap live.
-                </p>
-              </div>
-            ) : (
-              /* Sub-view B: Live Capture Review & 1-Tap Post ("Click Live and Post") */
-              <div className="flex flex-col flex-1 min-h-0 space-y-3 overflow-y-auto pr-1">
-                {/* Captured Anomaly Snapshot with Verified Chip */}
-                <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-black aspect-video sm:aspect-[16/9] flex items-center justify-center shadow-lg group">
-                  <img
-                    src={previewUrl}
-                    alt="Live Anomaly Capture"
-                    className="w-full h-full object-cover"
-                  />
-
-                  {/* Anomaly Score Chip */}
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-cyan/40 text-cyan text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
-                    <Sparkles className="w-3.5 h-3.5 text-cyan animate-pulse" />
-                    <span>Anomaly Detected • {anomalyRating}%</span>
-                  </div>
-
-                  {/* Retake Floating Button */}
-                  <button
-                    type="button"
-                    id="retake-live-btn"
-                    onClick={handleRetakeLive}
-                    className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
-                  >
-                    <RefreshCw className="w-3 h-3 text-zinc-300" />
-                    <span>Retake Live</span>
-                  </button>
-                </div>
-
-                {/* Fast Observation Notes / Caption Input */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
-                      Observation Notes
-                    </label>
-                    <span className="text-[10px] font-mono text-zinc-400">{caption.length}/280</span>
-                  </div>
-                  <input
-                    type="text"
-                    id="live-post-caption-input"
-                    maxLength={280}
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                    placeholder="Describe the optical anomaly or glitch you spotted live..."
-                    className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan transition-all"
-                  />
-
-                  {/* Quick Vibe Emojis */}
-                  <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto pb-1 scrollbar-none">
-                    <span className="text-[10px] text-zinc-500 font-mono shrink-0 mr-1">Vibe:</span>
-                    {VIBE_EMOJIS.map((emoji) => (
-                      <button
-                        key={emoji}
-                        type="button"
-                        onClick={() => setCaption((prev) => (prev ? `${prev} ${emoji}` : emoji))}
-                        className="p-1 text-xs rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Anomaly Category Pills */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Category</label>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-                    {(["Objects", "Nature", "Human-Made", "Animals", "Coincidences", "Food"] as Category[]).map(
-                      (cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => setCategory(cat)}
-                          className={`py-1.5 px-2 rounded-xl text-[11px] font-medium transition-all cursor-pointer ${
-                            category === cat
-                              ? "bg-cyan text-zinc-950 font-bold shadow-sm border border-cyan"
-                              : "bg-zinc-100 dark:bg-zinc-950/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-800"
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {/* 1-Tap Post Action Bar */}
-                <div className="pt-2.5 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3 shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleRetakeLive}
-                    className="px-4 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Retake</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    id="quick-post-live-btn"
-                    onClick={handleSubmit}
-                    disabled={uploading}
-                    className="flex-1 py-2.5 px-6 rounded-xl bg-gradient-to-r from-cyan via-violet to-purple-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-violet/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
-                  >
-                    {uploading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                        <span>Publishing Live Anomaly...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Post Anomaly Now</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 2: FILE UPLOAD STUDIO                                                 */}
-        {/* ========================================================================= */}
-        {activeTab === "upload" && (
+        {/* POST STUDIO FORM (When photo captured or Upload tab active) */}
+        {(activeTab === "upload" || (activeTab === "live" && previewUrl)) && (
           <form
             onSubmit={handleSubmit}
             className="flex flex-col flex-1 min-h-0 overflow-hidden"
@@ -1035,38 +1018,73 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 </label>
 
                 {previewUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 max-h-64 flex items-center justify-center group">
+                  <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 max-h-72 flex items-center justify-center group shadow-md">
                     <img
                       src={previewUrl}
                       alt="Anomaly Preview"
-                      className="w-full max-h-64 object-cover"
+                      className="w-full max-h-72 object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+
+                    {/* Anomaly Verified Badge */}
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-cyan/40 text-cyan text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
+                      <Sparkles className="w-3.5 h-3.5 text-cyan animate-pulse" />
+                      <span>Anomaly Verified • {anomalyRating}%</span>
+                    </div>
+
+                    {/* Retake Camera Button */}
+                    <button
+                      type="button"
+                      id="retake-live-photo-btn"
+                      onClick={handleRetakeLive}
+                      className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 text-cyan" />
+                      <span>Retake Photo</span>
+                    </button>
+
+                    {/* Change File button */}
+                    <div className="absolute bottom-3 right-3 opacity-90 hover:opacity-100 transition-opacity flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-1.5 cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-1.5 cursor-pointer backdrop-blur-md shadow-md"
                       >
                         <Upload className="w-3.5 h-3.5 text-violet" />
-                        Change File
+                        <span>Change File</span>
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div
-                    id="open-file-upload-btn"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-8 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-cyan/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
-                  >
-                    <div className="w-14 h-14 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center text-cyan group-hover:scale-110 transition-transform mb-3">
-                      <Upload className="w-7 h-7" />
+                  <div className="space-y-2.5">
+                    <div
+                      id="open-file-upload-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-7 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-cyan/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center text-cyan group-hover:scale-110 transition-transform mb-2.5">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-bold text-zinc-900 dark:text-white group-hover:text-cyan transition-colors">
+                        Select Anomaly File
+                      </span>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        JPEG, PNG, WebP up to 15MB
+                      </span>
                     </div>
-                    <span className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-cyan transition-colors">
-                      Select Anomaly File
-                    </span>
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                      JPEG, PNG, WebP up to 15MB
-                    </span>
+
+                    <button
+                      type="button"
+                      id="open-full-camera-from-upload-btn"
+                      onClick={() => {
+                        setFile(null);
+                        setPreviewUrl(null);
+                        setActiveTab("live");
+                      }}
+                      className="w-full py-2.5 px-3 rounded-xl bg-violet/10 hover:bg-violet/20 border border-violet/30 text-violet text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-98"
+                    >
+                      <Camera className="w-4 h-4" />
+                      <span>📸 Or Open Full-Size Live Camera</span>
+                    </button>
                   </div>
                 )}
               </div>
