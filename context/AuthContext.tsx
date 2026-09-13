@@ -239,6 +239,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: error.message };
       }
 
+      // When an account with this email already exists, Supabase returns a user with empty identities array
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        return {
+          error: "An account with this email address already exists. Please tap 'Sign In' or use 'Forgot password?'.",
+        };
+      }
+
       // Check if Supabase requires email verification before session creation
       if (data.user && !data.session) {
         return { requiresEmailConfirmation: true };
