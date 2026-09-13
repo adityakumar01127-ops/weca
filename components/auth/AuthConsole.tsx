@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  Zap,
   ShieldCheck,
   Globe,
   Star,
@@ -30,7 +29,7 @@ interface AuthConsoleProps {
 
 export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin" }) => {
   const router = useRouter();
-  const { signIn, signUp, loginAsDemo, resetPassword } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">(initialMode);
   const [email, setEmail] = useState("");
@@ -177,11 +176,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
     }
   };
 
-  const handleDemoSignIn = () => {
-    loginAsDemo();
-    triggerConfetti();
-    router.push("/");
-  };
+
 
   return (
     <div className="relative min-h-[calc(100vh-3.5rem)] flex flex-col justify-between bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-violet/30 overflow-hidden font-sans">
@@ -671,23 +666,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                 </>
               )}
 
-              {/* Divider */}
-              <div className="relative my-5 flex items-center justify-center">
-                <div className="border-t border-zinc-200 dark:border-zinc-800 w-full" />
-                <span className="bg-white dark:bg-[#121215] px-2.5 text-[10px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 relative">
-                  Quick Access
-                </span>
-              </div>
 
-              {/* Instant Guest Mode Button */}
-              <button
-                type="button"
-                onClick={handleDemoSignIn}
-                className="w-full py-2.5 px-4 rounded-xl bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 hover:border-zinc-300 dark:bg-zinc-950/80 dark:hover:bg-zinc-800/80 dark:text-zinc-200 dark:border-zinc-800 dark:hover:border-zinc-700 text-xs font-mono font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
-              >
-                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
-                <span>Instant Explorer Pass (Guest Mode)</span>
-              </button>
 
               {/* Terms & Footer */}
               <div className="mt-5 text-center text-[11px] text-zinc-500 leading-relaxed">

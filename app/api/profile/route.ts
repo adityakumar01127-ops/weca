@@ -4,7 +4,11 @@ import { getUserProfile } from "@/lib/services/data";
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const username = searchParams.get("username") || "usr-demo";
+    const username = searchParams.get("username");
+
+    if (!username || username === "usr-demo") {
+      return NextResponse.json({ error: "Username or user ID required" }, { status: 400 });
+    }
 
     const profileData = await getUserProfile(username);
     return NextResponse.json(profileData);

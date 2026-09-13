@@ -112,11 +112,7 @@ export function PostDetailClient({ postId, initialPost }: PostDetailClientProps)
   const username = author?.username || "anonymous";
   const hasScores = post.weirdness_score != null && post.uniqueness_score != null;
 
-  const isOwner = Boolean(
-    user &&
-      (user.id === post.user_id ||
-        (user.id === "usr-demo" && (!post.user_id || post.user_id === "usr-demo")))
-  );
+  const isOwner = Boolean(user && user.id === post.user_id);
 
   const handleSaveCaption = async () => {
     if (!post) return;
@@ -127,7 +123,7 @@ export function PostDetailClient({ postId, initialPost }: PostDetailClientProps)
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           caption: editedCaption.trim(),
-          userId: user?.id || "usr-demo",
+          userId: user?.id || "",
         }),
       });
       setPost((prev) => (prev ? { ...prev, caption: editedCaption.trim() } : prev));
@@ -147,7 +143,7 @@ export function PostDetailClient({ postId, initialPost }: PostDetailClientProps)
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user?.id || "usr-demo",
+          userId: user?.id || "",
         }),
       });
       router.push("/");

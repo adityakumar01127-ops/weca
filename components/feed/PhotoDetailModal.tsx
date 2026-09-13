@@ -177,8 +177,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
   const isOwner = Boolean(
     user &&
       (user.id === image.user_id ||
-        (user.username && user.username === image.author?.username) ||
-        (user.id === "usr-demo" && (!image.user_id || image.user_id === "usr-demo")))
+        (user.username && user.username === image.author?.username))
   );
 
   const handleSaveCaption = async () => {
@@ -193,7 +192,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             caption: editedCaption.trim(),
-            userId: user?.id || "usr-demo",
+            userId: user?.id || "",
           }),
         });
         image.caption = editedCaption.trim();
@@ -217,7 +216,7 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId: user?.id || "usr-demo",
+            userId: user?.id || "",
           }),
         });
       }

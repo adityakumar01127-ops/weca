@@ -17,9 +17,16 @@ export async function POST(req: NextRequest) {
     const category = (formData.get("category") as Category) || "Other";
     const caption = (formData.get("caption") as string) || null;
     const country = (formData.get("country") as string) || null;
-    const userId = (formData.get("userId") as string) || "usr-demo";
-    const username = (formData.get("username") as string) || "curious_traveler";
+    const userId = (formData.get("userId") as string) || "";
+    const username = (formData.get("username") as string) || "explorer";
     const avatarUrl = (formData.get("avatarUrl") as string) || null;
+
+    if (!userId || userId === "usr-demo") {
+      return NextResponse.json(
+        { error: "Authentication required: Please sign in to submit findings." },
+        { status: 401 }
+      );
+    }
 
     if (!file) {
       return NextResponse.json({ error: "No image file provided" }, { status: 400 });

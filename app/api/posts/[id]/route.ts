@@ -10,10 +10,14 @@ export async function DELETE(
     const { id } = await context.params;
     const body = await req.json().catch(() => ({}));
     const { searchParams } = new URL(req.url);
-    const userId = body.userId || searchParams.get("userId") || "usr-demo";
+    const userId = body.userId || searchParams.get("userId") || "";
 
     if (!id) {
       return NextResponse.json({ error: "Missing post id" }, { status: 400 });
+    }
+
+    if (!userId || userId === "usr-demo") {
+      return NextResponse.json({ error: "Unauthorized: User ID required" }, { status: 401 });
     }
 
     // Attempt delete in both services (handles both posts and images tables + fallbacks)
@@ -37,10 +41,14 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = await req.json().catch(() => ({}));
-    const { caption, userId = "usr-demo" } = body;
+    const { caption, userId = "" } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Missing post id" }, { status: 400 });
+    }
+
+    if (!userId || userId === "usr-demo") {
+      return NextResponse.json({ error: "Unauthorized: User ID required" }, { status: 401 });
     }
 
     const resPost = await updatePost(id, userId, { caption });

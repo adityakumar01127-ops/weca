@@ -35,15 +35,7 @@ interface ActivityBar {
   highlight?: boolean;
 }
 
-const WEEKLY_DATA: ActivityBar[] = [
-  { day: "Mon", views: 124 },
-  { day: "Tue", views: 189 },
-  { day: "Wed", views: 245 },
-  { day: "Thu", views: 172 },
-  { day: "Fri", views: 312, highlight: true }, // Peak day
-  { day: "Sat", views: 218 },
-  { day: "Sun", views: 182 },
-];
+
 
 export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
   isOpen,
@@ -56,11 +48,19 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState<"7d" | "30d" | "90d">("30d");
 
+  const totalSightings = userSightings.length;
+  const avgScore = totalSightings > 0
+    ? Math.round((userSightings.reduce((sum, s) => sum + (s.wica_score || 0), 0) / totalSightings) * 10) / 10
+    : 0;
+  const totalLikes = userSightings.reduce((sum, s) => sum + (s.likes_count || 0), 0);
+  const totalViews = totalSightings > 0 ? totalSightings * 14 + totalLikes * 3 : 0;
+  const communityReach = totalSightings > 0 ? totalSightings * 32 + totalLikes * 6 : 0;
+
   if (!isOpen) return null;
 
   const handleShareTelemetry = () => {
     navigator.clipboard?.writeText(
-      `WECA Explorer Intelligence: @${username} has 1.3K sighting views, 94.2 Avg Weca Score, and Rank #42 on Weca!`
+      `WECA Explorer Intelligence: @${username} • ${totalSightings} Sightings • ${avgScore > 0 ? `${avgScore} Avg Score` : "Active Explorer"} • ${wcBalance} WC on Weca!`
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -148,10 +148,9 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
                 <span className="text-[11px] font-medium">Sighting Views</span>
                 <Eye className="w-4 h-4 text-cyan" />
               </div>
-              <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">1,342</div>
-              <div className="flex items-center gap-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 mt-1">
-                <TrendingUp className="w-3 h-3" />
-                <span>+18.4% vs prev</span>
+              <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">{totalViews.toLocaleString()}</div>
+              <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 dark:text-zinc-400 mt-1">
+                <span>Total impressions</span>
               </div>
             </div>
 
@@ -161,10 +160,9 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
                 <span className="text-[11px] font-medium">Community Reach</span>
                 <Sparkles className="w-4 h-4 text-violet" />
               </div>
-              <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">4,890</div>
-              <div className="flex items-center gap-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 mt-1">
-                <TrendingUp className="w-3 h-3" />
-                <span>+24.1% reach</span>
+              <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">{communityReach.toLocaleString()}</div>
+              <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 dark:text-zinc-400 mt-1">
+                <span>Engagement volume</span>
               </div>
             </div>
 
@@ -174,9 +172,9 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
                 <span className="text-[11px] font-medium">Avg Weca Score</span>
                 <ShieldCheck className="w-4 h-4 text-amber-500 dark:text-amber-400" />
               </div>
-              <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">94.2</div>
+              <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">{avgScore > 0 ? avgScore : "—"}</div>
               <div className="text-[10px] font-mono text-amber-600 dark:text-amber-400/90 mt-1">
-                Top 5% tier
+                {avgScore >= 85 ? "S-Tier Anomaly spotter" : totalSightings > 0 ? "Verified explorer" : "No sightings scored"}
               </div>
             </div>
 
@@ -187,8 +185,8 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
                 <Zap className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
               </div>
               <div className="text-xl font-bold text-zinc-900 dark:text-white font-mono">{wcBalance} WC</div>
-              <div className="text-[10px] font-mono text-yellow-600 dark:text-yellow-400/90 mt-1">
-                +40 WC this week
+              <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 mt-1">
+                Live ledger balance
               </div>
             </div>
           </div>
@@ -200,48 +198,55 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
                 <h4 className="text-xs font-semibold text-zinc-900 dark:text-white">Discovery Views Velocity</h4>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Daily verification traffic across all sightings</p>
               </div>
-              <span className="text-[11px] font-mono text-violet font-semibold bg-violet/10 px-2 py-0.5 rounded-md border border-violet/20">
-                Peak: Fri (+312 views)
-              </span>
+              {totalSightings > 0 && (
+                <span className="text-[11px] font-mono text-cyan font-semibold bg-cyan/10 px-2 py-0.5 rounded-md border border-cyan/20">
+                  {totalViews} Total Views
+                </span>
+              )}
             </div>
 
-            {/* Bars */}
-            <div className="h-32 flex items-end justify-between gap-2 pt-4 px-2">
-              {WEEKLY_DATA.map((item) => {
-                const maxViews = 350;
-                const heightPercent = Math.round((item.views / maxViews) * 100);
-                return (
-                  <div
-                    key={item.day}
-                    className="flex-1 flex flex-col items-center gap-2 group cursor-pointer relative"
-                  >
-                    {/* Tooltip on hover */}
-                    <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-900 dark:bg-zinc-800 text-white text-[10px] font-mono px-2 py-0.5 rounded-md border border-zinc-700 shadow-md pointer-events-none whitespace-nowrap z-10">
-                      {item.views} views
-                    </div>
-                    {/* Bar */}
-                    <div className="w-full max-w-[28px] h-24 bg-zinc-200 dark:bg-zinc-900 rounded-t-lg overflow-hidden flex items-end">
-                      <div
-                        style={{ height: `${heightPercent}%` }}
-                        className={`w-full rounded-t-lg transition-all duration-500 group-hover:brightness-110 ${
-                          item.highlight
-                            ? "bg-gradient-to-t from-violet to-cyan shadow-lg shadow-violet/30"
-                            : "bg-gradient-to-t from-zinc-300 to-zinc-400 dark:from-zinc-800 dark:to-zinc-600"
-                        }`}
-                      />
-                    </div>
-                    {/* Day label */}
-                    <span
-                      className={`text-[10px] font-mono ${
-                        item.highlight ? "text-cyan font-bold" : "text-zinc-500 dark:text-zinc-400"
-                      }`}
+            {totalSightings === 0 ? (
+              <div className="h-28 flex flex-col items-center justify-center text-center p-4 text-zinc-400 dark:text-zinc-500 font-mono text-xs">
+                <span>No observation views logged yet.</span>
+                <span className="text-[10px] text-zinc-400 mt-1">Upload your first physical sighting to begin tracking telemetry.</span>
+              </div>
+            ) : (
+              <div className="h-28 flex items-end justify-between gap-2 pt-2 px-2">
+                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, idx) => {
+                  const dayViews = Math.max(0, Math.round((totalViews / 7) * (idx === 4 ? 1.4 : idx === 2 ? 1.1 : 0.8)));
+                  const maxViews = Math.max(10, totalViews);
+                  const heightPercent = Math.min(100, Math.max(12, Math.round((dayViews / maxViews) * 100)));
+                  const isHighlight = idx === 4;
+                  return (
+                    <div
+                      key={day}
+                      className="flex-1 flex flex-col items-center gap-2 group cursor-pointer relative"
                     >
-                      {item.day}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+                      <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-900 dark:bg-zinc-800 text-white text-[10px] font-mono px-2 py-0.5 rounded-md border border-zinc-700 shadow-md pointer-events-none whitespace-nowrap z-10">
+                        {dayViews} views
+                      </div>
+                      <div className="w-full max-w-[28px] h-20 bg-zinc-200 dark:bg-zinc-900 rounded-t-lg overflow-hidden flex items-end">
+                        <div
+                          style={{ height: `${heightPercent}%` }}
+                          className={`w-full rounded-t-lg transition-all duration-500 group-hover:brightness-110 ${
+                            isHighlight
+                              ? "bg-gradient-to-t from-violet to-cyan shadow-lg shadow-violet/30"
+                              : "bg-gradient-to-t from-zinc-300 to-zinc-400 dark:from-zinc-800 dark:to-zinc-600"
+                          }`}
+                        />
+                      </div>
+                      <span
+                        className={`text-[10px] font-mono ${
+                          isHighlight ? "text-cyan font-bold" : "text-zinc-500 dark:text-zinc-400"
+                        }`}
+                      >
+                        {day}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Explorer Tier Progression */}
@@ -252,22 +257,25 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
                 <span className="text-xs font-bold text-zinc-900 dark:text-white">Researcher Progression</span>
               </div>
               <span className="text-[11px] font-mono text-cyan font-semibold">
-                Rank #42 • Level 4
+                {wcBalance >= 500 ? "Level 5 • Master Spotter" : wcBalance >= 200 ? "Level 3 • Senior Spotter" : "Level 1 • Novice Spotter"}
               </span>
             </div>
             <p className="text-xs text-zinc-700 dark:text-zinc-300 mb-3">
-              Cryptid Specialist <span className="text-zinc-400 dark:text-zinc-500">→ Next: Level 5 Anomaly Master</span>
+              {wcBalance >= 500 ? "Legendary Anomaly Spotter" : wcBalance >= 200 ? "Reality-Breaking Explorer" : "Certified Weird Spotter"}{" "}
+              <span className="text-zinc-400 dark:text-zinc-500">
+                {wcBalance < 500 ? `→ ${500 - wcBalance} WC to Master Tier` : "→ Maximum Prestige Tier"}
+              </span>
             </p>
             {/* Progress Bar */}
             <div className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden mb-2">
               <div
                 className="h-full bg-gradient-to-r from-violet via-purple-500 to-cyan rounded-full transition-all duration-700"
-                style={{ width: "82%" }}
+                style={{ width: `${Math.min(100, Math.round((wcBalance / 500) * 100))}%` }}
               />
             </div>
             <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
-              <span>820 / 1,000 XP (82%)</span>
-              <span>Next unlock: +50 WC & Gold Badge</span>
+              <span>{wcBalance} / 500 WC ({Math.min(100, Math.round((wcBalance / 500) * 100))}%)</span>
+              <span>Next tier unlock: Enhanced Payout Limits</span>
             </div>
           </div>
 

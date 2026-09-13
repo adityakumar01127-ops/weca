@@ -16,7 +16,6 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error?: string }>;
   updatePassword: (password: string) => Promise<{ error?: string }>;
   signInWithOAuth: (provider?: "google") => Promise<{ error?: string }>;
-  loginAsDemo: () => void;
   // Compatibility aliases
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signUpWithEmail: (email: string, password: string, username: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
@@ -29,18 +28,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const getStoredProfile = (): Profile | null => {
-  if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
-    const saved = localStorage.getItem("weca_custom_profile");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
-    }
-  }
-  return null;
-};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authUser, setAuthUser] = useState<SupabaseAuthUser | null>(null);
@@ -337,17 +324,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginAsDemo = () => {
-    if (process.env.NODE_ENV === "production") {
-      console.warn("Demo login is disabled in production.");
-      return;
-    }
-    const devProfile = getStoredProfile();
-    if (devProfile) {
-      setProfile(devProfile);
-    }
-  };
-
   const openAuthModal = (mode?: "signin" | "signup" | unknown) => {
     if (mode === "signup" || mode === "signin") {
       setAuthModalMode(mode);
@@ -475,7 +451,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         resetPassword,
         updatePassword,
         signInWithOAuth,
-        loginAsDemo,
         signInWithEmail: signIn,
         signUpWithEmail: (email, pass, user) => signUp(email, pass, user),
         openAuthModal,

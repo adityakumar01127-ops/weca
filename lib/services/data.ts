@@ -7,211 +7,7 @@ interface SupabaseFeedItem extends WicaImage {
   comments?: { id: string }[];
 }
 
-// Seed data for local demo or when Supabase is empty
-const INITIAL_DEMO_USERS: User[] = [
-  {
-    id: "usr-demo",
-    username: "curious_traveler",
-    avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-    total_wc: 180,
-    tier: "Certified Weird",
-    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-  {
-    id: "usr-1",
-    username: "urban_stranger",
-    avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    total_wc: 342,
-    tier: "Reality-Breaking",
-    created_at: new Date(Date.now() - 86400000 * 12).toISOString(),
-  },
-  {
-    id: "usr-2",
-    username: "botanical_glitch",
-    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    total_wc: 288,
-    tier: "Reality-Breaking",
-    created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
-  },
-  {
-    id: "usr-3",
-    username: "anomaly_hunter",
-    avatar_url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-    total_wc: 460,
-    tier: "Legendary Anomaly",
-    created_at: new Date(Date.now() - 86400000 * 24).toISOString(),
-  },
-  {
-    id: "usr-4",
-    username: "karen_coincidence",
-    avatar_url: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80",
-    total_wc: 174,
-    tier: "Certified Weird",
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-];
-
-const INITIAL_DEMO_IMAGES: WicaImage[] = [
-  {
-    id: "img-1",
-    user_id: "usr-3",
-    storage_path: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80",
-    category: "Objects",
-    country: "Iceland",
-    caption: "A vintage rotary phone half-melted into a solid basalt lava formation.",
-    wica_score: 94,
-    absurdity: 10,
-    rarity: 10,
-    craft: 8,
-    cultural_novelty: 9,
-    wit: 10,
-    ai_verdict: "A geological punchline that turns telecommunications into an archaeological riddle.",
-    moderation_status: "approved",
-    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-    author: INITIAL_DEMO_USERS[3],
-    likes_count: 42,
-    comments_count: 7,
-    user_has_liked: false,
-  },
-  {
-    id: "img-2",
-    user_id: "usr-2",
-    storage_path: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&auto=format&fit=crop&q=80",
-    category: "Nature",
-    country: "New Zealand",
-    caption: "A single glowing crimson mushroom growing upside down out of a cave ceiling stalactite.",
-    wica_score: 88,
-    absurdity: 9,
-    rarity: 9,
-    craft: 7,
-    cultural_novelty: 9,
-    wit: 10,
-    ai_verdict: "Mycology defying gravity with unapologetic theatrical bioluminescence.",
-    moderation_status: "approved",
-    created_at: new Date(Date.now() - 3600000 * 11).toISOString(),
-    author: INITIAL_DEMO_USERS[2],
-    likes_count: 31,
-    comments_count: 5,
-    user_has_liked: true,
-  },
-  {
-    id: "img-3",
-    user_id: "usr-1",
-    storage_path: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=800&auto=format&fit=crop&q=80",
-    category: "Animals",
-    country: "Japan",
-    caption: "A cat sleeping soundly on anti-bird spikes, using the sharp spikes as acupuncture needles.",
-    wica_score: 82,
-    absurdity: 9,
-    rarity: 7,
-    craft: 8,
-    cultural_novelty: 7,
-    wit: 10,
-    ai_verdict: "Feline nonchalance weaponizing hostile architecture into luxury acupressure.",
-    moderation_status: "approved",
-    created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
-    author: INITIAL_DEMO_USERS[1],
-    likes_count: 58,
-    comments_count: 12,
-    user_has_liked: false,
-  },
-  {
-    id: "img-4",
-    user_id: "usr-4",
-    storage_path: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&auto=format&fit=crop&q=80",
-    category: "Food",
-    country: "Italy",
-    caption: "A croissant baked in the uncanny, hyper-detailed shape of a sleeping puppy.",
-    wica_score: 76,
-    absurdity: 8,
-    rarity: 8,
-    craft: 9,
-    cultural_novelty: 5,
-    wit: 8,
-    ai_verdict: "A culinary optical illusion that sparks immediate moral conflict before breakfast.",
-    moderation_status: "approved",
-    created_at: new Date(Date.now() - 3600000 * 30).toISOString(),
-    author: INITIAL_DEMO_USERS[4],
-    likes_count: 24,
-    comments_count: 4,
-    user_has_liked: false,
-  },
-  {
-    id: "img-5",
-    user_id: "usr-1",
-    storage_path: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80",
-    category: "Human-Made",
-    country: "Germany",
-    caption: "A skyscraper with a missing floor designed like an open sky bridge with trees inside.",
-    wica_score: 71,
-    absurdity: 7,
-    rarity: 8,
-    craft: 9,
-    cultural_novelty: 5,
-    wit: 6,
-    ai_verdict: "Structural engineering executing a literal gap in commercial reality.",
-    moderation_status: "approved",
-    created_at: new Date(Date.now() - 3600000 * 42).toISOString(),
-    author: INITIAL_DEMO_USERS[1],
-    likes_count: 19,
-    comments_count: 2,
-    user_has_liked: false,
-  },
-  {
-    id: "img-6",
-    user_id: "usr-2",
-    storage_path: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=800&auto=format&fit=crop&q=80",
-    category: "Coincidences",
-    country: "United States",
-    caption: "Shadow of a streetlamp lining up with a sidewalk crack to draw a perfect cartoon face.",
-    wica_score: 68,
-    absurdity: 7,
-    rarity: 7,
-    craft: 6,
-    cultural_novelty: 5,
-    wit: 9,
-    ai_verdict: "Astrophysical alignment meeting municipal pavement damage in an accidental portrait.",
-    moderation_status: "approved",
-    created_at: new Date(Date.now() - 3600000 * 50).toISOString(),
-    author: INITIAL_DEMO_USERS[2],
-    likes_count: 37,
-    comments_count: 6,
-    user_has_liked: false,
-  },
-];
-
-const INITIAL_COMMENTS: Record<string, Comment[]> = {
-  "img-1": [
-    {
-      id: "c-1",
-      user_id: "usr-1",
-      image_id: "img-1",
-      body: "Who was on the other end of the line when the lava hit?!",
-      created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-      author: INITIAL_DEMO_USERS[1],
-    },
-    {
-      id: "c-2",
-      user_id: "usr-2",
-      image_id: "img-1",
-      body: "Straight out of an SCP foundation archive. 10/10 rarity.",
-      created_at: new Date(Date.now() - 3600000).toISOString(),
-      author: INITIAL_DEMO_USERS[2],
-    },
-  ],
-  "img-3": [
-    {
-      id: "c-3",
-      user_id: "usr-3",
-      image_id: "img-3",
-      body: "Spikes were designed by humans, completely misunderstood by cats. Peak comedy.",
-      created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
-      author: INITIAL_DEMO_USERS[3],
-    },
-  ],
-};
-
-// Global in-memory storage for local dev / demo mode
+// Global in-memory storage for runtime caching
 declare global {
   var __WICA_IMAGES: WicaImage[] | undefined;
   var __WICA_USERS: User[] | undefined;
@@ -221,16 +17,16 @@ declare global {
 }
 
 if (!global.__WICA_IMAGES) {
-  global.__WICA_IMAGES = [...INITIAL_DEMO_IMAGES];
+  global.__WICA_IMAGES = [];
 }
 if (!global.__WICA_USERS) {
-  global.__WICA_USERS = [...INITIAL_DEMO_USERS];
+  global.__WICA_USERS = [];
 }
 if (!global.__WICA_COMMENTS) {
-  global.__WICA_COMMENTS = { ...INITIAL_COMMENTS };
+  global.__WICA_COMMENTS = {};
 }
 if (!global.__WICA_LIKES) {
-  global.__WICA_LIKES = new Set<string>(["usr-demo:img-2"]);
+  global.__WICA_LIKES = new Set<string>();
 }
 
 export async function getFeedImages(params?: {
@@ -310,7 +106,7 @@ export async function getFeedImages(params?: {
     images.sort((a, b) => b.wica_score - a.wica_score);
   }
 
-  const currentUserId = params?.currentUserId || "usr-demo";
+  const currentUserId = params?.currentUserId || "";
 
   return images.map((img) => ({
     ...img,
@@ -590,16 +386,13 @@ export async function getUserProfile(usernameOrId: string): Promise<{
   // In-memory fallback
   let user = global.__WICA_USERS?.find((u) => u.username === usernameOrId || u.id === usernameOrId) || null;
 
-  if (!user && (usernameOrId === "usr-demo" || usernameOrId === "curious_traveler" || usernameOrId === "weca_explorer")) {
-    user = {
-      id: "usr-demo",
-      username: usernameOrId,
-      avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-      total_wc: 180,
-      tier: "Certified Weird",
-      created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+  if (!user) {
+    return {
+      user: null,
+      images: [],
+      avgScore: 0,
+      totalWC: 0,
     };
-    global.__WICA_USERS?.push(user);
   }
 
   const userImages = (global.__WICA_IMAGES || []).filter(
@@ -608,7 +401,7 @@ export async function getUserProfile(usernameOrId: string): Promise<{
 
   // Merge in-memory posts from global.__WECA_POSTS
   const memPosts: WicaImage[] = (global.__WECA_POSTS || [])
-    .filter((p: any) => p.user_id === user?.id || (user?.id === "usr-demo" && (!p.user_id || p.user_id === "usr-demo")))
+    .filter((p: any) => p.user_id === user?.id)
     .map((p: any) => ({
       id: p.id,
       user_id: p.user_id,
@@ -625,7 +418,7 @@ export async function getUserProfile(usernameOrId: string): Promise<{
       ai_verdict: p.caption || "Community discovery",
       moderation_status: "approved" as const,
       created_at: p.created_at,
-      author: user || INITIAL_DEMO_USERS[0],
+      author: user,
       likes_count: p.likes_count || 0,
       comments_count: p.comments_count || 0,
       user_has_liked: false,
@@ -687,13 +480,13 @@ export async function deleteImage(
   // Also remove from in-memory stores
   if (global.__WICA_IMAGES) {
     const idx = global.__WICA_IMAGES.findIndex(
-      (img) => img.id === imageId && (img.user_id === userId || userId === "usr-demo")
+      (img) => img.id === imageId && img.user_id === userId
     );
     if (idx !== -1) global.__WICA_IMAGES.splice(idx, 1);
   }
   if (global.__WECA_POSTS) {
     const idx = global.__WECA_POSTS.findIndex(
-      (p: any) => p.id === imageId && (p.user_id === userId || userId === "usr-demo")
+      (p: any) => p.id === imageId && p.user_id === userId
     );
     if (idx !== -1) global.__WECA_POSTS.splice(idx, 1);
   }
@@ -732,7 +525,7 @@ export async function updateImage(
   // Update in-memory stores
   if (global.__WICA_IMAGES) {
     const img = global.__WICA_IMAGES.find(
-      (i) => i.id === imageId && (i.user_id === userId || userId === "usr-demo")
+      (i) => i.id === imageId && i.user_id === userId
     );
     if (img && updates.caption !== undefined) {
       img.caption = updates.caption || "";
@@ -740,7 +533,7 @@ export async function updateImage(
   }
   if (global.__WECA_POSTS) {
     const post = global.__WECA_POSTS.find(
-      (p: any) => p.id === imageId && (p.user_id === userId || userId === "usr-demo")
+      (p: any) => p.id === imageId && p.user_id === userId
     );
     if (post && updates.caption !== undefined) {
       post.caption = updates.caption;
@@ -864,8 +657,8 @@ export async function saveScoredImage(params: {
     created_at: new Date().toISOString(),
     author: {
       id: params.userId,
-      username: params.authorUser?.username || "curious_traveler",
-      avatar_url: params.authorUser?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+      username: params.authorUser?.username || "explorer",
+      avatar_url: params.authorUser?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${params.userId}`,
       tier: params.scoreBreakdown.tier,
     },
     likes_count: 0,
@@ -874,7 +667,7 @@ export async function saveScoredImage(params: {
   };
 
   if (!global.__WICA_IMAGES) {
-    global.__WICA_IMAGES = [...INITIAL_DEMO_IMAGES];
+    global.__WICA_IMAGES = [];
   }
   global.__WICA_IMAGES.unshift(newImage);
 

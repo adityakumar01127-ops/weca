@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { MOCK_ACHIEVEMENTS, MOCK_TRANSACTIONS } from "@/lib/mockData";
 import { Achievement, CreditTransaction, PayoutRequest, PayoutDetails, PayoutMethod } from "@/lib/types";
 import { MIN_CASHOUT_THRESHOLD_WC, WC_TO_USD_RATE, WC_TO_INR_RATE } from "@/lib/credits";
 import { 
@@ -109,16 +108,7 @@ export const WalletView: React.FC = () => {
         if (data.transactions && data.transactions.length > 0) {
           setTransactions(data.transactions);
         } else {
-          // Fallback to mock mapped transactions if user has no transactions yet
-          setTransactions(
-            MOCK_TRANSACTIONS.map((t) => ({
-              id: t.id,
-              user_id: profile?.id || "demo",
-              amount: t.amount,
-              reason: t.reason,
-              created_at: t.created_at,
-            }))
-          );
+          setTransactions([]);
         }
         if (data.payouts) {
           setPayouts(data.payouts);
@@ -134,6 +124,68 @@ export const WalletView: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [profile?.id]);
+
+  const userBalance = profile?.credits_balance ?? 50;
+  const userAchievements: Achievement[] = useMemo(() => {
+    return [
+      {
+        id: "ach-1",
+        title: "Explorer Registration",
+        description: "Successfully activate your Weca explorer account and receive your starting stipend.",
+        reward_wc: 50,
+        iconName: "Sparkles",
+        unlocked: true,
+        progress: 100,
+      },
+      {
+        id: "ach-2",
+        title: "First Anomaly Sighting",
+        description: "Submit your very first candid photograph to the Gemini Vision engine.",
+        reward_wc: 50,
+        iconName: "Eye",
+        unlocked: transactions.some((t) => t.reason?.toLowerCase().includes("upload") || t.reason?.toLowerCase().includes("sighting") || t.reason?.toLowerCase().includes("post")),
+        progress: transactions.some((t) => t.reason?.toLowerCase().includes("upload") || t.reason?.toLowerCase().includes("sighting") || t.reason?.toLowerCase().includes("post")) ? 100 : 0,
+      },
+      {
+        id: "ach-3",
+        title: "Versus Gladiator",
+        description: "Cast your vote on head-to-head candid physical battles in the Versus Arena.",
+        reward_wc: 100,
+        iconName: "Swords",
+        unlocked: false,
+        progress: 0,
+      },
+      {
+        id: "ach-4",
+        title: "Century Club",
+        description: "Amass a balance of 100 or more Weird Credits in your rewards ledger.",
+        reward_wc: 100,
+        iconName: "Flame",
+        unlocked: userBalance >= 100,
+        progress: Math.min(100, Math.round((userBalance / 100) * 100)),
+      },
+      {
+        id: "ach-5",
+        title: "Reality Shatterer",
+        description: "Attain a verified Weca Score of 85 or above on any candid physical photo.",
+        reward_wc: 250,
+        iconName: "Award",
+        unlocked: false,
+        progress: 0,
+      },
+      {
+        id: "ach-6",
+        title: "Master Spotter",
+        description: "Earn community endorsements and reach a lifetime total of 500 Weird Credits.",
+        reward_wc: 500,
+        iconName: "Trophy",
+        unlocked: userBalance >= 500,
+        progress: Math.min(100, Math.round((userBalance / 500) * 100)),
+      },
+    ];
+  }, [userBalance, transactions]);
+
+  const unlockedCount = userAchievements.filter((a) => a.unlocked).length;
 
   // Icon mapper helper
   const getIcon = (iconName: string) => {
@@ -684,12 +736,12 @@ export const WalletView: React.FC = () => {
             </p>
           </div>
           <span className="text-xs font-mono text-violet font-semibold">
-            2 of 6 Unlocked (33%)
+            {unlockedCount} of {userAchievements.length} Unlocked ({Math.round((unlockedCount / userAchievements.length) * 100)}%)
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MOCK_ACHIEVEMENTS.map((ach) => (
+          {userAchievements.map((ach) => (
             <div
               key={ach.id}
               className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${

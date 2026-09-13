@@ -487,8 +487,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     handleCancelScheduled(item.id);
     showToast("Publishing anomaly sighting now...");
 
-    const currentUserId = user?.id || profile?.id || "demo-explorer";
-    if (user && profile) {
+    const currentUserId = user?.id || profile?.id;
+    if (user && profile && currentUserId) {
       try {
         const res = await fetch(item.image_url);
         const blob = await res.blob();
@@ -504,17 +504,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         console.error("Error publishing scheduled item to Supabase", e);
       }
     } else {
-      const guestPost = {
-        id: generateUniqueId("post"),
-        user_id: currentUserId,
-        storage_path: item.image_url,
-        caption: item.caption || "Scheduled anomaly sighting",
-        category: item.category,
-        wica_score: 95,
-        created_at: new Date().toISOString(),
-      };
-      const existing = JSON.parse(localStorage.getItem("weca_guest_posts") || "[]");
-      localStorage.setItem("weca_guest_posts", JSON.stringify([guestPost, ...existing]));
+      setError("Please sign in to publish scheduled photographs.");
+      return;
     }
 
     try {
@@ -533,7 +524,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       return;
     }
 
-    const currentUserId = user?.id || profile?.id || "demo-explorer";
+    const currentUserId = user?.id || profile?.id;
+    if (!currentUserId || !user || !profile) {
+      setError("Please sign in to publish candidate photographs to the community feed.");
+      setUploading(false);
+      return;
+    }
 
     // 1. If Scheduled Mode: Save to Scheduled Queue
     if (isScheduled) {
@@ -586,7 +582,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         }
       }
 
-      if (user && profile && uploadableFile) {
+      if (uploadableFile) {
         // Authenticated Supabase flow
         const limitCheck = await checkUploadRateLimit(currentUserId);
         if (!limitCheck.allowed) {
@@ -604,19 +600,6 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           caption: caption.trim() || null,
           authorProfile: profile,
         });
-      } else {
-        // Guest / Demo Mode flow: save in localStorage guest posts
-        const guestPost = {
-          id: generateUniqueId("post"),
-          user_id: currentUserId,
-          storage_path: previewUrl,
-          caption: caption.trim() || "Anomaly sighting in Sector 9",
-          category,
-          wica_score: 94,
-          created_at: new Date().toISOString(),
-        };
-        const existing = JSON.parse(localStorage.getItem("weca_guest_posts") || "[]");
-        localStorage.setItem("weca_guest_posts", JSON.stringify([guestPost, ...existing]));
       }
 
       if (activeDraftId) {

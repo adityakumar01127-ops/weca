@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { MOCK_LEADERBOARD } from "@/lib/mockData";
+import React, { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { LeaderboardHunter, getTierColor } from "@/lib/types";
+import { getLeaderboardHunters } from "@/lib/supabase/data";
 import { 
   Trophy, 
   Flame, 
@@ -21,13 +22,35 @@ import {
 } from "lucide-react";
 
 export const LeaderboardView: React.FC = () => {
+  const { user, profile } = useAuth();
   const [timeframe, setTimeframe] = useState<"all" | "month" | "week">("all");
   const [metric, setMetric] = useState<"score" | "wc" | "accuracy" | "streak">("wc");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  const [hunters, setHunters] = useState<LeaderboardHunter[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let mounted = true;
+    getLeaderboardHunters(50)
+      .then((data) => {
+        if (mounted) {
+          setHunters(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.warn("Leaderboard fetch failed:", err);
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // Sort and filter leaderboard based on active metric
   const sortedHunters = useMemo(() => {
-    const list = [...MOCK_LEADERBOARD];
+    const list = [...hunters];
     if (metric === "wc") {
       list.sort((a, b) => b.user.total_wc - a.user.total_wc);
     } else if (metric === "score") {
@@ -45,7 +68,7 @@ export const LeaderboardView: React.FC = () => {
         h.user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (h.user.country && h.user.country.toLowerCase().includes(searchQuery.toLowerCase()))
       );
-  }, [metric, searchQuery]);
+  }, [hunters, metric, searchQuery]);
 
   const top3 = sortedHunters.slice(0, 3);
   const remaining = sortedHunters.slice(3);
@@ -250,7 +273,16 @@ export const LeaderboardView: React.FC = () => {
         </div>
 
         <div className="divide-y divide-zinc-200 dark:divide-zinc-800/80">
-          {sortedHunters.map((hunter) => {
+          {loading ? (
+            <div className="p-12 text-center text-zinc-400 dark:text-zinc-500 font-mono text-xs animate-pulse">
+              Connecting to global spotter ledger...
+            </div>
+          ) : sortedHunters.length === 0 ? (
+            <div className="p-12 text-center text-zinc-400 dark:text-zinc-500 font-mono text-xs">
+              No registered spotters found matching query.
+            </div>
+          ) : (
+            sortedHunters.map((hunter) => {
             const tierColor = getTierColor(hunter.user.tier);
             const isTop3 = hunter.rank <= 3;
 
@@ -323,38 +355,47 @@ export const LeaderboardView: React.FC = () => {
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
       </div>
 
       {/* Sticky User Position Bar */}
-      <div className="sticky bottom-6 p-4 rounded-2xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xl border border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-violet/15 dark:bg-violet/30 border border-violet/30 dark:border-violet/50 flex items-center justify-center font-mono font-bold text-xs text-violet">
-            #14
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-zinc-900 dark:text-white">Your Current Rank</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-cyan-700 dark:text-cyan">
-                Certified Weird Tier
-              </span>
+      {profile && (
+        <div className="sticky bottom-6 p-4 rounded-2xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xl border border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-violet/15 dark:bg-violet/30 border border-violet/30 dark:border-violet/50 flex items-center justify-center font-mono font-bold text-xs text-violet">
+              #{sortedHunters.findIndex((h) => h.user.id === (user?.id || profile.id)) !== -1
+                ? sortedHunters.findIndex((h) => h.user.id === (user?.id || profile.id)) + 1
+                : sortedHunters.length + 1}
             </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-              Amassed 680 WC • 120 WC needed to claim Rank #13
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-zinc-900 dark:text-white">Your Rank: @{profile.username}</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-cyan-700 dark:text-cyan">
+                  {(profile.credits_balance ?? 50) >= 500
+                    ? "Legendary Anomaly"
+                    : (profile.credits_balance ?? 50) >= 200
+                    ? "Reality-Breaking"
+                    : "Certified Weird"}
+                </span>
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+                {(profile.credits_balance ?? 50).toLocaleString()} WC balance • Spot candid anomalies to climb higher
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="px-4 py-2 rounded-xl bg-violet hover:bg-violet/90 text-white text-xs font-semibold font-mono transition-all active:scale-95 cursor-pointer"
+            >
+              Top Finders ↑
+            </button>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="px-4 py-2 rounded-xl bg-violet hover:bg-violet/90 text-white text-xs font-semibold font-mono transition-all active:scale-95"
-          >
-            Explore Top Finders ↑
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

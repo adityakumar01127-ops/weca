@@ -42,12 +42,23 @@ import {
   DEMO_PARTICIPANTS,
 } from "@/lib/messages";
 import { CameraCaptureModal } from "@/components/messages/CameraCaptureModal";
+import { useAuth } from "@/context/AuthContext";
+import { getRegisteredSpotters } from "@/lib/supabase/data";
 
 type TabType = "primary" | "requests" | "general";
 
 export const MessagesInbox: React.FC = () => {
+  const { user, profile } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const currentUserId = user?.id || profile?.id || DEMO_PARTICIPANTS.self.id;
+  const currentAvatarUrl =
+    profile?.avatar_url ||
+    (profile?.username
+      ? `https://api.dicebear.com/7.x/initials/svg?seed=${profile.username}`
+      : "https://api.dicebear.com/7.x/bottts/svg?seed=explorer");
+  const currentDisplayName = profile?.display_name || profile?.username || "You";
 
   // State
   const [activeTab, setActiveTab] = useState<TabType>("primary");
@@ -108,7 +119,22 @@ export const MessagesInbox: React.FC = () => {
   // Load conversations & notes
   const conversations = useMemo(() => getConversations(), [tick]);
   const notes = useMemo(() => getNotes(), [tick]);
-  const availableUsers = useMemo(() => getAvailableUsers(), []);
+  const [availableUsers, setAvailableUsers] = useState<ConversationParticipant[]>([]);
+
+  useEffect(() => {
+    getRegisteredSpotters(50).then((profiles) => {
+      const participants: ConversationParticipant[] = profiles
+        .filter((p) => p.id !== currentUserId)
+        .map((p) => ({
+          id: p.id,
+          username: p.username || "explorer",
+          displayName: p.display_name || p.username || "Explorer",
+          avatarUrl: p.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${p.username || "explorer"}`,
+          isVerified: (p.credits_balance ?? 0) >= 500 || Boolean(p.is_admin),
+        }));
+      setAvailableUsers(participants);
+    });
+  }, [currentUserId]);
 
   // Search filter for Accounts
   const searchedAccounts = useMemo(() => {
@@ -126,22 +152,22 @@ export const MessagesInbox: React.FC = () => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase().trim();
     return conversations.filter((conv) => {
-      const other = getOtherParticipant(conv, DEMO_PARTICIPANTS.self.id);
+      const other = getOtherParticipant(conv, currentUserId);
       const matchesUser =
         other.username.toLowerCase().includes(q) ||
         other.displayName.toLowerCase().includes(q);
       const matchesMsg = conv.lastMessage?.text?.toLowerCase().includes(q);
       return matchesUser || matchesMsg;
     });
-  }, [searchQuery, conversations]);
+  }, [searchQuery, conversations, currentUserId]);
 
   const selfNote = useMemo(
-    () => notes.find((n) => n.isSelf || n.userId === DEMO_PARTICIPANTS.self.id),
-    [notes]
+    () => notes.find((n) => n.isSelf || n.userId === currentUserId),
+    [notes, currentUserId]
   );
   const otherNotes = useMemo(
-    () => notes.filter((n) => !n.isSelf && n.userId !== DEMO_PARTICIPANTS.self.id),
-    [notes]
+    () => notes.filter((n) => !n.isSelf && n.userId !== currentUserId),
+    [notes, currentUserId]
   );
 
   const primaryConversations = useMemo(
@@ -387,7 +413,7 @@ export const MessagesInbox: React.FC = () => {
                       className="w-14 h-14 rounded-full overflow-hidden mt-1 relative cursor-pointer group ring-2 ring-zinc-200 dark:ring-zinc-800"
                     >
                       <img
-                        src={DEMO_PARTICIPANTS.self.avatarUrl}
+                        src={currentAvatarUrl}
                         alt="Your avatar"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
@@ -582,7 +608,7 @@ export const MessagesInbox: React.FC = () => {
                   </div>
                   <ul className="divide-y divide-zinc-100 dark:divide-zinc-800/40">
                     {searchedConversations.map((conv) => {
-                      const other = getOtherParticipant(conv, DEMO_PARTICIPANTS.self.id);
+                      const other = getOtherParticipant(conv, currentUserId);
                       const preview = getLastMessagePreview(conv);
                       const timeStr = conv.lastMessage
                         ? formatMessageTime(conv.lastMessage.timestamp)
@@ -826,36 +852,42 @@ export const MessagesInbox: React.FC = () => {
               </p>
             </div>
             <div className="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800/60 p-2">
-              {availableUsers.map((user) => (
-                <button
-                  key={user.id}
-                  type="button"
-                  onClick={() => {
-                    setIsComposeOpen(false);
-                    const conv = createConversation(user);
-                    router.push(`/messages/${conv.id}`);
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors text-left cursor-pointer"
-                >
-                  <img
-                    src={user.avatarUrl}
-                    alt={user.displayName}
-                    className="w-10 h-10 rounded-full object-cover shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
-                        {user.displayName}
-                      </span>
-                      {user.isVerified && (
-                        <ShieldCheck className="w-3.5 h-3.5 text-cyan shrink-0" />
-                      )}
+              {availableUsers.length === 0 ? (
+                <div className="p-8 text-center text-xs font-mono text-zinc-400 dark:text-zinc-500">
+                  No other registered spotters found yet.
+                </div>
+              ) : (
+                availableUsers.map((user) => (
+                  <button
+                    key={user.id}
+                    type="button"
+                    onClick={() => {
+                      setIsComposeOpen(false);
+                      const conv = createConversation(user);
+                      router.push(`/messages/${conv.id}`);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors text-left cursor-pointer"
+                  >
+                    <img
+                      src={user.avatarUrl}
+                      alt={user.displayName}
+                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                          {user.displayName}
+                        </span>
+                        {user.isVerified && (
+                          <ShieldCheck className="w-3.5 h-3.5 text-cyan shrink-0" />
+                        )}
+                      </div>
+                      <p className="text-xs text-zinc-500 font-mono">@{user.username}</p>
                     </div>
-                    <p className="text-xs text-zinc-500 font-mono">@{user.username}</p>
-                  </div>
-                  <span className="text-xs text-violet font-semibold">Chat →</span>
-                </button>
-              ))}
+                    <span className="text-xs text-violet font-semibold">Chat →</span>
+                  </button>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -885,7 +917,7 @@ export const MessagesInbox: React.FC = () => {
               </div>
               <div className="w-2 h-2 bg-zinc-100 dark:bg-zinc-800 border-r border-b border-zinc-200 dark:border-zinc-700 rotate-45 mx-auto -mt-1" />
               <img
-                src={DEMO_PARTICIPANTS.self.avatarUrl}
+                src={currentAvatarUrl}
                 alt="Avatar"
                 className="w-14 h-14 rounded-full object-cover mt-2 ring-2 ring-violet"
               />

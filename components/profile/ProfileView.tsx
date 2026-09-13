@@ -93,22 +93,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         }
       }
     }
-    return [
-      {
-        id: "story-init-1",
-        image_url: "/anom-1.jpg",
-        caption: "Field sighting: Tokyo optical anomaly ⚡",
-        created_at: "2h ago",
-        wica_score: 94.2,
-      },
-      {
-        id: "story-init-2",
-        image_url: "/anom-2.jpg",
-        caption: "Bioluminescent botanical glitch in Shinjuku 🌸",
-        created_at: "45m ago",
-        wica_score: 88.7,
-      },
-    ];
+    return [];
   });
 
   const handleAddStory = (newStory: StoryItem) => {
@@ -134,65 +119,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
       (currentUser.username?.toLowerCase() === username.toLowerCase() ||
         currentUser.id === username));
 
-  // Default Expedition Highlights
-  const DEFAULT_HIGHLIGHTS: HighlightItem[] = [
-    {
-      id: "h1",
-      name: "Glitch Finds",
-      icon: "🛸",
-      gradient: "from-violet/80 via-purple-600/70 to-cyan/80",
-      cover_image: "/anom-1.jpg",
-      stories: [
-        {
-          id: "hl-s1",
-          image_url: "/anom-1.jpg",
-          caption: "Glitch anomaly in Sector 7",
-          created_at: new Date().toISOString(),
-          wica_score: 96,
-        },
-        {
-          id: "hl-s2",
-          image_url: "/anom-2.jpg",
-          caption: "Spectral frequency feedback loop",
-          created_at: new Date().toISOString(),
-          wica_score: 91,
-        },
-      ],
-    },
-    {
-      id: "h2",
-      name: "Tokyo Night",
-      icon: "⛩️",
-      gradient: "from-indigo-600/80 via-fuchsia-600/70 to-pink-500/80",
-      cover_image: "/anom-2.jpg",
-      stories: [
-        {
-          id: "hl-s3",
-          image_url: "/anom-2.jpg",
-          caption: "Neon refraction over Shinjuku crossing",
-          created_at: new Date().toISOString(),
-          wica_score: 94,
-        },
-      ],
-    },
-    {
-      id: "h3",
-      name: "Rare Nature",
-      icon: "🌿",
-      gradient: "from-emerald-500/80 via-teal-600/70 to-cyan/80",
-      cover_image: "/anom-3.jpg",
-      stories: [
-        {
-          id: "hl-s4",
-          image_url: "/anom-3.jpg",
-          caption: "Bioluminescent botanical specimen",
-          created_at: new Date().toISOString(),
-          wica_score: 89,
-        },
-      ],
-    },
-  ];
-
   // Expeditions / Story highlights with localStorage persistence
   const [highlights, setHighlights] = useState<HighlightItem[]>(() => {
     if (typeof window !== "undefined") {
@@ -204,112 +130,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         } catch (e) {}
       }
     }
-    return DEFAULT_HIGHLIGHTS;
+    return [];
   });
 
-  const sampleExhibitionImages: WicaImage[] = [
-    {
-      id: "samp-1",
-      user_id: "demo",
-      storage_path: "/anom-1.jpg",
-      category: "Human-Made",
-      caption: "Urban optical refraction Tokyo",
-      wica_score: 94,
-      absurdity: 92,
-      rarity: 95,
-      craft: 88,
-      cultural_novelty: 90,
-      wit: 85,
-      ai_verdict: "Certified S-Tier Anomaly",
-      moderation_status: "approved",
-      created_at: new Date().toISOString(),
-      likes_count: 86,
-      comments_count: 14,
-    },
-    {
-      id: "samp-2",
-      user_id: "demo",
-      storage_path: "/anom-2.jpg",
-      category: "Nature",
-      caption: "Bioluminescent botanical glitch Kyoto",
-      wica_score: 88,
-      absurdity: 85,
-      rarity: 89,
-      craft: 84,
-      cultural_novelty: 82,
-      wit: 78,
-      ai_verdict: "Verified Botanical Mutation",
-      moderation_status: "approved",
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      likes_count: 53,
-      comments_count: 9,
-    },
-    {
-      id: "samp-3",
-      user_id: "demo",
-      storage_path: "/anom-3.jpg",
-      category: "Coincidences",
-      caption: "Atmospheric resonance in night sky",
-      wica_score: 91,
-      absurdity: 88,
-      rarity: 93,
-      craft: 87,
-      cultural_novelty: 86,
-      wit: 80,
-      ai_verdict: "Celestial Atmospheric Anomaly",
-      moderation_status: "approved",
-      created_at: new Date(Date.now() - 172800000).toISOString(),
-      likes_count: 67,
-      comments_count: 11,
-    },
-  ];
-
-  const sampleBattles = [
-    {
-      id: "battle-tokyo-neon",
-      title: "Urban Optical Refraction vs Atmospheric Resonance",
-      postA: {
-        id: "samp-1",
-        title: "Urban Refraction",
-        image: "/anom-1.jpg",
-        score: 94,
-        votes: 42,
-      },
-      postB: {
-        id: "samp-3",
-        title: "Atmospheric Resonance",
-        image: "/anom-3.jpg",
-        score: 91,
-        votes: 31,
-      },
-      status: "active",
-      statusLabel: "Live Voting",
-      prize: "50 WC Bounty",
-      endsIn: "5h 18m",
-    },
-    {
-      id: "battle-kyoto-glitch",
-      title: "Bioluminescent Glitch vs Silicon Mirror",
-      postA: {
-        id: "samp-2",
-        title: "Bioluminescent Flora",
-        image: "/anom-2.jpg",
-        score: 88,
-        votes: 76,
-      },
-      postB: {
-        id: "samp-1",
-        title: "Urban Refraction",
-        image: "/anom-1.jpg",
-        score: 85,
-        votes: 49,
-      },
-      status: "won",
-      statusLabel: "Victory (+50 WC)",
-      prize: "Concluded",
-      endsIn: "Ended",
-    },
-  ];
+  const [userBattles] = useState<any[]>([]);
 
   // Load Saved Post IDs from localStorage
   useEffect(() => {
@@ -319,8 +143,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         if (stored) {
           setSavedPostIds(JSON.parse(stored));
         } else {
-          // Initialize with samp-1 as a demo bookmark if empty
-          setSavedPostIds(["samp-1"]);
+          setSavedPostIds([]);
         }
       } catch {}
     }
@@ -342,7 +165,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
             const parsed = JSON.parse(raw);
             localGuestPosts = parsed.map((gp: any) => ({
               id: gp.id,
-              user_id: gp.user_id || currentUser?.id || "usr-demo",
+              user_id: gp.user_id || currentUser?.id || "",
               storage_path: gp.storage_path,
               category: gp.category || "Objects",
               country: gp.country,
@@ -356,14 +179,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
               ai_verdict: gp.caption || "Spectacular anomalous specimen logged.",
               moderation_status: "approved" as const,
               created_at: gp.created_at || new Date().toISOString(),
-              author: currentUser || {
-                id: "usr-demo",
-                username: "curious_traveler",
-                avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-                total_wc: 180,
-                tier: "Certified Weird",
-                created_at: new Date().toISOString(),
-              },
+              author: currentUser || undefined,
               likes_count: gp.likes_count || 0,
               comments_count: gp.comments_count || 0,
               user_has_liked: false,
@@ -376,7 +192,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
 
       if (data.user) {
         setProfileUser(data.user);
-        const rawServerImgs = (data.images && data.images.length > 0) ? data.images : sampleExhibitionImages;
+        const rawServerImgs = (data.images && data.images.length > 0) ? data.images : [];
         const merged = new Map<string, WicaImage>();
         localGuestPosts.forEach((gp) => merged.set(gp.id, gp));
         rawServerImgs.forEach((img: WicaImage) => {
@@ -384,25 +200,22 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         });
         const combined = Array.from(merged.values());
         setImages(combined);
-        setAvgScore(data.avgScore || 92);
-        setTotalWC(data.totalWC || data.user.total_wc || authProfile?.credits_balance || 140);
+        setAvgScore(data.avgScore || (combined.length > 0 ? 92 : 0));
+        setTotalWC(data.totalWC || data.user.total_wc || authProfile?.credits_balance || 50);
       } else if (isOwnProfile && currentUser) {
         setProfileUser(currentUser);
         const merged = new Map<string, WicaImage>();
         localGuestPosts.forEach((gp) => merged.set(gp.id, gp));
-        sampleExhibitionImages.forEach((img) => {
-          if (!merged.has(img.id)) merged.set(img.id, img);
-        });
         setImages(Array.from(merged.values()));
-        setTotalWC(currentUser.total_wc || authProfile?.credits_balance || 140);
+        setTotalWC(currentUser.total_wc || authProfile?.credits_balance || 50);
       } else {
-        setImages(sampleExhibitionImages);
+        setImages([]);
       }
     } catch (err) {
       console.error("Failed to load profile:", err);
       if (isOwnProfile && currentUser) {
         setProfileUser(currentUser);
-        setImages(sampleExhibitionImages);
+        setImages([]);
       }
     } finally {
       setLoading(false);
@@ -432,7 +245,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: currentUser?.id || authProfile?.id || "usr-demo",
+          userId: currentUser?.id || authProfile?.id || "",
         }),
       });
 
@@ -469,7 +282,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           caption: newCaption,
-          userId: currentUser?.id || authProfile?.id || "usr-demo",
+          userId: currentUser?.id || authProfile?.id || "",
         }),
       });
 
@@ -541,7 +354,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
   // Dynamic Saved Posts lookup
   const savedImages = useMemo(() => {
     if (savedPostIds.length === 0) return [];
-    const pool = [...images, ...sampleExhibitionImages];
+    const pool = [...images];
     const map = new Map<string, WicaImage>();
     pool.forEach((item) => {
       if (savedPostIds.includes(item.id)) {
@@ -1175,7 +988,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                      Active & Past Arena Showdowns ({sampleBattles.length})
+                      Active & Past Arena Showdowns ({userBattles.length})
                     </p>
                     <Link
                       href="/versus"
@@ -1186,79 +999,35 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                     </Link>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {sampleBattles.map((battle) => (
-                      <div
-                        key={battle.id}
-                        className="p-4 rounded-2xl bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition-all flex flex-col justify-between gap-3 group shadow-xs"
+                  {userBattles.length === 0 ? (
+                    <div className="py-14 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 p-6 space-y-3 bg-white/40 dark:bg-transparent">
+                      <Swords className="w-8 h-8 text-zinc-400 dark:text-zinc-600 mx-auto" />
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 font-mono">
+                        No Versus battles entered yet.
+                      </p>
+                      <Link
+                        href="/versus"
+                        className="inline-block px-3.5 py-1.5 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 text-xs font-semibold dark:hover:bg-zinc-200 transition-colors shadow-xs"
                       >
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-mono text-zinc-800 dark:text-zinc-300 font-semibold truncate max-w-[200px]">
-                            {battle.title}
-                          </span>
-                          <span
-                            className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-bold ${
-                              battle.status === "active"
-                                ? "bg-magenta/15 text-magenta border border-magenta/30"
-                                : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
-                            }`}
-                          >
-                            {battle.statusLabel}
-                          </span>
-                        </div>
-
-                        {/* Side by side preview */}
-                        <div className="grid grid-cols-2 gap-2 relative">
-                          <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
-                            <img
-                              src={battle.postA.image}
-                              alt={battle.postA.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-xs text-[10px] font-mono text-cyan font-bold">
-                              ★ {battle.postA.score}
-                            </div>
-                            <div className="absolute top-1 right-1.5 text-[10px] font-mono text-zinc-300">
-                              {battle.postA.votes} votes
-                            </div>
-                          </div>
-
-                          <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
-                            <img
-                              src={battle.postB.image}
-                              alt={battle.postB.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-xs text-[10px] font-mono text-cyan font-bold">
-                              ★ {battle.postB.score}
-                            </div>
-                            <div className="absolute top-1 right-1.5 text-[10px] font-mono text-zinc-300">
-                              {battle.postB.votes} votes
-                            </div>
-                          </div>
-
-                          {/* Centered VS badge */}
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white flex items-center justify-center text-[10px] font-bold font-mono shadow-md">
-                            VS
+                        Enter Versus Arena
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {userBattles.map((battle) => (
+                        <div
+                          key={battle.id}
+                          className="p-4 rounded-2xl bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition-all flex flex-col justify-between gap-3 group shadow-xs"
+                        >
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-mono text-zinc-800 dark:text-zinc-300 font-semibold truncate max-w-[200px]">
+                              {battle.title}
+                            </span>
                           </div>
                         </div>
-
-                        <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-200 dark:border-zinc-800/60">
-                          <span className="text-[11px] font-mono text-amber-600 dark:text-amber-400 flex items-center gap-1 font-semibold">
-                            <Coins className="w-3 h-3" />
-                            {battle.prize}
-                          </span>
-                          <Link
-                            href="/versus"
-                            className="px-3 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-white/10 dark:hover:bg-white/20 text-zinc-900 dark:text-white font-mono text-[11px] font-semibold transition-colors flex items-center gap-1 shadow-xs"
-                          >
-                            <span>{battle.status === "active" ? "Vote Now" : "View Result"}</span>
-                            <ChevronRight className="w-3 h-3" />
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : activeTab === "saved" ? (
                 savedImages.length === 0 ? (

@@ -80,14 +80,7 @@ function formatStoryTime(timeStr?: string | null): string {
 
 const STORY_DURATION = 5000; // 5 seconds per slide
 
-// Simulated viewers for own story insights
-const MOCK_VIEWERS = [
-  { username: "cipher_scout", name: "Cipher Scout", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=cipher_scout", reaction: "⚡", time: "12m ago" },
-  { username: "neo_tokyo", name: "Neo Tokyo", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=neo_tokyo", reaction: "🔮", time: "24m ago" },
-  { username: "glitch_hunter", name: "Glitch Hunter", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=glitch_hunter", reaction: "❤️", time: "45m ago" },
-  { username: "void_walker", name: "Void Walker", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=void_walker", reaction: "👁️", time: "1h ago" },
-  { username: "spectral_agent", name: "Spectral Agent", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=spectral_agent", reaction: null, time: "2h ago" },
-];
+
 
 export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
   isOpen,
@@ -1175,7 +1168,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
                   <Eye className="w-4 h-4 text-cyan-400" />
                   <h3 className="font-bold text-white text-sm">Story Insights</h3>
                   <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-[10px]">
-                    {currentStory.views_count || 142} views
+                    {currentStory.views_count || 0} views
                   </span>
                 </div>
                 <button
@@ -1192,27 +1185,14 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
             </div>
 
             {/* Viewers List */}
-            <div className="flex-1 overflow-y-auto space-y-3 py-3">
-              {MOCK_VIEWERS.map((v) => (
-                <div key={v.username} className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <img
-                      src={v.avatar}
-                      alt={v.username}
-                      className="w-8 h-8 rounded-full bg-zinc-800 object-cover"
-                    />
-                    <div>
-                      <p className="text-xs font-semibold text-white">@{v.username}</p>
-                      <p className="text-[10px] text-zinc-400 font-mono">{v.time}</p>
-                    </div>
-                  </div>
-                  {v.reaction && (
-                    <span className="text-sm bg-white/10 px-2 py-0.5 rounded-full">
-                      {v.reaction}
-                    </span>
-                  )}
-                </div>
-              ))}
+            <div className="flex-1 overflow-y-auto space-y-2 py-6 text-center">
+              <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-2 text-zinc-400">
+                <Eye className="w-5 h-5" />
+              </div>
+              <p className="text-xs text-zinc-300 font-mono">No views recorded yet</p>
+              <p className="text-[11px] text-zinc-500 max-w-[240px] mx-auto leading-relaxed">
+                When observers view your sighting, their explorer profiles will appear here.
+              </p>
             </div>
 
             {/* Footer */}

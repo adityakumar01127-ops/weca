@@ -55,6 +55,7 @@ import {
   DEMO_PARTICIPANTS,
 } from "@/lib/messages";
 import { CameraCaptureModal } from "@/components/messages/CameraCaptureModal";
+import { useAuth } from "@/context/AuthContext";
 
 interface ConversationThreadProps {
   conversationId: string;
@@ -111,8 +112,13 @@ export const ConversationThread: React.FC<ConversationThreadProps> = ({
   const fileUploadInputRef = useRef<HTMLInputElement>(null);
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
   const recordTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const SELF_ID = "00000000-0000-0000-0000-000000000001";
+  const { user, profile } = useAuth();
+  const SELF_ID = user?.id || profile?.id || "00000000-0000-0000-0000-000000000001";
+  const currentAvatarUrl =
+    profile?.avatar_url ||
+    (profile?.username
+      ? `https://api.dicebear.com/7.x/initials/svg?seed=${profile.username}`
+      : DEMO_PARTICIPANTS.self.avatarUrl);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -1164,7 +1170,7 @@ export const ConversationThread: React.FC<ConversationThreadProps> = ({
 
           <div className="absolute top-6 right-6 w-28 h-36 rounded-2xl overflow-hidden border-2 border-white/40 shadow-2xl z-10 bg-zinc-900">
             <img
-              src={DEMO_PARTICIPANTS.self.avatarUrl}
+              src={currentAvatarUrl}
               alt="Self preview"
               className={`w-full h-full object-cover ${
                 isCameraFlipped ? "-scale-x-100" : ""

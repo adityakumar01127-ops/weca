@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { MOCK_CHALLENGES } from "@/lib/mockData";
+import { COMMUNITY_CHALLENGES } from "@/lib/mockData";
 import { Challenge, WicaImage } from "@/lib/types";
 import { 
   Sparkles, 
@@ -22,7 +22,7 @@ import confetti from "canvas-confetti";
 import { getSafeImageUrl } from "@/lib/utils/image";
 
 export const ChallengesView: React.FC = () => {
-  const [challenges, setChallenges] = useState<Challenge[]>(MOCK_CHALLENGES);
+  const [challenges, setChallenges] = useState<Challenge[]>(COMMUNITY_CHALLENGES);
   const [activeTab, setActiveTab] = useState<"active" | "archive">("active");
   const [votedEntries, setVotedEntries] = useState<Record<string, boolean>>({});
   const [entryLikes, setEntryLikes] = useState<Record<string, number>>({
@@ -161,70 +161,89 @@ export const ChallengesView: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {activeChallenge.featured_images.map((img) => {
-                const isVoted = votedEntries[img.id];
-                const likes = entryLikes[img.id] || 0;
+            {activeChallenge.featured_images.length === 0 ? (
+              <div className="p-12 text-center rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40">
+                <Sparkles className="w-8 h-8 text-cyan mx-auto mb-3 opacity-60" />
+                <h4 className="font-display font-bold text-base text-zinc-900 dark:text-white mb-1">
+                  No submissions logged yet
+                </h4>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-4">
+                  Be the first researcher to submit a physical finding for {activeChallenge.hashtag} and claim the {activeChallenge.reward_wc} WC bounty.
+                </p>
+                <Link
+                  href="/#world-feed-heading"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan text-zinc-950 font-display font-bold text-xs shadow-sm hover:bg-cyan/90 transition-all"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Submit Finding</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {activeChallenge.featured_images.map((img) => {
+                  const isVoted = votedEntries[img.id];
+                  const likes = entryLikes[img.id] || 0;
 
-                return (
-                  <div
-                    key={img.id}
-                    className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="relative aspect-16/10 bg-zinc-100 dark:bg-zinc-950 overflow-hidden">
-                        <img
-                          src={getSafeImageUrl(img.storage_path)}
-                          alt={img.caption || "Challenge Entry"}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-3 left-3 flex items-center gap-2">
-                          <span className="px-2.5 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-white text-[11px] font-mono">
-                            {img.country}
-                          </span>
-                          <span className="px-2.5 py-1 rounded-full bg-cyan/20 border border-cyan/40 text-cyan text-[11px] font-mono backdrop-blur-md">
-                            Score: {img.wica_score}
-                          </span>
+                  return (
+                    <div
+                      key={img.id}
+                      className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="relative aspect-16/10 bg-zinc-100 dark:bg-zinc-950 overflow-hidden">
+                          <img
+                            src={getSafeImageUrl(img.storage_path)}
+                            alt={img.caption || "Challenge Entry"}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-3 left-3 flex items-center gap-2">
+                            <span className="px-2.5 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-white text-[11px] font-mono">
+                              {img.country}
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full bg-cyan/20 border border-cyan/40 text-cyan text-[11px] font-mono backdrop-blur-md">
+                              Score: {img.wica_score}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-5">
+                          <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-2">
+                            <span>By @{img.author?.username}</span>
+                            <span>{img.created_at}</span>
+                          </div>
+                          <h4 className="font-display font-bold text-base text-zinc-900 dark:text-white mb-2">
+                            {img.caption}
+                          </h4>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-300 italic bg-zinc-50 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800">
+                            &ldquo;{img.ai_verdict}&rdquo;
+                          </p>
                         </div>
                       </div>
 
-                      <div className="p-5">
-                        <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-2">
-                          <span>By @{img.author?.username}</span>
-                          <span>{img.created_at}</span>
+                      <div className="p-5 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 mt-2">
+                        <div className="flex items-center gap-2 text-xs font-mono text-zinc-600 dark:text-zinc-300">
+                          <Sparkles className="w-3.5 h-3.5 text-cyan" />
+                          <span>{likes} Community Endorsements</span>
                         </div>
-                        <h4 className="font-display font-bold text-base text-zinc-900 dark:text-white mb-2">
-                          {img.caption}
-                        </h4>
-                        <p className="text-xs text-zinc-600 dark:text-zinc-300 italic bg-zinc-50 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                          &ldquo;{img.ai_verdict}&rdquo;
-                        </p>
+
+                        <button
+                          onClick={() => handleVoteEntry(img.id)}
+                          disabled={isVoted}
+                          className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
+                            isVoted
+                              ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 cursor-default"
+                              : "bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 cursor-pointer active:scale-95"
+                          }`}
+                        >
+                          <ThumbsUp className="w-3.5 h-3.5" />
+                          <span>{isVoted ? "Endorsed ✓" : "Endorse Find"}</span>
+                        </button>
                       </div>
                     </div>
-
-                    <div className="p-5 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 mt-2">
-                      <div className="flex items-center gap-2 text-xs font-mono text-zinc-600 dark:text-zinc-300">
-                        <Sparkles className="w-3.5 h-3.5 text-cyan" />
-                        <span>{likes} Community Endorsements</span>
-                      </div>
-
-                      <button
-                        onClick={() => handleVoteEntry(img.id)}
-                        disabled={isVoted}
-                        className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
-                          isVoted
-                            ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 cursor-default"
-                            : "bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 cursor-pointer active:scale-95"
-                        }`}
-                      >
-                        <ThumbsUp className="w-3.5 h-3.5" />
-                        <span>{isVoted ? "Endorsed ✓" : "Endorse Find"}</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -241,61 +260,73 @@ export const ChallengesView: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {pastChallenges.map((ch) => (
-              <div
-                key={ch.id}
-                className="p-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-mono">
-                      #{ch.id.toUpperCase()} • {ch.category}
-                    </span>
-                    <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Concluded</span>
-                    </span>
-                  </div>
+          {pastChallenges.length === 0 ? (
+            <div className="p-12 text-center rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40">
+              <Trophy className="w-8 h-8 text-amber-500 mx-auto mb-3 opacity-60" />
+              <h4 className="font-display font-bold text-base text-zinc-900 dark:text-white mb-1">
+                No Archived Sprints Yet
+              </h4>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+                Community sprint winners will be commemorated in this hall upon conclusion of active challenges.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {pastChallenges.map((ch) => (
+                <div
+                  key={ch.id}
+                  className="p-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-mono">
+                        #{ch.id.toUpperCase()} • {ch.category}
+                      </span>
+                      <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Concluded</span>
+                      </span>
+                    </div>
 
-                  <h4 className="font-display font-bold text-lg text-zinc-900 dark:text-white mb-1">{ch.title}</h4>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-4">{ch.theme}</p>
+                    <h4 className="font-display font-bold text-lg text-zinc-900 dark:text-white mb-1">{ch.title}</h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-4">{ch.theme}</p>
 
-                  {ch.winner && (
-                    <div className="p-4 rounded-2xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 mb-4">
-                      <div className="flex items-center gap-2 text-xs font-mono text-amber-700 dark:text-amber-400 font-bold mb-2">
-                        <Trophy className="w-3.5 h-3.5 text-amber-500" />
-                        <span>Crowned Winner: @{ch.winner.hunter_name}</span>
-                      </div>
-                      <div className="flex gap-3">
-                        <img
-                          src={ch.winner.image_url}
-                          alt={ch.winner.anomaly_title}
-                          className="w-16 h-16 rounded-xl object-cover bg-zinc-100 dark:bg-zinc-800 shrink-0"
-                        />
-                        <div>
-                          <h5 className="font-display font-bold text-xs text-zinc-900 dark:text-zinc-100 line-clamp-1">
-                            {ch.winner.anomaly_title}
-                          </h5>
-                          <span className="text-[11px] font-mono text-cyan font-bold block mt-1">
-                            Weca Score: {ch.winner.wica_score}/100
-                          </span>
-                          <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
-                            Awarded +{ch.reward_wc} Weird Credits
-                          </span>
+                    {ch.winner && (
+                      <div className="p-4 rounded-2xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 mb-4">
+                        <div className="flex items-center gap-2 text-xs font-mono text-amber-700 dark:text-amber-400 font-bold mb-2">
+                          <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Crowned Winner: @{ch.winner.hunter_name}</span>
+                        </div>
+                        <div className="flex gap-3">
+                          <img
+                            src={ch.winner.image_url}
+                            alt={ch.winner.anomaly_title}
+                            className="w-16 h-16 rounded-xl object-cover bg-zinc-100 dark:bg-zinc-800 shrink-0"
+                          />
+                          <div>
+                            <h5 className="font-display font-bold text-xs text-zinc-900 dark:text-zinc-100 line-clamp-1">
+                              {ch.winner.anomaly_title}
+                            </h5>
+                            <span className="text-[11px] font-mono text-cyan font-bold block mt-1">
+                              Weca Score: {ch.winner.wica_score}/100
+                            </span>
+                            <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                              Awarded +{ch.reward_wc} Weird Credits
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs font-mono text-zinc-400 dark:text-zinc-500">
-                  <span>{ch.submissions_count} total entries</span>
-                  <span>Ended on {ch.ends_at.slice(0, 10)}</span>
+                  <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs font-mono text-zinc-400 dark:text-zinc-500">
+                    <span>{ch.submissions_count} total entries</span>
+                    <span>Ended on {ch.ends_at.slice(0, 10)}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

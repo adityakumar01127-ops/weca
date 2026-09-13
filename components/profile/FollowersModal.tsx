@@ -21,61 +21,13 @@ interface FollowersModalProps {
   username: string;
 }
 
-const INITIAL_RESEARCHERS: ResearcherItem[] = [
-  {
-    id: "r-1",
-    name: "Dr. Elena Vance",
-    username: "anomaly_hunter",
-    avatar_url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80",
-    tier: "Reality-Breaking",
-    role: "Tokyo Sighting Lead",
-    isFollowing: true,
-  },
-  {
-    id: "r-2",
-    name: "Marcus Thorne",
-    username: "urban_stranger",
-    avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-    tier: "Certified Weird",
-    role: "Atmospheric Observer",
-    isFollowing: false,
-  },
-  {
-    id: "r-3",
-    name: "Aoi Takahashi",
-    username: "botanical_glitch",
-    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-    tier: "Legendary Anomaly",
-    role: "Kyoto Flora Research",
-    isFollowing: true,
-  },
-  {
-    id: "r-4",
-    name: "Liam O'Connor",
-    username: "cryptid_scout",
-    avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
-    tier: "Mildly Odd",
-    role: "Geological Field Scout",
-    isFollowing: false,
-  },
-  {
-    id: "r-5",
-    name: "Sora Kim",
-    username: "neon_glitcher",
-    avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
-    tier: "Certified Weird",
-    role: "Optical Sensor Engineer",
-    isFollowing: true,
-  },
-];
-
 export const FollowersModal: React.FC<FollowersModalProps> = ({
   isOpen,
   onClose,
   type,
   username,
 }) => {
-  const [researchers, setResearchers] = useState<ResearcherItem[]>(INITIAL_RESEARCHERS);
+  const [researchers, setResearchers] = useState<ResearcherItem[]>([]);
   const [query, setQuery] = useState("");
 
   if (!isOpen) return null;
@@ -141,7 +93,11 @@ export const FollowersModal: React.FC<FollowersModalProps> = ({
         <div className="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800/50 p-2">
           {filtered.length === 0 ? (
             <div className="py-12 text-center text-xs text-zinc-400 dark:text-zinc-500 font-mono">
-              No matching anomaly researchers found.
+              {query
+                ? "No matching anomaly researchers found."
+                : type === "followers"
+                ? "No community observers yet."
+                : "Not observing any researchers yet."}
             </div>
           ) : (
             filtered.map((r) => {
