@@ -16,17 +16,62 @@ import {
   Briefcase,
   Download,
   Flame,
-  Star
+  Star,
+  Loader2
 } from "lucide-react";
+import confetti from "canvas-confetti";
+import { useAuth } from "@/context/AuthContext";
+import { initiateRazorpayCheckout } from "@/lib/razorpay/checkout";
 
 export const ProView: React.FC = () => {
+  const { user, profile } = useAuth();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [isUpgrading, setIsUpgrading] = useState<boolean>(false);
+  const [upgradeSuccess, setUpgradeSuccess] = useState<string | null>(null);
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      alert("Please sign in or create an account to activate Hunter Pro.");
+      return;
+    }
+
+    setIsUpgrading(true);
+    setUpgradeError(null);
+    setUpgradeSuccess(null);
+
+    try {
+      const planKey = billingCycle === "annual" ? "hunter_pro_annual" : "hunter_pro_monthly";
+      await initiateRazorpayCheckout({
+        plan: planKey,
+        onSuccess: (res) => {
+          confetti({
+            particleCount: 120,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+          setUpgradeSuccess("🎉 Welcome to Hunter Pro! Your account is now fully upgraded with zero ads, priority queue scoring, and 4K downloads.");
+          setIsUpgrading(false);
+        },
+        onError: (err) => {
+          setUpgradeError(err.message || "Payment process cancelled or failed.");
+          setIsUpgrading(false);
+        },
+        onClose: () => {
+          setIsUpgrading(false);
+        },
+      });
+    } catch (err: any) {
+      setUpgradeError(err.message || "Unable to initialize checkout.");
+      setIsUpgrading(false);
+    }
+  };
 
   const faqs = [
     {
       q: "What is 'Stock Weirdness' licensing?",
-      a: "Weca provides a commercial clearinghouse for real, candid, un-staged anomalies. Creative studios, advertising agencies, and editorial publications can legally license verified real-world curiosities directly from the original spotters, with 70% of royalty revenues going directly to the creator via Stripe Connect."
+      a: "Weca provides a commercial clearinghouse for real, candid, un-staged anomalies. Creative studios, advertising agencies, and editorial publications can legally license verified real-world curiosities directly from the original spotters, with 70% of royalty revenues going directly to the creator via Razorpay direct bank transfer or UPI."
     },
     {
       q: "Can I cancel my Hunter Pro subscription anytime?",
@@ -38,7 +83,7 @@ export const ProView: React.FC = () => {
     },
     {
       q: "How does the creator royalty split work?",
-      a: "When a Brand or Studio licenses one of your approved findings through our marketplace, you receive 70% of the licensing fee directly into your Stripe Connect account within 48 hours."
+      a: "When a Brand or Studio licenses one of your approved findings through our marketplace, you receive 70% of the licensing fee directly into your registered bank account or UPI ID within 48 hours."
     }
   ];
 
@@ -142,13 +187,18 @@ export const ProView: React.FC = () => {
               For dedicated anomaly hunters, naturalists, and researchers demanding raw vision intelligence.
             </p>
 
-            <div className="flex items-baseline gap-1 mb-6 pb-6 border-b border-zinc-100 dark:border-zinc-800">
-              <span className="text-4xl font-black font-display text-zinc-900 dark:text-white">
-                {billingCycle === "annual" ? "$7" : "$9"}
-              </span>
-              <span className="text-xs font-mono text-zinc-400 dark:text-zinc-500">
-                /month {billingCycle === "annual" ? "(billed annually)" : ""}
-              </span>
+            <div className="mb-6 pb-6 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black font-display text-zinc-900 dark:text-white">
+                  {billingCycle === "annual" ? "₹3,999" : "₹499"}
+                </span>
+                <span className="text-xs font-mono text-zinc-400 dark:text-zinc-500">
+                  {billingCycle === "annual" ? "/year (~$48 USD)" : "/month (~$6 USD)"}
+                </span>
+              </div>
+              <div className="text-[11px] font-mono text-violet font-semibold mt-1">
+                {billingCycle === "annual" ? "Billed annually (Save 20%) • Instant Activation" : "Billed monthly • Cancel anytime"}
+              </div>
             </div>
 
             <ul className="space-y-3 text-xs font-mono text-zinc-700 dark:text-zinc-300 mb-8">
@@ -179,11 +229,33 @@ export const ProView: React.FC = () => {
             </ul>
           </div>
 
+          {upgradeSuccess && (
+            <div className="p-3 mb-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-mono">
+              {upgradeSuccess}
+            </div>
+          )}
+          {upgradeError && (
+            <div className="p-3 mb-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-mono">
+              {upgradeError}
+            </div>
+          )}
+
           <button
-            onClick={() => alert("Weca Pro Stripe checkout demonstration initialized!")}
-            className="w-full py-3.5 px-4 rounded-xl bg-violet hover:bg-violet/90 text-white font-mono text-xs font-bold text-center block transition-all shadow-md active:scale-95 cursor-pointer"
+            onClick={handleUpgrade}
+            disabled={isUpgrading}
+            className="w-full py-3.5 px-4 rounded-xl bg-violet hover:bg-violet/90 text-white font-mono text-xs font-bold text-center flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
           >
-            Upgrade to Pro
+            {isUpgrading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Opening Razorpay Checkout...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>Upgrade to Pro with Razorpay</span>
+              </>
+            )}
           </button>
         </div>
 

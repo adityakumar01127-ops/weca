@@ -142,7 +142,9 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
                 <span>•</span>
                 <Link href="/privacy" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Privacy</Link>
                 <span>•</span>
-                <Link href="/learn-more" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Contacts</Link>
+                <Link href="/cancellation-and-refund" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Refunds</Link>
+                <span>•</span>
+                <Link href="/contact" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Contact</Link>
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-200/80 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-[10px] font-mono text-zinc-700 dark:text-zinc-400">
                 <Sparkles className="w-3 h-3 text-cyan" />
@@ -170,6 +172,8 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
             <Link href="/brand" className="hover:text-cyan transition-colors font-semibold">Brand Kit</Link>
             <Link href="/privacy" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Terms</Link>
+            <Link href="/cancellation-and-refund" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Refund Policy</Link>
+            <Link href="/contact" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Contact Us</Link>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-zinc-500 font-mono">

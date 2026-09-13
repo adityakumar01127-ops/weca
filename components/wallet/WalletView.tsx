@@ -29,9 +29,12 @@ import {
   Landmark,
   Send,
   Building2,
-  ExternalLink
+  ExternalLink,
+  Loader2,
+  Zap
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { initiateRazorpayCheckout } from "@/lib/razorpay/checkout";
 
 export const WalletView: React.FC = () => {
   const { user, profile } = useAuth();
@@ -43,6 +46,46 @@ export const WalletView: React.FC = () => {
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
   const [payouts, setPayouts] = useState<PayoutRequest[]>([]);
   const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
+
+  // Top Up Credit Packs State
+  const [purchasingPlan, setPurchasingPlan] = useState<string | null>(null);
+  const [purchaseNotification, setPurchaseNotification] = useState<string | null>(null);
+
+  const handleBuyCredits = async (planKey: string) => {
+    if (!user) {
+      alert("Please sign in to top up Weird Credits.");
+      return;
+    }
+
+    setPurchasingPlan(planKey);
+    setPurchaseNotification(null);
+
+    try {
+      await initiateRazorpayCheckout({
+        plan: planKey,
+        onSuccess: () => {
+          confetti({
+            particleCount: 100,
+            spread: 60,
+            origin: { y: 0.6 },
+          });
+          setPurchaseNotification("🎉 Payment successful! Your Weird Credits balance has been updated.");
+          setPurchasingPlan(null);
+          fetchData();
+        },
+        onError: (err) => {
+          alert(`Checkout error: ${err.message}`);
+          setPurchasingPlan(null);
+        },
+        onClose: () => {
+          setPurchasingPlan(null);
+        },
+      });
+    } catch (err: any) {
+      alert(err.message || "Failed to initialize Razorpay checkout");
+      setPurchasingPlan(null);
+    }
+  };
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -300,6 +343,151 @@ export const WalletView: React.FC = () => {
             >
               Upload Photo to Earn +WC
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* RAZORPAY INSTANT CREDIT TOP-UP */}
+      <div className="p-8 rounded-3xl bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 shadow-xs relative overflow-hidden">
+        <div className="max-w-3xl mb-6">
+          <div className="flex items-center gap-2 text-violet font-mono text-xs uppercase tracking-wider mb-2">
+            <Zap className="w-4 h-4" />
+            <span>Instant Balance Recharge • Razorpay Secure</span>
+          </div>
+
+          <h3 className="font-display font-bold text-2xl text-zinc-900 dark:text-white mb-2">
+            Top Up Weird Credits (WC)
+          </h3>
+
+          <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm leading-relaxed">
+            Need credits to score anomalies with Gemini Vision or supercharge your votes in Versus battles? Purchase credit bundles instantly via UPI, RuPay, Visa, Mastercard, or Netbanking.
+          </p>
+
+          {purchaseNotification && (
+            <div className="mt-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-mono flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{purchaseNotification}</span>
+            </div>
+          )}
+        </div>
+
+        {/* 3 Bundles Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Pack 1: Starter */}
+          <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block mb-1">
+                Starter Pack
+              </span>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-2xl font-black font-display text-zinc-900 dark:text-white">500</span>
+                <span className="text-xs font-mono text-cyan font-bold">WC</span>
+              </div>
+              <p className="text-xs text-zinc-500 mb-4">
+                Ideal for scoring submissions and casting daily Versus battle votes.
+              </p>
+            </div>
+            <div>
+              <div className="text-lg font-black font-mono text-zinc-900 dark:text-white mb-3">
+                ₹99 <span className="text-[11px] font-normal text-zinc-400 font-mono">(~$1.20)</span>
+              </div>
+              <button
+                onClick={() => handleBuyCredits("credits_pack_small")}
+                disabled={purchasingPlan === "credits_pack_small"}
+                className="w-full py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 font-mono text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {purchasingPlan === "credits_pack_small" ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Buy 500 WC</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Pack 2: Hunter (Popular) */}
+          <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/90 border-2 border-violet relative flex flex-col justify-between shadow-md">
+            <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full bg-violet text-white text-[10px] font-mono font-bold tracking-wider">
+              POPULAR (SAVE 16%)
+            </div>
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-violet font-semibold block mb-1">
+                Hunter Pack
+              </span>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-2xl font-black font-display text-zinc-900 dark:text-white">1,500</span>
+                <span className="text-xs font-mono text-cyan font-bold">WC</span>
+              </div>
+              <p className="text-xs text-zinc-500 mb-4">
+                High-frequency hunter tier for full 5-D telemetry deep dives and battle multipliers.
+              </p>
+            </div>
+            <div>
+              <div className="text-lg font-black font-mono text-zinc-900 dark:text-white mb-3">
+                ₹249 <span className="text-[11px] font-normal text-zinc-400 font-mono">(~$3.00)</span>
+              </div>
+              <button
+                onClick={() => handleBuyCredits("credits_pack_medium")}
+                disabled={purchasingPlan === "credits_pack_medium"}
+                className="w-full py-2.5 px-3 rounded-xl bg-violet hover:bg-violet/90 text-white font-mono text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+              >
+                {purchasingPlan === "credits_pack_medium" ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Buy 1,500 WC</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Pack 3: Vault (Best Value) */}
+          <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold block mb-1">
+                Vault Pack (SAVE 30%)
+              </span>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-2xl font-black font-display text-zinc-900 dark:text-white">5,000</span>
+                <span className="text-xs font-mono text-cyan font-bold">WC</span>
+              </div>
+              <p className="text-xs text-zinc-500 mb-4">
+                Maximum yield archive pack for power observers and research curators.
+              </p>
+            </div>
+            <div>
+              <div className="text-lg font-black font-mono text-zinc-900 dark:text-white mb-3">
+                ₹699 <span className="text-[11px] font-normal text-zinc-400 font-mono">(~$8.40)</span>
+              </div>
+              <button
+                onClick={() => handleBuyCredits("credits_pack_large")}
+                disabled={purchasingPlan === "credits_pack_large"}
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-mono text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {purchasingPlan === "credits_pack_large" ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Buy 5,000 WC</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
