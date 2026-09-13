@@ -15,7 +15,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: string }>;
   updatePassword: (password: string) => Promise<{ error?: string }>;
-  signInWithOAuth: (provider: "google" | "github") => Promise<{ error?: string }>;
+  signInWithOAuth: (provider?: "google") => Promise<{ error?: string }>;
   loginAsDemo: () => void;
   // Compatibility aliases
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
@@ -292,7 +292,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithOAuth = async (provider: "google" | "github"): Promise<{ error?: string }> => {
+  const signInWithOAuth = async (provider: "google" = "google"): Promise<{ error?: string }> => {
     if (!supabase) {
       return { error: "Authentication service unavailable. Missing configuration." };
     }

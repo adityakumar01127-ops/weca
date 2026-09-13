@@ -45,17 +45,17 @@ export const AuthModal: React.FC = () => {
     closeAuthModal();
   };
 
-  const handleOAuth = async (provider: "google" | "github") => {
+  const handleGoogleSignIn = async () => {
     setError(null);
     setOauthLoading(true);
     try {
-      const res = await signInWithOAuth(provider);
+      const res = await signInWithOAuth("google");
       if (res.error) {
         setError(res.error);
         setOauthLoading(false);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "OAuth sign-in failed");
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
       setOauthLoading(false);
     }
   };
@@ -227,7 +227,7 @@ export const AuthModal: React.FC = () => {
               <div className="mb-4">
                 <button
                   type="button"
-                  onClick={() => handleOAuth("google")}
+                  onClick={handleGoogleSignIn}
                   disabled={oauthLoading}
                   className="w-full py-2.5 px-4 rounded-xl bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 hover:border-zinc-300 dark:bg-zinc-950/80 dark:hover:bg-zinc-800/80 dark:text-zinc-200 dark:border-zinc-800 dark:hover:border-zinc-700 text-xs font-semibold flex items-center justify-center gap-2.5 transition-all shadow-xs active:scale-[0.98] cursor-pointer min-h-[44px]"
                 >
