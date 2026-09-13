@@ -19,13 +19,14 @@ export default function Icon() {
           alignItems: "center",
           justifyContent: "center",
           background: "#09090B",
-          borderRadius: "8px",
+          borderRadius: "50%",
+          border: "1px solid #27272A",
           position: "relative",
         }}
       >
         <svg
-          width="28"
-          height="28"
+          width="30"
+          height="30"
           viewBox="0 0 48 48"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -43,10 +44,20 @@ export default function Icon() {
               <stop offset="0%" stopColor="#FF385C" />
               <stop offset="100%" stopColor="#E11D48" />
             </linearGradient>
+            <radialGradient id="bladeGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="40%" stopColor="#22D3EE" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#09090B" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
-          {/* Outer Chassis */}
-          <circle cx="24" cy="24" r="22" stroke="#3F3F46" strokeWidth="2" />
+          {/* Outer Lens Rim */}
+          <circle cx="24" cy="24" r="21.5" stroke="#3F3F46" strokeWidth="1.6" strokeDasharray="3.5 1.8" />
+
+          {/* Alignment Notches */}
+          <line x1="24" y1="2.5" x2="24" y2="4.5" stroke="#A1A1AA" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="42.5" y1="34.5" x2="40.8" y2="33.5" stroke="#A1A1AA" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="5.5" y1="34.5" x2="7.2" y2="33.5" stroke="#A1A1AA" strokeWidth="1.8" strokeLinecap="round" />
 
           {/* 3 Chromatic Blades */}
           <path
@@ -63,10 +74,15 @@ export default function Icon() {
           />
 
           {/* Inner pupil */}
-          <circle cx="24" cy="24" r="5" fill="#09090B" />
+          <circle cx="24" cy="24" r="5" fill="#09090B" stroke="#27272A" strokeWidth="1" />
+          
           {/* Singularity Core */}
-          <circle cx="24" cy="24" r="2.5" fill="#22D3EE" />
-          <circle cx="24" cy="24" r="1" fill="#FFFFFF" />
+          <circle cx="24" cy="24" r="3.5" fill="url(#bladeGlow)" />
+          <circle cx="24" cy="24" r="1.5" fill="#FFFFFF" />
+
+          {/* Micro Cross Flare Spikes */}
+          <line x1="24" y1="19.5" x2="24" y2="28.5" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" opacity="0.95" />
+          <line x1="19.5" y1="24" x2="28.5" y2="24" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" opacity="0.95" />
         </svg>
       </div>
     ),

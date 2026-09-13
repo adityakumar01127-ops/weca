@@ -94,30 +94,20 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
-            {/* Quick Map Link on Mobile & Tablet */}
-            <Link
-              href="/map"
-              className="p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors lg:hidden"
-              title="Anomaly World Map"
-              aria-label="Map"
-            >
-              <Globe2 className="w-4 h-4" />
-            </Link>
-
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Strategic Global Messages Link (Desktop, Tablet & Mobile) */}
             <Link
               href="/messages"
               id="global-messages-btn"
-              className="relative p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="relative w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
               title="Messages"
               aria-label="Direct Messages"
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-5 h-5 sm:w-4 sm:h-4" />
               {unreadCount > 0 && (
                 <span
                   id="navbar-unread-badge"
-                  className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-violet text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs border-2 border-white dark:border-[#09090b] animate-in zoom-in-50"
+                  className="pointer-events-none absolute top-1 right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-violet text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs border-2 border-white dark:border-[#09090b] animate-in zoom-in-50"
                 >
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
@@ -129,7 +119,7 @@ export const Navbar: React.FC = () => {
               type="button"
               id="navbar-upload-btn"
               onClick={() => setIsCreateModalOpen(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 text-xs font-medium transition-all shadow-xs cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 text-xs font-medium transition-all shadow-xs cursor-pointer min-h-[36px]"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Upload</span>
@@ -137,12 +127,12 @@ export const Navbar: React.FC = () => {
 
             {/* User Account / Profile */}
             {profile || user ? (
-              <div className="flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
+              <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
                 {/* Credits Balance link */}
                 {profile?.credits_balance !== undefined && (
                   <Link
                     href="/wallet"
-                    className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800/90 text-[11px] font-mono text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700 border border-zinc-200 dark:border-zinc-700/60 transition-colors"
+                    className="hidden lg:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/90 text-[11px] font-mono text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700 border border-zinc-200 dark:border-zinc-700/60 transition-colors"
                     title="Weird Credits Wallet"
                   >
                     <Sparkles className="w-3 h-3 text-amber-500" />
@@ -152,7 +142,7 @@ export const Navbar: React.FC = () => {
 
                 <Link
                   href="/profile"
-                  className="hidden sm:flex items-center gap-2 p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  className="hidden sm:flex items-center gap-2 p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors min-h-[36px]"
                   title="Your Profile"
                 >
                   {profile?.avatar_url ? (
@@ -173,7 +163,7 @@ export const Navbar: React.FC = () => {
 
                 <button
                   onClick={() => signOut()}
-                  className="hidden sm:inline-flex p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
+                  className="hidden sm:inline-flex p-2 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
                   title="Log out"
                 >
                   <LogOut className="w-3.5 h-3.5" />
@@ -183,13 +173,13 @@ export const Navbar: React.FC = () => {
               <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
                 <Link
                   href="/login"
-                  className="px-2.5 py-1.5 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
+                  className="px-2.5 py-1.5 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors min-h-[36px] flex items-center"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-2.5 py-1.5 text-xs font-medium text-zinc-900 dark:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-500 rounded-lg transition-colors"
+                  className="px-2.5 py-1.5 text-xs font-medium text-zinc-900 dark:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-500 rounded-lg transition-colors min-h-[36px] flex items-center"
                 >
                   Sign up
                 </Link>
@@ -198,11 +188,12 @@ export const Navbar: React.FC = () => {
 
             {/* Mobile / Tablet Menu Button */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
               aria-label="Toggle Menu"
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -214,11 +205,11 @@ export const Navbar: React.FC = () => {
             <Link
               href="/messages"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm min-h-[44px] transition-colors text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
             >
-              <div className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 opacity-70" />
-                <span>Messages</span>
+              <div className="flex items-center gap-2.5">
+                <MessageCircle className="w-4.5 h-4.5 opacity-80" />
+                <span className="font-medium">Direct Messages</span>
               </div>
               {unreadCount > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet text-white">
@@ -234,14 +225,14 @@ export const Navbar: React.FC = () => {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm min-h-[44px] transition-colors ${
                     active
                       ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold border border-zinc-200 dark:border-zinc-700/50"
                       : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    {Icon && <Icon className="w-4 h-4 opacity-70" />}
+                  <div className="flex items-center gap-2.5">
+                    {Icon && <Icon className="w-4.5 h-4.5 opacity-80" />}
                     <span>{link.label}</span>
                   </div>
                   {link.badge && (
