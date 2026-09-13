@@ -1,28 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
 
-// In-memory buffer cache for ultra-fast same-origin delivery
-const imageCache = new Map<string, { buffer: Buffer; contentType: string }>();
-const MAX_CACHE_ENTRIES = 120;
+// Fallback 1x1 transparent GIF
+const FALLBACK_GIF = Buffer.from(
+  "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+  "base64"
+);
 
-function getFallbackBuffer(): { buffer: Buffer; contentType: string } {
+function isAllowedUrl(urlString: string): boolean {
   try {
-    const fallbackPath = path.join(process.cwd(), "public", "anom-1.jpg");
-    if (fs.existsSync(fallbackPath)) {
-      return {
-        buffer: fs.readFileSync(fallbackPath),
-        contentType: "image/jpeg",
-      };
+    const parsed = new URL(urlString);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
     }
-  } catch (err) {
-    console.error("Fallback image read error:", err);
+    const hostname = parsed.hostname.toLowerCase();
+    // SSRF prevention: block localhost, internal loopbacks, link-local metadata
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0" ||
+      hostname === "::1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("172.16.") ||
+      hostname.startsWith("169.254.") ||
+      hostname.endsWith(".internal") ||
+      hostname.endsWith(".local")
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
   }
-  // Minimal 1x1 transparent GIF fallback
-  return {
-    buffer: Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64"),
-    contentType: "image/gif",
-  };
 }
 
 export async function GET(req: NextRequest) {
@@ -30,10 +39,9 @@ export async function GET(req: NextRequest) {
   const url = searchParams.get("url");
 
   if (!url) {
-    const fallback = getFallbackBuffer();
-    return new NextResponse(new Uint8Array(fallback.buffer), {
+    return new NextResponse(new Uint8Array(FALLBACK_GIF), {
       headers: {
-        "Content-Type": fallback.contentType,
+        "Content-Type": "image/gif",
         "Cache-Control": "public, max-age=3600",
       },
     });
@@ -56,39 +64,40 @@ export async function GET(req: NextRequest) {
         },
       });
     } catch {
-      const fallback = getFallbackBuffer();
-      return new NextResponse(new Uint8Array(fallback.buffer), {
+      return new NextResponse(new Uint8Array(FALLBACK_GIF), {
         headers: {
-          "Content-Type": fallback.contentType,
+          "Content-Type": "image/gif",
           "Cache-Control": "public, max-age=3600",
         },
       });
     }
   }
 
-  // Check in-memory cache
-  const cached = imageCache.get(url);
-  if (cached) {
-    return new NextResponse(new Uint8Array(cached.buffer), {
+  // SSRF defense validation
+  if (!isAllowedUrl(url)) {
+    return new NextResponse(new Uint8Array(FALLBACK_GIF), {
+      status: 400,
       headers: {
-        "Content-Type": cached.contentType,
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "X-Proxy-Cache": "HIT",
+        "Content-Type": "image/gif",
+        "Cache-Control": "no-store",
       },
     });
   }
 
   try {
+    // 8-second timeout to prevent hanging connections
     const response = await fetch(url, {
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(8000),
+      headers: {
+        "User-Agent": "WICA-ImageProxy/1.0",
+        Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+      },
     });
 
     if (!response.ok) {
-      console.warn(`Upstream image failed for ${url}: status ${response.status}`);
-      const fallback = getFallbackBuffer();
-      return new NextResponse(new Uint8Array(fallback.buffer), {
+      return new NextResponse(new Uint8Array(FALLBACK_GIF), {
         headers: {
-          "Content-Type": fallback.contentType,
+          "Content-Type": "image/gif",
           "Cache-Control": "public, max-age=300",
         },
       });
@@ -96,32 +105,27 @@ export async function GET(req: NextRequest) {
 
     const contentType = response.headers.get("content-type") || "image/jpeg";
     const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
 
-    // Cache image
-    if (imageCache.size >= MAX_CACHE_ENTRIES) {
-      const oldestKey = imageCache.keys().next().value;
-      if (oldestKey) imageCache.delete(oldestKey);
-    }
-    imageCache.set(url, { buffer, contentType });
+    // Determine cache lifetime based on origin
+    const isSupabase = url.includes("supabase.co");
+    const isUnsplash = url.includes("images.unsplash.com");
+    const cacheHeader = isSupabase || isUnsplash
+      ? "public, max-age=31536000, s-maxage=31536000, immutable"
+      : "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800";
 
-    return new NextResponse(new Uint8Array(buffer), {
+    return new NextResponse(new Uint8Array(arrayBuffer), {
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "X-Proxy-Cache": "MISS",
+        "Cache-Control": cacheHeader,
+        "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error(`Error proxying image (${url}):`, errorMsg);
-    const fallback = getFallbackBuffer();
-    return new NextResponse(new Uint8Array(fallback.buffer), {
+  } catch {
+    return new NextResponse(new Uint8Array(FALLBACK_GIF), {
       headers: {
-        "Content-Type": fallback.contentType,
+        "Content-Type": "image/gif",
         "Cache-Control": "public, max-age=60",
       },
     });
   }
 }
-

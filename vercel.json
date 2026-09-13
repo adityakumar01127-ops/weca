@@ -1,0 +1,68 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "functions": {
+    "app/api/score-post/route.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "app/api/upload-and-score/route.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "app/api/feed/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/battles/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/battles/vote/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/like/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/comments/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/wallet/route.ts": {
+      "maxDuration": 15
+    },
+    "app/api/admin/payouts/route.ts": {
+      "maxDuration": 15
+    },
+    "app/api/webhooks/razorpayx/route.ts": {
+      "maxDuration": 15
+    },
+    "app/api/health/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/image-proxy/route.ts": {
+      "maxDuration": 12
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/(.*).webp",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}

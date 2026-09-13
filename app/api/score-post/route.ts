@@ -340,24 +340,6 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Also update in-memory fallback store if active
-      if (global.__WECA_POSTS) {
-        const post = global.__WECA_POSTS.find((p) => p.id === postId);
-        if (post) {
-          post.weirdness_score = scores.weirdness;
-          post.uniqueness_score = scores.uniqueness;
-          post.scoring_status = "completed";
-
-          const { total: earnedCredits } = calculatePostScoringCredits(scores.weirdness, scores.uniqueness);
-          await recordCreditTransaction(null, {
-            userId: post.user_id,
-            amount: earnedCredits,
-            reason: `Anomaly Scored: Weirdness ${scores.weirdness} + Uniqueness ${scores.uniqueness}`,
-            postId: postId,
-          });
-        }
-      }
-
       return NextResponse.json({
         success: true,
         post_id: postId,
@@ -373,13 +355,6 @@ export async function POST(req: NextRequest) {
             scoring_status: "failed",
           })
           .eq("id", postId);
-      }
-
-      if (global.__WECA_POSTS) {
-        const post = global.__WECA_POSTS.find((p) => p.id === postId);
-        if (post) {
-          post.scoring_status = "failed";
-        }
       }
 
       return NextResponse.json({

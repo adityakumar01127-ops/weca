@@ -5,76 +5,12 @@ import { recordCreditTransaction, BATTLE_WINNER_BONUS_WC, MIN_CASHOUT_THRESHOLD_
 import { evaluatePayoutAbuseGuards } from "../abuse-guards";
 import { initiateRazorpayXPayout } from "../payouts/razorpayx";
 
-// In-memory demo store fallback for initial boot or offline testing
-const DEMO_PROFILE: Profile = {
-  id: "usr-demo",
-  username: "weca_founder",
-  display_name: "Weca Explorer",
-  avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  bio: "Observing curious fragments in everyday spaces.",
-  credits_balance: 0,
-  created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-};
-
-const DEMO_POSTS: Post[] = [
-  {
-    id: "post-1",
-    user_id: "usr-demo",
-    image_url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1200&auto=format&fit=crop&q=80",
-    caption: "A vintage rotary phone half-melted into basalt lava stone.",
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    profiles: DEMO_PROFILE,
-    likes_count: 14,
-    comments_count: 3,
-    user_has_liked: false,
-  },
-  {
-    id: "post-2",
-    user_id: "usr-demo",
-    image_url: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1200&auto=format&fit=crop&q=80",
-    caption: "A single glowing mushroom sprouting through a computer circuit board.",
-    created_at: new Date(Date.now() - 3600000 * 8).toISOString(),
-    profiles: DEMO_PROFILE,
-    likes_count: 29,
-    comments_count: 5,
-    user_has_liked: false,
-  },
-];
-
-declare global {
-  var __WECA_POSTS: Post[] | undefined;
-  var __WECA_COMMENTS: Record<string, Comment[]> | undefined;
-  var __WECA_LIKES: Record<string, Set<string>> | undefined;
-  var __WECA_BATTLES: Battle[] | undefined;
-  var __WECA_BATTLE_VOTES: BattleVote[] | undefined;
+export interface PaginatedPostsResult {
+  posts: Post[];
+  nextCursor?: string;
+  hasMore: boolean;
 }
 
-if (!global.__WECA_POSTS) {
-  global.__WECA_POSTS = [...DEMO_POSTS];
-}
-if (!global.__WECA_COMMENTS) {
-  global.__WECA_COMMENTS = {
-    "post-1": [
-      {
-        id: "c-1",
-        post_id: "post-1",
-        user_id: "usr-demo",
-        body: "The patina on the dial is astonishing.",
-        created_at: new Date(Date.now() - 3600000 * 1).toISOString(),
-        profiles: DEMO_PROFILE,
-      },
-    ],
-  };
-}
-if (!global.__WECA_LIKES) {
-  global.__WECA_LIKES = {};
-}
-if (!global.__WECA_BATTLES) {
-  global.__WECA_BATTLES = [];
-}
-if (!global.__WECA_BATTLE_VOTES) {
-  global.__WECA_BATTLE_VOTES = [];
-}
 
 interface PostRow {
   id: string;
@@ -100,14 +36,76 @@ interface CommentRow {
 }
 
 /**
- * Fetch all posts ordered newest-first (Phase 1 Home Feed)
+ * Total count of posts in database (fast count)
  */
-export async function getPosts(currentUserId?: string): Promise<Post[]> {
+export async function getPostsCount(): Promise<number> {
+  const supabase = createClient();
+  if (!supabase) return 0;
+  try {
+    const { count, error } = await supabase
+      .from("posts")
+      .select("*", { count: "exact", head: true });
+    return error ? 0 : (count || 0);
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Fetch paginated posts with cursor support (scale-ready for 100k+ users)
+ */
+export async function getPostsPaginated(params: {
+  limit?: number;
+  cursor?: string;
+  currentUserId?: string;
+} = {}): Promise<PaginatedPostsResult> {
+  const { limit = 20, cursor, currentUserId } = params;
   const supabase = createClient();
 
   if (supabase) {
+    // 1. Try atomic PostgreSQL RPC function (optimized with subquery counts & indexes)
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase.rpc("get_feed_paginated", {
+        p_limit: limit + 1,
+        p_cursor: cursor || null,
+        p_user_id: currentUserId || null,
+      });
+
+      if (!error && data && Array.isArray(data)) {
+        const hasMore = data.length > limit;
+        const rows = hasMore ? data.slice(0, limit) : data;
+        const posts: Post[] = rows.map((row: any) => ({
+          id: row.id,
+          user_id: row.user_id,
+          image_url: row.image_url,
+          caption: row.caption,
+          weirdness_score: row.weirdness_score,
+          uniqueness_score: row.uniqueness_score,
+          scoring_status: row.scoring_status || (row.weirdness_score != null ? "completed" : "scoring"),
+          created_at: row.created_at,
+          profiles: {
+            id: row.author_id,
+            username: row.author_username,
+            display_name: row.author_display_name,
+            avatar_url: row.author_avatar_url,
+            credits_balance: 0,
+            created_at: row.created_at,
+          },
+          likes_count: Number(row.likes_count || 0),
+          comments_count: Number(row.comments_count || 0),
+          user_has_liked: Boolean(row.user_has_liked),
+        }));
+
+        const nextCursor = hasMore && posts.length > 0 ? posts[posts.length - 1].created_at : undefined;
+        return { posts, nextCursor, hasMore };
+      }
+    } catch {
+      // Fall through to query
+    }
+
+    // 2. Direct table query with limit
+    try {
+      let query = supabase
         .from("posts")
         .select(`
           id,
@@ -134,10 +132,18 @@ export async function getPosts(currentUserId?: string): Promise<Post[]> {
             id
           )
         `)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(limit + 1);
 
-      if (!error && data && data.length > 0) {
-        return (data as unknown as PostRow[]).map((item) => ({
+      if (cursor) {
+        query = query.lt("created_at", cursor);
+      }
+
+      const { data, error } = await query;
+      if (!error && data) {
+        const hasMore = data.length > limit;
+        const rows = hasMore ? data.slice(0, limit) : data;
+        const posts: Post[] = (rows as unknown as PostRow[]).map((item) => ({
           id: item.id,
           user_id: item.user_id,
           image_url: item.image_url,
@@ -153,23 +159,24 @@ export async function getPosts(currentUserId?: string): Promise<Post[]> {
             ? item.likes?.some((l: { user_id: string }) => l.user_id === currentUserId)
             : false,
         }));
+
+        const nextCursor = hasMore && posts.length > 0 ? posts[posts.length - 1].created_at : undefined;
+        return { posts, nextCursor, hasMore };
       }
     } catch (err) {
-      console.warn("Supabase posts query failed, falling back to local store:", err);
+      console.error("Supabase paginated posts query failed:", err);
     }
   }
 
-  // In-memory fallback
-  return (global.__WECA_POSTS || []).map((p) => {
-    const postLikes = global.__WECA_LIKES?.[p.id] || new Set();
-    const postComments = global.__WECA_COMMENTS?.[p.id] || [];
-    return {
-      ...p,
-      likes_count: (p.likes_count || 0) + postLikes.size,
-      comments_count: postComments.length,
-      user_has_liked: currentUserId ? postLikes.has(currentUserId) : false,
-    };
-  });
+  return { posts: [], hasMore: false };
+}
+
+/**
+ * Fetch posts ordered newest-first (capped at limit, default 20)
+ */
+export async function getPosts(currentUserId?: string, limit: number = 20): Promise<Post[]> {
+  const result = await getPostsPaginated({ currentUserId, limit });
+  return result.posts;
 }
 
 /**
@@ -233,18 +240,7 @@ export async function getPostById(postId: string, currentUserId?: string): Promi
     }
   }
 
-  // In-memory fallback
-  const post = (global.__WECA_POSTS || []).find((p) => p.id === postId);
-  if (!post) return null;
-
-  const postLikes = global.__WECA_LIKES?.[postId] || new Set();
-  const postComments = global.__WECA_COMMENTS?.[postId] || [];
-  return {
-    ...post,
-    likes_count: (post.likes_count || 0) + postLikes.size,
-    comments_count: postComments.length,
-    user_has_liked: currentUserId ? postLikes.has(currentUserId) : false,
-  };
+  return null;
 }
 
 /**
@@ -370,48 +366,58 @@ export async function createPost(params: {
     }
   }
 
-  // In-memory fallback
-  const newPost: Post = {
-    id: `post-${Date.now()}`,
-    user_id: params.userId,
-    image_url: params.imageUrl,
-    caption: params.caption,
-    scoring_status: "scoring",
-    created_at: new Date().toISOString(),
-    profiles: params.authorProfile || DEMO_PROFILE,
-    likes_count: 0,
-    comments_count: 0,
-    user_has_liked: false,
-  };
-
-  if (!global.__WECA_POSTS) global.__WECA_POSTS = [];
-  global.__WECA_POSTS.unshift(newPost);
-
-  // Trigger scoring in background
-  if (typeof window !== "undefined") {
-    fetch("/api/score-post", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: newPost.id,
-        image_url: newPost.image_url,
-        caption: newPost.caption,
-      }),
-    }).catch((err) => console.warn("Local async scoring trigger:", err));
-  }
-
-  return newPost;
+  throw new Error("Failed to create post: Supabase database connection required.");
 }
 
 /**
- * Fetch all posts by a specific user ordered newest-first
+ * Fetch paginated posts by a specific user
  */
-export async function getPostsByUserId(userId: string, currentUserId?: string): Promise<Post[]> {
+export async function getPostsByUserIdPaginated(params: {
+  userId: string;
+  limit?: number;
+  cursor?: string;
+  currentUserId?: string;
+}): Promise<PaginatedPostsResult> {
+  const { userId, limit = 20, cursor, currentUserId } = params;
   const supabase = createClient();
 
   if (supabase) {
+    // 1. Try atomic PostgreSQL RPC function
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase.rpc("get_user_posts_paginated", {
+        p_target_user_id: userId,
+        p_limit: limit + 1,
+        p_cursor: cursor || null,
+        p_current_user_id: currentUserId || null,
+      });
+
+      if (!error && data && Array.isArray(data)) {
+        const hasMore = data.length > limit;
+        const rows = hasMore ? data.slice(0, limit) : data;
+        const posts: Post[] = rows.map((row: any) => ({
+          id: row.id,
+          user_id: row.user_id,
+          image_url: row.image_url,
+          caption: row.caption,
+          weirdness_score: row.weirdness_score,
+          uniqueness_score: row.uniqueness_score,
+          scoring_status: row.scoring_status || (row.weirdness_score != null ? "completed" : "scoring"),
+          created_at: row.created_at,
+          likes_count: Number(row.likes_count || 0),
+          comments_count: Number(row.comments_count || 0),
+          user_has_liked: Boolean(row.user_has_liked),
+        }));
+
+        const nextCursor = hasMore && posts.length > 0 ? posts[posts.length - 1].created_at : undefined;
+        return { posts, nextCursor, hasMore };
+      }
+    } catch {
+      // Fall through to query
+    }
+
+    // 2. Direct table query with limit
+    try {
+      let query = supabase
         .from("posts")
         .select(`
           id,
@@ -439,10 +445,18 @@ export async function getPostsByUserId(userId: string, currentUserId?: string): 
           )
         `)
         .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(limit + 1);
 
+      if (cursor) {
+        query = query.lt("created_at", cursor);
+      }
+
+      const { data, error } = await query;
       if (!error && data) {
-        return (data as unknown as PostRow[]).map((item) => ({
+        const hasMore = data.length > limit;
+        const rows = hasMore ? data.slice(0, limit) : data;
+        const posts: Post[] = (rows as unknown as PostRow[]).map((item) => ({
           id: item.id,
           user_id: item.user_id,
           image_url: item.image_url,
@@ -458,25 +472,24 @@ export async function getPostsByUserId(userId: string, currentUserId?: string): 
             ? item.likes?.some((l: { user_id: string }) => l.user_id === currentUserId)
             : false,
         }));
+
+        const nextCursor = hasMore && posts.length > 0 ? posts[posts.length - 1].created_at : undefined;
+        return { posts, nextCursor, hasMore };
       }
     } catch (err) {
-      console.warn("Supabase user posts query failed, falling back to local store:", err);
+      console.error("Supabase user posts query failed:", err);
     }
   }
 
-  // In-memory fallback
-  return (global.__WECA_POSTS || [])
-    .filter((p) => p.user_id === userId || (userId === "usr-demo" && (!p.user_id || p.user_id === "usr-demo")))
-    .map((p) => {
-      const postLikes = global.__WECA_LIKES?.[p.id] || new Set();
-      const postComments = global.__WECA_COMMENTS?.[p.id] || [];
-      return {
-        ...p,
-        likes_count: (p.likes_count || 0) + postLikes.size,
-        comments_count: postComments.length,
-        user_has_liked: currentUserId ? postLikes.has(currentUserId) : false,
-      };
-    });
+  return { posts: [], hasMore: false };
+}
+
+/**
+ * Fetch posts by a specific user (capped at limit, default 20)
+ */
+export async function getPostsByUserId(userId: string, currentUserId?: string, limit: number = 20): Promise<Post[]> {
+  const res = await getPostsByUserIdPaginated({ userId, currentUserId, limit });
+  return res.posts;
 }
 
 /**
@@ -510,17 +523,7 @@ export async function deletePost(
     }
   }
 
-  // In-memory fallback removal
-  if (global.__WECA_POSTS) {
-    const idx = global.__WECA_POSTS.findIndex(
-      (p) => p.id === postId && (p.user_id === userId || userId === "usr-demo")
-    );
-    if (idx !== -1) {
-      global.__WECA_POSTS.splice(idx, 1);
-    }
-  }
-
-  return { success: true };
+  return { success: false, error: "Failed to delete post from database" };
 }
 
 /**
@@ -589,18 +592,7 @@ export async function updatePost(
     }
   }
 
-  // In-memory fallback
-  if (global.__WECA_POSTS) {
-    const post = global.__WECA_POSTS.find(
-      (p) => p.id === postId && (p.user_id === userId || userId === "usr-demo")
-    );
-    if (post) {
-      if (updates.caption !== undefined) post.caption = updates.caption;
-      return { success: true, post };
-    }
-  }
-
-  return { success: false, error: "Post not found or unauthorized" };
+  return { success: false, error: "Database error or post not found" };
 }
 
 export const MAX_UPLOADS_PER_HOUR = 5;
@@ -639,63 +631,57 @@ export async function checkUploadRateLimit(userId: string): Promise<{
     }
   }
 
-  // Local fallback
-  const recentPosts = (global.__WECA_POSTS || []).filter(
-    (p) => p.user_id === userId && new Date(p.created_at).getTime() > Date.now() - 3600000
-  );
-  const count = recentPosts.length;
   return {
-    allowed: count < MAX_UPLOADS_PER_HOUR,
-    remaining: Math.max(0, MAX_UPLOADS_PER_HOUR - count),
+    allowed: true,
+    remaining: MAX_UPLOADS_PER_HOUR,
     max: MAX_UPLOADS_PER_HOUR,
   };
 }
 
 /**
- * Toggle like/unlike on a post
+ * Toggle like/unlike on a post (Atomic RPC with fallback)
  */
 export async function toggleLike(postId: string, userId: string): Promise<{ liked: boolean; likesCount: number }> {
   const supabase = createClient();
 
-  if (supabase) {
-    try {
-      const { data: existing } = await supabase
-        .from("likes")
-        .select("created_at")
-        .match({ post_id: postId, user_id: userId })
-        .maybeSingle();
+  if (!supabase) {
+    return { liked: false, likesCount: 0 };
+  }
 
-      if (existing) {
-        await supabase.from("likes").delete().match({ post_id: postId, user_id: userId });
-        const { count } = await supabase.from("likes").select("*", { count: "exact", head: true }).eq("post_id", postId);
-        return { liked: false, likesCount: count || 0 };
-      } else {
-        await supabase.from("likes").insert({ post_id: postId, user_id: userId });
-        const { count } = await supabase.from("likes").select("*", { count: "exact", head: true }).eq("post_id", postId);
-        return { liked: true, likesCount: count || 1 };
-      }
-    } catch (err) {
-      console.warn("Supabase like toggle failed, using memory:", err);
+  try {
+    // 1. Try atomic PostgreSQL RPC function (single roundtrip, no race conditions)
+    const { data: rpcData, error: rpcError } = await supabase.rpc("toggle_like", {
+      p_post_id: postId,
+      p_user_id: userId,
+    });
+
+    if (!rpcError && rpcData && rpcData.length > 0) {
+      return {
+        liked: Boolean(rpcData[0].liked),
+        likesCount: Number(rpcData[0].likes_count),
+      };
     }
+
+    // 2. Direct table queries fallback
+    const { data: existing } = await supabase
+      .from("likes")
+      .select("created_at")
+      .match({ post_id: postId, user_id: userId })
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("likes").delete().match({ post_id: postId, user_id: userId });
+      const { count } = await supabase.from("likes").select("*", { count: "exact", head: true }).eq("post_id", postId);
+      return { liked: false, likesCount: count || 0 };
+    } else {
+      await supabase.from("likes").insert({ post_id: postId, user_id: userId });
+      const { count } = await supabase.from("likes").select("*", { count: "exact", head: true }).eq("post_id", postId);
+      return { liked: true, likesCount: count || 1 };
+    }
+  } catch (err) {
+    console.error("Supabase like toggle error:", err);
+    return { liked: false, likesCount: 0 };
   }
-
-  // In-memory fallback
-  if (!global.__WECA_LIKES) global.__WECA_LIKES = {};
-  if (!global.__WECA_LIKES[postId]) global.__WECA_LIKES[postId] = new Set();
-
-  const set = global.__WECA_LIKES[postId];
-  let liked = false;
-  if (set.has(userId)) {
-    set.delete(userId);
-    liked = false;
-  } else {
-    set.add(userId);
-    liked = true;
-  }
-
-  const post = global.__WECA_POSTS?.find((p) => p.id === postId);
-  const baseCount = post?.likes_count || 0;
-  return { liked, likesCount: baseCount + set.size };
 }
 
 /**
@@ -742,7 +728,7 @@ export async function getComments(postId: string): Promise<Comment[]> {
     }
   }
 
-  return global.__WECA_COMMENTS?.[postId] || [];
+  return [];
 }
 
 /**
@@ -798,21 +784,7 @@ export async function addComment(params: {
     }
   }
 
-  // In-memory fallback
-  const newComment: Comment = {
-    id: `c-${Date.now()}`,
-    post_id: params.postId,
-    user_id: params.userId,
-    body: params.body.trim(),
-    created_at: new Date().toISOString(),
-    profiles: params.authorProfile || DEMO_PROFILE,
-  };
-
-  if (!global.__WECA_COMMENTS) global.__WECA_COMMENTS = {};
-  if (!global.__WECA_COMMENTS[params.postId]) global.__WECA_COMMENTS[params.postId] = [];
-  global.__WECA_COMMENTS[params.postId].push(newComment);
-
-  return newComment;
+  throw new Error("Failed to post comment: Supabase database connection required");
 }
 
 /**
@@ -865,10 +837,7 @@ export async function getProfileWithPosts(identifier: string): Promise<{ profile
     }
   }
 
-  // In-memory fallback
-  const profile = identifier === "usr-demo" || identifier === "weca_founder" ? DEMO_PROFILE : null;
-  const posts = (global.__WECA_POSTS || []).filter((p) => p.user_id === profile?.id);
-  return { profile, posts };
+  return { profile: null, posts: [] };
 }
 
 // ==============================================================================
@@ -878,7 +847,7 @@ export async function getProfileWithPosts(identifier: string): Promise<{ profile
 /**
  * Phase 3: Fetch active or ended battles with post details and vote tallies
  */
-export async function getBattles(status?: "active" | "ended", currentUserId?: string): Promise<Battle[]> {
+export async function getBattles(status?: "active" | "ended", currentUserId?: string, limit: number = 30): Promise<Battle[]> {
   const supabase = createClient();
   if (supabase) {
     try {
@@ -926,7 +895,8 @@ export async function getBattles(status?: "active" | "ended", currentUserId?: st
             voted_for_post_id
           )
         `)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(limit);
 
       if (status) {
         query = query.eq("status", status);
@@ -942,7 +912,7 @@ export async function getBattles(status?: "active" | "ended", currentUserId?: st
           const votesB = votes.filter((v: any) => v.voted_for_post_id === row.post_b_id).length;
           const totalVotes = votes.length;
 
-          // Check if age threshold hit (48h) or vote threshold
+          // Compute status in-memory without side-effect updates during read
           let battleStatus: "active" | "ended" = row.status;
           let winnerId = row.winner_post_id;
           const createdAtTime = new Date(row.created_at).getTime();
@@ -954,11 +924,6 @@ export async function getBattles(status?: "active" | "ended", currentUserId?: st
             if (hitVoteThreshold || hitAgeThreshold) {
               battleStatus = "ended";
               winnerId = votesA > votesB ? row.post_a_id : votesB > votesA ? row.post_b_id : null;
-              supabase
-                .from("battles")
-                .update({ status: "ended", winner_post_id: winnerId, ended_at: new Date().toISOString() })
-                .eq("id", row.id)
-                .then();
             }
           }
 
@@ -991,12 +956,7 @@ export async function getBattles(status?: "active" | "ended", currentUserId?: st
     }
   }
 
-  // In-memory fallback
-  let list = global.__WECA_BATTLES || [];
-  if (status) {
-    list = list.filter((b) => b.status === status);
-  }
-  return list;
+  return [];
 }
 
 /**
@@ -1072,11 +1032,6 @@ export async function getBattleById(id: string, currentUserId?: string): Promise
           if (hitVoteThreshold || hitAgeThreshold) {
             battleStatus = "ended";
             winnerId = votesA > votesB ? row.post_a_id : votesB > votesA ? row.post_b_id : null;
-            supabase
-              .from("battles")
-              .update({ status: "ended", winner_post_id: winnerId, ended_at: new Date().toISOString() })
-              .eq("id", row.id)
-              .then();
           }
         }
 
@@ -1108,7 +1063,7 @@ export async function getBattleById(id: string, currentUserId?: string): Promise
     }
   }
 
-  return (global.__WECA_BATTLES || []).find((b) => b.id === id) || null;
+  return null;
 }
 
 /**
@@ -1145,16 +1100,10 @@ export async function checkBattleCreationRateLimit(userId: string): Promise<{
     }
   }
 
-  // Fallback check
-  const oneHourAgo = Date.now() - 3600000;
-  const count = (global.__WECA_BATTLES || []).filter(
-    (b) => b.created_by === userId && new Date(b.created_at || Date.now()).getTime() >= oneHourAgo
-  ).length;
-
   return {
-    allowed: count < maxBattles,
-    count,
-    remaining: Math.max(0, maxBattles - count),
+    allowed: true,
+    count: 0,
+    remaining: maxBattles,
     max: maxBattles,
   };
 }
@@ -1210,22 +1159,7 @@ export async function createBattle(
     }
   }
 
-  // Fallback in-memory creation
-  const newBattle: Battle = {
-    id: "battle-" + Date.now(),
-    post_a_id: params.post_a_id,
-    post_b_id: params.post_b_id,
-    created_by: params.created_by,
-    status: "active",
-    vote_threshold: params.vote_threshold || 50,
-    created_at: new Date().toISOString(),
-    votes_a_count: 0,
-    votes_b_count: 0,
-    total_votes: 0,
-    is_creator: true,
-  };
-  global.__WECA_BATTLES = [newBattle, ...(global.__WECA_BATTLES || [])];
-  return { success: true, battle: newBattle };
+  return { success: false, error: "Database client required to create battles." };
 }
 
 /**
@@ -1297,58 +1231,7 @@ export async function castBattleVote(
     }
   }
 
-  // In-memory fallback
-  const battle = (global.__WECA_BATTLES || []).find((b) => b.id === params.battle_id);
-  if (!battle) return { success: false, error: "Battle not found" };
-  if (battle.status !== "active") return { success: false, error: "Battle has ended" };
-  if (battle.created_by === params.voter_id) return { success: false, error: "Creator cannot vote in own battle" };
-
-  const existingVote = (global.__WECA_BATTLE_VOTES || []).find(
-    (v) => v.battle_id === params.battle_id && v.voter_id === params.voter_id
-  );
-  if (existingVote) return { success: false, error: "You have already voted in this battle" };
-
-  const newVote: BattleVote = {
-    id: "vote-" + Date.now(),
-    battle_id: params.battle_id,
-    voter_id: params.voter_id,
-    voted_for_post_id: params.voted_for_post_id,
-    created_at: new Date().toISOString(),
-  };
-  global.__WECA_BATTLE_VOTES = [...(global.__WECA_BATTLE_VOTES || []), newVote];
-
-  if (params.voted_for_post_id === battle.post_a_id) {
-    battle.votes_a_count = (battle.votes_a_count || 0) + 1;
-  } else {
-    battle.votes_b_count = (battle.votes_b_count || 0) + 1;
-  }
-  battle.total_votes = (battle.total_votes || 0) + 1;
-  battle.user_has_voted = true;
-  battle.user_voted_for_post_id = params.voted_for_post_id;
-
-  if (battle.total_votes >= (battle.vote_threshold || 50)) {
-    battle.status = "ended";
-    const aCount = battle.votes_a_count || 0;
-    const bCount = battle.votes_b_count || 0;
-    battle.winner_post_id = aCount > bCount ? battle.post_a_id : battle.post_b_id;
-    battle.ended_at = new Date().toISOString();
-
-    // Award bonus in memory fallback
-    if (battle.winner_post_id) {
-      const winningPost = (global.__WECA_POSTS || []).find((p) => p.id === battle.winner_post_id);
-      if (winningPost) {
-        recordCreditTransaction(null, {
-          userId: winningPost.user_id,
-          amount: BATTLE_WINNER_BONUS_WC,
-          reason: "Versus Battle Victory Bonus: Post crowned winner",
-          postId: winningPost.id,
-          battleId: battle.id,
-        });
-      }
-    }
-  }
-
-  return { success: true, battle };
+  return { success: false, error: "Database client required to record battle votes." };
 }
 
 // ==============================================================================
@@ -1376,7 +1259,7 @@ export async function getUserCreditTransactions(userId: string): Promise<CreditT
     }
   }
 
-  return (global.__WECA_CREDIT_TRANSACTIONS || []).filter((t) => t.user_id === userId);
+  return [];
 }
 
 /**

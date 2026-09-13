@@ -3,9 +3,14 @@ import { scoreImageWithGemini } from "@/lib/services/scoring";
 import { saveScoredImage } from "@/lib/services/data";
 import { Category } from "@/lib/types";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { rateLimiter, RATE_PRESETS } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 import sharp from "sharp";
 
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB limit
+
 export async function POST(req: NextRequest) {
+  const start = Date.now();
   try {
     const formData = await req.formData();
     const file = formData.get("image") as File | null;
@@ -18,6 +23,34 @@ export async function POST(req: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: "No image file provided" }, { status: 400 });
+    }
+
+    // Security & resource check: max 10MB
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      return NextResponse.json(
+        { error: "Image file exceeds the 10MB size limit." },
+        { status: 400 }
+      );
+    }
+
+    // Validate MIME type
+    if (!file.type || !file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Invalid file type. Only image files are permitted." },
+        { status: 400 }
+      );
+    }
+
+    // Rate limit per user
+    const rateCheck = rateLimiter.check(`upload:${userId}`, RATE_PRESETS.uploadAndScore);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: "Upload limit reached. Please wait before uploading another image." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateCheck.retryAfterSeconds) },
+        }
+      );
     }
 
     // Convert file to buffer and base64
@@ -95,6 +128,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    logger.info("Image uploaded and scored", {
+      userId,
+      imageId: savedImage.id,
+      category,
+      durationMs: Date.now() - start,
+    });
+
     return NextResponse.json({
       success: true,
       image: savedImage,
@@ -103,7 +143,7 @@ export async function POST(req: NextRequest) {
       heldForReview: savedImage.moderation_status === "pending_review",
     });
   } catch (error: unknown) {
-    console.error("Upload & scoring error:", error);
+    logger.error("Upload & scoring error", { error, durationMs: Date.now() - start });
     const errorMsg = error instanceof Error ? error.message : "Failed to process and score image";
     return NextResponse.json(
       { error: errorMsg },

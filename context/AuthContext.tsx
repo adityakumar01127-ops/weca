@@ -26,19 +26,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEMO_PROFILE: Profile = {
-  id: "00000000-0000-0000-0000-000000000001",
-  username: "weca_explorer",
-  display_name: "Weca Explorer",
-  avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  bio: "Documenting rare environmental glitches and optical anomalies.",
-  pronouns: "they/them",
-  credits_balance: 140,
-  created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-};
-
-const getStoredProfile = (): Profile => {
-  if (typeof window !== "undefined") {
+const getStoredProfile = (): Profile | null => {
+  if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
     const saved = localStorage.getItem("weca_custom_profile");
     if (saved) {
       try {
@@ -46,7 +35,7 @@ const getStoredProfile = (): Profile => {
       } catch {}
     }
   }
-  return DEMO_PROFILE;
+  return null;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -108,11 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     async function initAuth() {
       if (!supabase) {
-        // Fallback for demo
-        const storedDemo = typeof window !== "undefined" ? localStorage.getItem("weca_demo_user") : null;
-        if (storedDemo) {
-          setProfile(getStoredProfile());
-        }
         setLoading(false);
         return;
       }
@@ -125,11 +109,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const p = await fetchProfile(session.user.id, session.user.email);
           setProfile(p);
         } else {
-          // Check demo storage
-          const storedDemo = typeof window !== "undefined" ? localStorage.getItem("weca_demo_user") : null;
-          if (storedDemo) {
-            setProfile(getStoredProfile());
-          }
+          setAuthUser(null);
+          setProfile(null);
         }
       } catch (err) {
         console.error("Auth initialization error:", err);
@@ -145,10 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(p);
         } else {
           setAuthUser(null);
-          const storedDemo = typeof window !== "undefined" ? localStorage.getItem("weca_demo_user") : null;
-          if (!storedDemo) {
-            setProfile(null);
-          }
+          setProfile(null);
         }
         setLoading(false);
       });
@@ -163,10 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string): Promise<{ error?: string }> => {
     if (!supabase) {
-      // Local demo sign in
-      setProfile(DEMO_PROFILE);
-      localStorage.setItem("weca_demo_user", "true");
-      return {};
+      return { error: "Authentication service unavailable. Missing configuration." };
     }
 
     try {
@@ -199,13 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     displayName?: string
   ): Promise<{ error?: string }> => {
     if (!supabase) {
-      setProfile({
-        ...DEMO_PROFILE,
-        username,
-        display_name: displayName || username,
-      });
-      localStorage.setItem("weca_demo_user", "true");
-      return {};
+      return { error: "Authentication service unavailable. Missing configuration." };
     }
 
     try {
@@ -255,9 +224,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginAsDemo = () => {
-    setProfile(getStoredProfile());
-    if (typeof window !== "undefined") {
-      localStorage.setItem("weca_demo_user", "true");
+    if (process.env.NODE_ENV === "production") {
+      console.warn("Demo login is disabled in production.");
+      return;
+    }
+    const devProfile = getStoredProfile();
+    if (devProfile) {
+      setProfile(devProfile);
     }
   };
 
@@ -341,9 +314,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         created_at: profile.created_at,
         country: "Global",
         website: userExtras.website || "",
-        followers_count: 472,
-        following_count: 102,
-        is_ai_profile: userExtras.is_ai_profile ?? true,
+        followers_count: 0,
+        following_count: 0,
+        is_ai_profile: userExtras.is_ai_profile ?? false,
         show_suggestions: true,
         gender: userExtras.gender || "Explorer",
         note: userExtras.note || "Just curious...",
