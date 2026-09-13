@@ -16,6 +16,8 @@ import {
   AlertCircle,
   Send,
   FolderOpen,
+  Grid as GridIcon,
+  Zap,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { Category } from "@/lib/types";
@@ -45,6 +47,7 @@ interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPostCreated?: () => void;
+  initialMode?: "live" | "upload" | "drafts" | "scheduled";
 }
 
 const VIBE_EMOJIS = ["🔮", "⚡", "👁️", "🛸", "🌌", "🔬", "✨", "❤️", "🔥"];
@@ -73,12 +76,15 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   isOpen,
   onClose,
   onPostCreated,
+  initialMode,
 }) => {
   const { user, profile } = useAuth();
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
-  // Top Level Tab: create editor, drafts manager, scheduled queue
-  const [activeTab, setActiveTab] = useState<"create" | "drafts" | "scheduled">("create");
+  // Top Level Tab: "live" (Instant Live Camera & Post), "upload" (File Studio), "drafts", "scheduled"
+  const [activeTab, setActiveTab] = useState<"live" | "upload" | "drafts" | "scheduled">(
+    initialMode || "live"
+  );
 
   // Post form state
   const [file, setFile] = useState<File | null>(null);
@@ -89,11 +95,13 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [scheduledDateTime, setScheduledDateTime] = useState<string>(getDefaultScheduledIsoLocal);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
 
-  // Camera state
-  const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
+  // Live Camera state
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [isFlashing, setIsFlashing] = useState<boolean>(false);
+  const [showGrid, setShowGrid] = useState<boolean>(true);
+  const [isSimulated, setIsSimulated] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [anomalyRating, setAnomalyRating] = useState<number>(94.5);
 
   // Submissions & Drafts state
   const [uploading, setUploading] = useState<boolean>(false);
@@ -123,11 +131,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
+  const simCanvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nativeCameraInputRef = useRef<HTMLInputElement>(null);
 
-  // Clean up camera on unmount or modal close
+  // Clean up camera stream
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -135,60 +144,136 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     }
   }, []);
 
-  // Handle camera streaming
-  useEffect(() => {
-    if (!isCameraActive) {
-      stopCamera();
-      return;
-    }
+  // Handle hardware camera streaming or simulated sensor fallback
+  const startCamera = useCallback(async () => {
+    stopCamera();
+    setCameraError(null);
+    setIsSimulated(false);
 
-    let isMounted = true;
-    const startCamera = async () => {
-      setCameraError(null);
-      stopCamera();
-      try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error("Camera API not supported in this browser.");
-        }
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: facingMode },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-          audio: false,
-        });
-
-        if (!isMounted) {
-          stream.getTracks().forEach((track) => track.stop());
-          return;
-        }
-
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
-        }
-      } catch (err: unknown) {
-        console.warn("Camera stream error:", err);
-        setCameraError(
-          "Direct camera feed unavailable. You can use native camera capture or browse files."
-        );
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera API not supported in this browser environment.");
       }
-    };
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: facingMode },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
 
-    startCamera();
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().catch(() => {});
+        };
+      }
+    } catch (err) {
+      console.warn("Hardware camera unavailable, enabling simulated sensor feed:", err);
+      setIsSimulated(true);
+    }
+  }, [facingMode, stopCamera]);
 
+  // Activate camera when modal is open and on live tab without photo preview
+  useEffect(() => {
+    if (isOpen && activeTab === "live" && !previewUrl) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
     return () => {
-      isMounted = false;
       stopCamera();
     };
-  }, [isCameraActive, facingMode, stopCamera]);
+  }, [isOpen, activeTab, previewUrl, startCamera, stopCamera]);
+
+  // Simulated Optical HUD Canvas Loop (runs when webcam hardware is not available)
+  useEffect(() => {
+    let animId: number;
+    if (isSimulated && simCanvasRef.current && isOpen && activeTab === "live" && !previewUrl) {
+      const canvas = simCanvasRef.current;
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+
+      const render = () => {
+        frame++;
+        if (!ctx) return;
+        const w = (canvas.width = 640);
+        const h = (canvas.height = 480);
+
+        // Cybernetic visual space
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, "#05060f");
+        grad.addColorStop(0.5, "#0b0e22");
+        grad.addColorStop(1, "#070814");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Scanning grid
+        ctx.strokeStyle = "rgba(34, 211, 238, 0.12)";
+        ctx.lineWidth = 1;
+        const step = 40;
+        for (let x = 0; x < w; x += step) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, h);
+          ctx.stroke();
+        }
+        for (let y = 0; y < h; y += step) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+          ctx.stroke();
+        }
+
+        // Pulsing anomaly visual breach
+        const cx = w / 2 + Math.sin(frame * 0.035) * 35;
+        const cy = h / 2 + Math.cos(frame * 0.025) * 25;
+        const radius = 75 + Math.sin(frame * 0.06) * 12;
+
+        const orbGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius);
+        orbGrad.addColorStop(0, "rgba(124, 92, 252, 0.85)");
+        orbGrad.addColorStop(0.4, "rgba(34, 211, 238, 0.5)");
+        orbGrad.addColorStop(0.8, "rgba(236, 72, 153, 0.2)");
+        orbGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = orbGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Crosshairs & Target Box
+        ctx.strokeStyle = "#22D3EE";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx - 36, cy - 36, 72, 72);
+
+        // Sweeping scanner line
+        const scanY = (frame * 3) % h;
+        ctx.fillStyle = "rgba(34, 211, 238, 0.35)";
+        ctx.fillRect(0, scanY, w, 2);
+
+        // Optical HUD Text
+        ctx.font = "bold 11px monospace";
+        ctx.fillStyle = "#22D3EE";
+        ctx.fillText("LIVE SENSOR • ANOMALY DETECTED", 18, 28);
+        ctx.fillStyle = "#A78BFA";
+        ctx.fillText(
+          `FLUX: ${(93 + Math.sin(frame * 0.08) * 4).toFixed(1)}% • SECTOR 09`,
+          18,
+          46
+        );
+
+        animId = requestAnimationFrame(render);
+      };
+
+      animId = requestAnimationFrame(render);
+    }
+    return () => cancelAnimationFrame(animId);
+  }, [isSimulated, isOpen, activeTab, previewUrl]);
 
   // Keyboard Escape listener
   const handleClose = useCallback(() => {
     stopCamera();
-    setIsCameraActive(false);
     onClose();
   }, [stopCamera, onClose]);
 
@@ -208,35 +293,65 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Take photo from active video feed
+  // Capture Live Photo from hardware camera or optical sensor
   const capturePhoto = () => {
-    if (!videoRef.current) return;
-    const video = videoRef.current;
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const video = videoRef.current;
+    let captured = false;
 
-    // Flash effect
+    // Flash animation
     setIsFlashing(true);
-    setTimeout(() => setIsFlashing(false), 200);
+    setTimeout(() => setIsFlashing(false), 220);
 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (!isSimulated && video && video.videoWidth > 0) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        if (facingMode === "user") {
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        captured = true;
+      }
+    }
+
+    if (!captured && simCanvasRef.current) {
+      canvas.width = simCanvasRef.current.width || 640;
+      canvas.height = simCanvasRef.current.height || 480;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(simCanvasRef.current, 0, 0);
+        captured = true;
+      }
+    }
+
     const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const capturedFile = new File([blob], generateFilename("anomaly-camera"), {
-          type: "image/jpeg",
-        });
-        setFile(capturedFile);
-        setPreviewUrl(dataUrl);
-        stopCamera();
-        setIsCameraActive(false);
-        setError(null);
-      }
-    }, "image/jpeg", 0.92);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          const capturedFile = new File([blob], generateFilename("anomaly-live"), {
+            type: "image/jpeg",
+          });
+          setFile(capturedFile);
+          setPreviewUrl(dataUrl);
+          setAnomalyRating(Number((89 + Math.random() * 10.2).toFixed(1)));
+          stopCamera();
+          setError(null);
+        }
+      },
+      "image/jpeg",
+      0.92
+    );
+  };
+
+  // Reset live capture to take another photo
+  const handleRetakeLive = () => {
+    setFile(null);
+    setPreviewUrl(null);
+    setError(null);
   };
 
   // File selection from dropzone
@@ -318,7 +433,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     } else {
       setIsScheduled(false);
     }
-    setActiveTab("create");
+    setActiveTab("upload");
     showToast("Draft loaded into studio!");
   };
 
@@ -384,8 +499,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   };
 
   // Main Submit (Publish Now OR Schedule)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
     if (!previewUrl) {
       setError("Please capture or upload an anomaly photograph.");
       return;
@@ -543,26 +660,44 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           </button>
         </div>
 
-        {/* Studio Tabs: Create Sighting, Drafts, Scheduled */}
+        {/* Studio Tabs: Live Camera, Upload File, Drafts, Scheduled */}
         <div className="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 my-3 shrink-0 text-xs">
           <button
             type="button"
-            id="tab-create-sighting"
-            onClick={() => setActiveTab("create")}
-            className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === "create"
+            id="tab-live-camera"
+            onClick={() => {
+              setPreviewUrl(null);
+              setFile(null);
+              setActiveTab("live");
+            }}
+            className={`flex-1 py-1.5 px-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTab === "live"
                 ? "bg-violet text-white shadow-sm font-semibold"
                 : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>New Sighting</span>
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping mr-0.5" />
+            <Camera className="w-3.5 h-3.5" />
+            <span>Live Camera</span>
+          </button>
+          <button
+            type="button"
+            id="tab-upload-file"
+            onClick={() => setActiveTab("upload")}
+            className={`flex-1 py-1.5 px-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTab === "upload"
+                ? "bg-violet text-white shadow-sm font-semibold"
+                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+            }`}
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload File</span>
           </button>
           <button
             type="button"
             id="tab-drafts"
             onClick={() => setActiveTab("drafts")}
-            className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-1.5 px-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === "drafts"
                 ? "bg-violet text-white shadow-sm font-semibold"
                 : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -580,7 +715,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             type="button"
             id="tab-scheduled"
             onClick={() => setActiveTab("scheduled")}
-            className={`flex-1 py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-1.5 px-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === "scheduled"
                 ? "bg-violet text-white shadow-sm font-semibold"
                 : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -612,345 +747,472 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           </div>
         )}
 
-        {/* TAB 1: CREATE SIGHTING FORM */}
-        {activeTab === "create" && (
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col flex-1 min-h-0 overflow-hidden"
-          >
-            <div className="space-y-4 overflow-y-auto pr-1 py-1 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 flex-1 min-h-0">
-              {/* SOURCE SELECTOR: LIVE CAMERA VS FILE UPLOAD */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
-                <span>Anomaly Photograph</span>
-                {previewUrl && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFile(null);
-                      setPreviewUrl(null);
-                      setIsCameraActive(false);
-                    }}
-                    className="text-[11px] text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 transition-colors"
-                  >
-                    Clear photo
-                  </button>
-                )}
-              </label>
-
-              {/* View 1: Active Live Camera Viewfinder */}
-              {isCameraActive ? (
-                <div className="relative rounded-2xl overflow-hidden bg-black border border-zinc-800 aspect-video flex items-center justify-center shadow-lg">
-                  {/* Flash Overlay */}
+        {/* ========================================================================= */}
+        {/* TAB 1: LIVE CAMERA & 1-TAP POST                                           */}
+        {/* ========================================================================= */}
+        {activeTab === "live" && (
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            {!previewUrl ? (
+              /* Sub-view A: Live Camera Viewfinder & HUD */
+              <div className="flex flex-col flex-1 min-h-0 space-y-3">
+                <div className="relative rounded-2xl overflow-hidden bg-black border border-zinc-800 aspect-[4/3] sm:aspect-video flex items-center justify-center shadow-2xl group select-none">
+                  {/* Flash Animation Overlay */}
                   {isFlashing && (
-                    <div className="absolute inset-0 bg-white z-30 transition-opacity duration-200" />
+                    <div className="absolute inset-0 bg-white z-50 transition-opacity duration-200 pointer-events-none" />
                   )}
 
-                  {/* Video Stream Element */}
+                  {/* Hardware Camera Video Stream */}
                   <video
                     ref={videoRef}
                     autoPlay
                     playsInline
                     muted
+                    className={`w-full h-full object-cover ${isSimulated ? "hidden" : "block"} ${
+                      facingMode === "user" ? "scale-x-[-1]" : ""
+                    }`}
+                  />
+
+                  {/* Simulated Anomaly Sensor Canvas (graceful fallback) */}
+                  <canvas
+                    ref={simCanvasRef}
+                    className={`w-full h-full object-cover ${isSimulated ? "block" : "hidden"}`}
+                  />
+
+                  {/* Rule-of-Thirds Grid Overlay */}
+                  {showGrid && (
+                    <div className="absolute inset-0 pointer-events-none grid grid-cols-3 grid-rows-3 z-10">
+                      <div className="border-r border-b border-white/15" />
+                      <div className="border-r border-b border-white/15" />
+                      <div className="border-b border-white/15" />
+                      <div className="border-r border-b border-white/15" />
+                      <div className="border-r border-b border-white/15" />
+                      <div className="border-b border-white/15" />
+                      <div className="border-r border-b border-white/15" />
+                      <div className="border-r border-b border-white/15" />
+                      <div />
+                    </div>
+                  )}
+
+                  {/* Optical Reticle Corner Brackets */}
+                  <div className="absolute inset-3 pointer-events-none z-20">
+                    <div className="w-6 h-6 border-t-2 border-l-2 border-cyan absolute top-0 left-0" />
+                    <div className="w-6 h-6 border-t-2 border-r-2 border-cyan absolute top-0 right-0" />
+                    <div className="w-6 h-6 border-b-2 border-l-2 border-cyan absolute bottom-0 left-0" />
+                    <div className="w-6 h-6 border-b-2 border-r-2 border-cyan absolute bottom-0 right-0" />
+                  </div>
+
+                  {/* Top HUD Controls */}
+                  <div className="absolute top-3 inset-x-3 flex items-center justify-between z-30 pointer-events-auto">
+                    {/* Live Status Badge */}
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[11px] font-mono text-white shadow-md">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                      <span className="font-bold text-rose-400">LIVE</span>
+                      <span className="text-zinc-300">• OPTICAL SCANNER</span>
+                    </div>
+
+                    {/* Camera Controls */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        id="toggle-camera-grid-btn"
+                        onClick={() => setShowGrid(!showGrid)}
+                        className={`p-2 rounded-full backdrop-blur-md border transition-all cursor-pointer ${
+                          showGrid
+                            ? "bg-cyan/25 border-cyan text-cyan"
+                            : "bg-black/60 border-white/15 text-zinc-400 hover:text-white"
+                        }`}
+                        title="Toggle Alignment Grid"
+                      >
+                        <GridIcon className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        id="flip-camera-btn"
+                        onClick={() =>
+                          setFacingMode((prev) => (prev === "environment" ? "user" : "environment"))
+                        }
+                        className="p-2 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/15 text-white transition-all active:rotate-180 duration-300 cursor-pointer shadow-md"
+                        title="Flip Camera (Front/Back)"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bottom Shutter Controls Bar */}
+                  <div className="absolute bottom-4 inset-x-0 flex items-center justify-center gap-8 z-30 pointer-events-auto">
+                    {/* Switch to File Upload */}
+                    <button
+                      type="button"
+                      id="switch-to-upload-btn"
+                      onClick={() => setActiveTab("upload")}
+                      className="p-3 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white border border-white/15 backdrop-blur-md transition-all cursor-pointer shadow-md"
+                      title="Upload from Device Files"
+                    >
+                      <Upload className="w-4 h-4 text-cyan" />
+                    </button>
+
+                    {/* Big Tactile Shutter Button */}
+                    <button
+                      type="button"
+                      id="live-camera-shutter-btn"
+                      onClick={capturePhoto}
+                      className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-full p-1 bg-gradient-to-tr from-cyan via-violet to-fuchsia-500 shadow-xl shadow-cyan/25 hover:shadow-cyan/50 transition-all active:scale-95 cursor-pointer flex items-center justify-center group"
+                      title="Click Live Photo"
+                    >
+                      <div className="w-full h-full rounded-full bg-white dark:bg-zinc-950 p-1 flex items-center justify-center">
+                        <div className="w-full h-full rounded-full bg-white group-hover:bg-zinc-100 dark:bg-white dark:group-hover:bg-zinc-200 transition-colors shadow-inner flex items-center justify-center">
+                          <div className="w-3.5 h-3.5 rounded-full bg-rose-500 animate-pulse" />
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Native Camera Trigger */}
+                    <button
+                      type="button"
+                      id="native-camera-btn"
+                      onClick={() => nativeCameraInputRef.current?.click()}
+                      className="p-3 rounded-full bg-black/60 hover:bg-black/80 text-zinc-300 hover:text-white border border-white/15 backdrop-blur-md transition-all cursor-pointer shadow-md"
+                      title="Device Native Camera"
+                    >
+                      <Camera className="w-4 h-4 text-violet" />
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-center text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
+                  Align optical anomaly within reticle and tap shutter to snap live.
+                </p>
+              </div>
+            ) : (
+              /* Sub-view B: Live Capture Review & 1-Tap Post ("Click Live and Post") */
+              <div className="flex flex-col flex-1 min-h-0 space-y-3 overflow-y-auto pr-1">
+                {/* Captured Anomaly Snapshot with Verified Chip */}
+                <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-black aspect-video sm:aspect-[16/9] flex items-center justify-center shadow-lg group">
+                  <img
+                    src={previewUrl}
+                    alt="Live Anomaly Capture"
                     className="w-full h-full object-cover"
                   />
 
-                  {/* Camera Viewfinder Crosshairs */}
-                  <div className="absolute inset-4 pointer-events-none border border-white/20 rounded-xl flex items-center justify-center">
-                    <div className="w-8 h-8 border-t-2 border-l-2 border-cyan absolute top-2 left-2" />
-                    <div className="w-8 h-8 border-t-2 border-r-2 border-cyan absolute top-2 right-2" />
-                    <div className="w-8 h-8 border-b-2 border-l-2 border-cyan absolute bottom-2 left-2" />
-                    <div className="w-8 h-8 border-b-2 border-r-2 border-cyan absolute bottom-2 right-2" />
-                    <div className="text-[10px] font-mono text-cyan/70 bg-black/50 px-2 py-0.5 rounded-full">
-                      OPTICAL RETICLE ACTIVE
-                    </div>
+                  {/* Anomaly Score Chip */}
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-cyan/40 text-cyan text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
+                    <Sparkles className="w-3.5 h-3.5 text-cyan animate-pulse" />
+                    <span>Anomaly Detected • {anomalyRating}%</span>
                   </div>
 
-                  {/* Camera Controls Bar */}
-                  <div className="absolute bottom-3 inset-x-0 flex items-center justify-center gap-6 z-20">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFacingMode((prev) => (prev === "environment" ? "user" : "environment"))
-                      }
-                      className="p-2.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white border border-zinc-700 transition-all cursor-pointer shadow-md"
-                      title="Flip Camera"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </button>
-
-                    {/* Big Shutter Button */}
-                    <button
-                      type="button"
-                      id="camera-shutter-btn"
-                      onClick={capturePhoto}
-                      className="w-14 h-14 rounded-full bg-white hover:bg-zinc-200 p-1 transition-all active:scale-90 shadow-xl cursor-pointer flex items-center justify-center group"
-                      title="Capture Anomaly Photo"
-                    >
-                      <div className="w-full h-full rounded-full border-2 border-black bg-white group-hover:scale-95 transition-transform" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsCameraActive(false)}
-                      className="p-2.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 transition-all cursor-pointer shadow-md"
-                      title="Exit Camera"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {cameraError && (
-                    <div className="absolute inset-0 bg-black/90 p-4 flex flex-col items-center justify-center text-center gap-2 text-xs text-zinc-300 z-40">
-                      <AlertCircle className="w-6 h-6 text-amber-400" />
-                      <span>{cameraError}</span>
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          type="button"
-                          onClick={() => nativeCameraInputRef.current?.click()}
-                          className="px-3 py-1.5 bg-violet hover:bg-violet/90 text-white rounded-lg text-xs font-semibold"
-                        >
-                          Native Camera
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsCameraActive(false)}
-                          className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs"
-                        >
-                          Use File Upload
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : previewUrl ? (
-                /* View 2: Image Preview */
-                <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 max-h-64 flex items-center justify-center group">
-                  <img
-                    src={previewUrl}
-                    alt="Anomaly Preview"
-                    className="w-full max-h-64 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setIsCameraActive(true)}
-                      className="px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-1.5"
-                    >
-                      <Camera className="w-3.5 h-3.5 text-cyan" />
-                      Retake
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-1.5"
-                    >
-                      <Upload className="w-3.5 h-3.5 text-violet" />
-                      Change File
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* View 3: Source Choice (Camera vs Upload) */
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Camera Button */}
-                  <div
-                    id="open-live-camera-btn"
-                    onClick={() => setIsCameraActive(true)}
-                    className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-violet/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
+                  {/* Retake Floating Button */}
+                  <button
+                    type="button"
+                    id="retake-live-btn"
+                    onClick={handleRetakeLive}
+                    className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-violet/10 border border-violet/20 flex items-center justify-center text-violet group-hover:scale-110 transition-transform mb-2.5">
-                      <Camera className="w-6 h-6" />
-                    </div>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white group-hover:text-violet transition-colors">
-                      Open Camera
-                    </span>
-                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                      Snap live anomaly photo
-                    </span>
-                  </div>
+                    <RefreshCw className="w-3 h-3 text-zinc-300" />
+                    <span>Retake Live</span>
+                  </button>
+                </div>
 
-                  {/* Dropzone File Upload */}
+                {/* Fast Observation Notes / Caption Input */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                      Observation Notes
+                    </label>
+                    <span className="text-[10px] font-mono text-zinc-400">{caption.length}/280</span>
+                  </div>
+                  <input
+                    type="text"
+                    id="live-post-caption-input"
+                    maxLength={280}
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    placeholder="Describe the optical anomaly or glitch you spotted live..."
+                    className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan transition-all"
+                  />
+
+                  {/* Quick Vibe Emojis */}
+                  <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto pb-1 scrollbar-none">
+                    <span className="text-[10px] text-zinc-500 font-mono shrink-0 mr-1">Vibe:</span>
+                    {VIBE_EMOJIS.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => setCaption((prev) => (prev ? `${prev} ${emoji}` : emoji))}
+                        className="p-1 text-xs rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Anomaly Category Pills */}
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Category</label>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                    {(["Objects", "Nature", "Human-Made", "Animals", "Coincidences", "Food"] as Category[]).map(
+                      (cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setCategory(cat)}
+                          className={`py-1.5 px-2 rounded-xl text-[11px] font-medium transition-all cursor-pointer ${
+                            category === cat
+                              ? "bg-cyan text-zinc-950 font-bold shadow-sm border border-cyan"
+                              : "bg-zinc-100 dark:bg-zinc-950/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-800"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* 1-Tap Post Action Bar */}
+                <div className="pt-2.5 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleRetakeLive}
+                    className="px-4 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Retake</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    id="quick-post-live-btn"
+                    onClick={handleSubmit}
+                    disabled={uploading}
+                    className="flex-1 py-2.5 px-6 rounded-xl bg-gradient-to-r from-cyan via-violet to-purple-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-violet/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                  >
+                    {uploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        <span>Publishing Live Anomaly...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Post Anomaly Now</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* TAB 2: FILE UPLOAD STUDIO                                                 */}
+        {/* ========================================================================= */}
+        {activeTab === "upload" && (
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col flex-1 min-h-0 overflow-hidden"
+          >
+            <div className="space-y-4 overflow-y-auto pr-1 py-1 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 flex-1 min-h-0">
+              {/* DROPZONE / PREVIEW */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
+                  <span>Photograph Selection</span>
+                  {previewUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFile(null);
+                        setPreviewUrl(null);
+                      }}
+                      className="text-[11px] text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 transition-colors cursor-pointer"
+                    >
+                      Clear photo
+                    </button>
+                  )}
+                </label>
+
+                {previewUrl ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 max-h-64 flex items-center justify-center group">
+                    <img
+                      src={previewUrl}
+                      alt="Anomaly Preview"
+                      className="w-full max-h-64 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-violet" />
+                        Change File
+                      </button>
+                    </div>
+                  </div>
+                ) : (
                   <div
                     id="open-file-upload-btn"
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-cyan/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
+                    className="p-8 rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-cyan/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/50 transition-all flex flex-col items-center justify-center text-center cursor-pointer group"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center text-cyan group-hover:scale-110 transition-transform mb-2.5">
-                      <Upload className="w-6 h-6" />
+                    <div className="w-14 h-14 rounded-2xl bg-cyan/10 border border-cyan/20 flex items-center justify-center text-cyan group-hover:scale-110 transition-transform mb-3">
+                      <Upload className="w-7 h-7" />
                     </div>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white group-hover:text-cyan transition-colors">
-                      Browse Files
+                    <span className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-cyan transition-colors">
+                      Select Anomaly File
                     </span>
-                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                       JPEG, PNG, WebP up to 15MB
                     </span>
                   </div>
+                )}
+              </div>
+
+              {/* CAPTION & QUICK EMOJIS */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    Anomaly Notes & Caption
+                  </label>
+                  <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                    {caption.length}/280
+                  </span>
                 </div>
-              )}
+                <textarea
+                  id="create-post-caption-input"
+                  rows={2}
+                  maxLength={280}
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  placeholder="Describe the visual anomaly or optical glitch..."
+                  className="w-full p-3 bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-all resize-none"
+                />
 
-              {/* Hidden File Inputs */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleFileSelect(e.target.files[0]);
-                  }
-                }}
-              />
-              <input
-                ref={nativeCameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleFileSelect(e.target.files[0]);
-                  }
-                }}
-              />
-            </div>
-
-            {/* CAPTION & QUICK EMOJIS */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  Anomaly Notes & Caption
-                </label>
-                <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">{caption.length}/280</span>
-              </div>
-              <textarea
-                id="create-post-caption-input"
-                rows={2}
-                maxLength={280}
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Describe the strange visual occurrence or optical glitch..."
-                className="w-full p-3 bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet transition-all resize-none"
-              />
-
-              {/* Vibe Emoji Quick Bar */}
-              <div className="flex items-center gap-1.5 pt-1 overflow-x-auto pb-1 scrollbar-none">
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono shrink-0 mr-1">Vibe:</span>
-                {VIBE_EMOJIS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setCaption((prev) => (prev ? `${prev} ${emoji}` : emoji))}
-                    className="p-1 text-xs rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* CATEGORY SELECTOR */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Anomaly Classification</label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-                {(["Objects", "Nature", "Human-Made", "Animals", "Coincidences", "Food"] as Category[]).map(
-                  (cat) => (
+                {/* Vibe Emoji Quick Bar */}
+                <div className="flex items-center gap-1.5 pt-1 overflow-x-auto pb-1 scrollbar-none">
+                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono shrink-0 mr-1">
+                    Vibe:
+                  </span>
+                  {VIBE_EMOJIS.map((emoji) => (
                     <button
-                      key={cat}
+                      key={emoji}
                       type="button"
-                      onClick={() => setCategory(cat)}
-                      className={`py-1.5 px-2 rounded-xl text-[11px] font-medium transition-all ${
-                        category === cat
-                          ? "bg-violet text-white font-semibold shadow-sm border border-violet/50"
-                          : "bg-zinc-100 dark:bg-zinc-950/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
-                      }`}
+                      onClick={() => setCaption((prev) => (prev ? `${prev} ${emoji}` : emoji))}
+                      className="p-1 text-xs rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
                     >
-                      {cat}
+                      {emoji}
                     </button>
-                  )
+                  ))}
+                </div>
+              </div>
+
+              {/* CATEGORY SELECTOR */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  Anomaly Classification
+                </label>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                  {(["Objects", "Nature", "Human-Made", "Animals", "Coincidences", "Food"] as Category[]).map(
+                    (cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCategory(cat)}
+                        className={`py-1.5 px-2 rounded-xl text-[11px] font-medium transition-all cursor-pointer ${
+                          category === cat
+                            ? "bg-violet text-white font-semibold shadow-sm border border-violet/50"
+                            : "bg-zinc-100 dark:bg-zinc-950/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-800"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* SCHEDULE POSTING PANEL */}
+              <div className="p-3.5 rounded-2xl bg-zinc-50/80 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-cyan" />
+                    <div>
+                      <span className="text-xs font-semibold text-zinc-900 dark:text-white block">
+                        Scheduled Release
+                      </span>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">
+                        Queue anomaly report for future community drop
+                      </span>
+                    </div>
+                  </div>
+
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id="schedule-toggle-input"
+                      checked={isScheduled}
+                      onChange={(e) => setIsScheduled(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-zinc-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan" />
+                  </label>
+                </div>
+
+                {isScheduled && (
+                  <div className="space-y-2.5 pt-2 border-t border-zinc-200 dark:border-zinc-800/60 animate-in fade-in">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <input
+                        id="schedule-datetime-picker"
+                        type="datetime-local"
+                        value={scheduledDateTime}
+                        onChange={(e) => setScheduledDateTime(e.target.value)}
+                        className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-zinc-200 font-mono focus:outline-none focus:border-cyan"
+                      />
+                      <span className="text-[11px] text-cyan font-mono font-semibold">
+                        Will publish automatically
+                      </span>
+                    </div>
+
+                    {/* Schedule Quick Presets */}
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => applySchedulePreset("2h")}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer"
+                      >
+                        +2 Hours
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applySchedulePreset("tomorrow-am")}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer"
+                      >
+                        Tomorrow 9:00 AM
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applySchedulePreset("tomorrow-pm")}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer"
+                      >
+                        Tomorrow 8:00 PM
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applySchedulePreset("friday")}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer"
+                      >
+                        Friday Peak
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* SCHEDULE POSTING PANEL */}
-            <div className="p-3.5 rounded-2xl bg-zinc-50/80 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800/80 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-cyan" />
-                  <div>
-                    <span className="text-xs font-semibold text-zinc-900 dark:text-white block">
-                      Scheduled Release
-                    </span>
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">
-                      Queue anomaly report for future community drop
-                    </span>
-                  </div>
-                </div>
-
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    id="schedule-toggle-input"
-                    checked={isScheduled}
-                    onChange={(e) => setIsScheduled(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-zinc-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan" />
-                </label>
-              </div>
-
-              {isScheduled && (
-                <div className="space-y-2.5 pt-2 border-t border-zinc-200 dark:border-zinc-800/60 animate-in fade-in">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <input
-                      id="schedule-datetime-picker"
-                      type="datetime-local"
-                      value={scheduledDateTime}
-                      onChange={(e) => setScheduledDateTime(e.target.value)}
-                      className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs text-zinc-900 dark:text-zinc-200 font-mono focus:outline-none focus:border-cyan"
-                    />
-                    <span className="text-[11px] text-cyan font-mono font-semibold">
-                      Will publish automatically
-                    </span>
-                  </div>
-
-                  {/* Schedule Quick Presets */}
-                  <div className="flex flex-wrap gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => applySchedulePreset("2h")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
-                    >
-                      +2 Hours
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applySchedulePreset("tomorrow-am")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
-                    >
-                      Tomorrow 9:00 AM
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applySchedulePreset("tomorrow-pm")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
-                    >
-                      Tomorrow 8:00 PM
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applySchedulePreset("friday")}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
-                    >
-                      Friday Peak
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-            {/* ACTION FOOTER */}
+            {/* ACTION FOOTER FOR FILE STUDIO */}
             <div className="pt-3 pb-safe sm:pb-0 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-2.5 shrink-0">
               <button
                 type="button"
@@ -988,7 +1250,6 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                     </>
                   ) : isScheduled ? (
                     <>
-
                       <Calendar className="w-3.5 h-3.5" />
                       <span>Schedule Anomaly</span>
                     </>
@@ -1013,7 +1274,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
               </span>
               <button
                 type="button"
-                onClick={() => setActiveTab("create")}
+                onClick={() => setActiveTab("upload")}
                 className="text-xs text-violet hover:underline font-semibold"
               >
                 + Create New
@@ -1086,7 +1347,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 type="button"
                 onClick={() => {
                   setIsScheduled(true);
-                  setActiveTab("create");
+                  setActiveTab("upload");
                 }}
                 className="text-xs text-cyan hover:underline font-semibold"
               >

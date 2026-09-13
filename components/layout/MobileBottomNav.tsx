@@ -83,6 +83,7 @@ export const MobileBottomNav: React.FC = () => {
           <div className="relative -top-2 flex flex-col items-center">
             <button
               type="button"
+              id="mobile-dock-post-btn"
               onClick={handleUploadClick}
               className="p-[2.5px] rounded-full bg-gradient-to-tr from-violet via-fuchsia-500 to-amber-400 shadow-lg shadow-violet/20 hover:shadow-violet/40 transition-all active:scale-90 cursor-pointer"
               aria-label="Upload anomaly photograph"

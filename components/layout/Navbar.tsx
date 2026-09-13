@@ -127,6 +127,7 @@ export const Navbar: React.FC = () => {
             {/* Desktop Upload Button (Mobile uses the center dock action) */}
             <button
               type="button"
+              id="navbar-upload-btn"
               onClick={() => setIsCreateModalOpen(true)}
               className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 text-xs font-medium transition-all shadow-xs cursor-pointer"
             >
