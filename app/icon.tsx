@@ -46,7 +46,7 @@ export default function Icon() {
           </defs>
 
           {/* Outer Chassis */}
-          <circle cx="24" cy="24" r="22" stroke="#27272A" strokeWidth="2" />
+          <circle cx="24" cy="24" r="22" stroke="#3F3F46" strokeWidth="2" />
 
           {/* 3 Chromatic Blades */}
           <path

@@ -47,9 +47,7 @@ export const Logo: React.FC<LogoProps> = ({
 
   // Resolve variant and colorScheme with backward-compat defaults
   const variant: LogoVariant = propVariant || (!showWordmark ? "emblem" : "horizontal");
-  const colorScheme: LogoColorScheme =
-    propColorScheme ||
-    (!dark ? "monochrome-light" : "chromatic");
+  const colorScheme: LogoColorScheme = propColorScheme || "chromatic";
 
   // Color tokens per colorScheme
   const isGold = colorScheme === "gold";
@@ -184,7 +182,7 @@ export const Logo: React.FC<LogoProps> = ({
                 <>
                   <stop offset="0%" stopColor="#FFFFFF" />
                   <stop offset="35%" stopColor="#22D3EE" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="#09090B" stopOpacity="0" />
+                  <stop offset="100%" stopColor={dark ? "#09090B" : "#FFFFFF"} stopOpacity="0" />
                 </>
               )}
             </radialGradient>
@@ -263,7 +261,7 @@ export const Logo: React.FC<LogoProps> = ({
             cy="24"
             r="5"
             fill={isMonoLight ? "#FFFFFF" : isGold ? "#18181B" : dark ? "#09090B" : "#FFFFFF"}
-            stroke={isGold ? "#92400E" : isMonoLight ? "#D4D4D8" : "#27272A"}
+            stroke={isGold ? "#92400E" : isMonoLight ? "#D4D4D8" : dark ? "#27272A" : "#E4E4E7"}
             strokeWidth="1"
           />
 

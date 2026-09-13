@@ -193,7 +193,7 @@ export const VerifiedSeal: React.FC<VerifiedSealProps> = ({
       </div>
 
       {specimenId && (
-        <span className="text-[10px] font-mono text-amber-400/80 tracking-widest uppercase mt-2">
+        <span className="text-[10px] font-mono text-amber-700 dark:text-amber-400/80 tracking-widest uppercase mt-2 font-bold">
           {specimenId}
         </span>
       )}
