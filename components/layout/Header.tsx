@@ -40,7 +40,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenUpload }) => {
     { label: "Directory", href: "/directory" },
     { label: "Leaderboard", href: "/leaderboard" },
     { label: "Challenges", href: "/challenges" },
-    { label: "Pro", href: "/pro", badge: "New", badgeColor: "bg-violet/20 text-violet" },
   ];
 
   const isActive = (href: string) => {

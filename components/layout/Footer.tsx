@@ -50,12 +50,6 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
                     <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan/20 text-cyan border border-cyan/30">SVG</span>
                   </Link>
                 </li>
-                <li>
-                  <Link href="/pro" className="hover:text-violet font-semibold transition-colors flex items-center gap-1">
-                    <span>Weca Pro & Licensing</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-violet/20 text-violet border border-violet/30">NEW</span>
-                  </Link>
-                </li>
               </ul>
             </div>
 
@@ -164,7 +158,6 @@ export const Footer: React.FC<FooterProps> = ({ minimal = false }) => {
             <Link href="/leaderboard" className="hover:text-amber-500 dark:hover:text-amber-400 transition-colors">Leaderboard</Link>
             <Link href="/challenges" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Challenges</Link>
             <Link href="/wallet" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Wallet</Link>
-            <Link href="/pro" className="hover:text-violet transition-colors font-semibold">Weca Pro</Link>
             <Link href="/about" className="hover:text-zinc-950 dark:hover:text-white transition-colors">About</Link>
             <Link href="/scoring-engine" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Scoring Engine</Link>
             <Link href="/rarity-tiers" className="hover:text-zinc-950 dark:hover:text-white transition-colors">Rarity Tiers</Link>
