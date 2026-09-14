@@ -565,8 +565,7 @@ export async function saveScoredImage(params: {
   const needsReview = params.scoreBreakdown.flags.includes("needs_moderation_review");
   const moderation_status = needsReview ? "pending_review" : "approved";
 
-  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.userId);
-  const safeUserId = isUUID ? params.userId : "00000000-0000-0000-0000-000000000001";
+  const safeUserId = params.userId;
 
   const supabase = createAdminClient();
 

@@ -16,7 +16,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Missing post id" }, { status: 400 });
     }
 
-    if (!userId || userId === "usr-demo") {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized: User ID required" }, { status: 401 });
     }
 
@@ -47,7 +47,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Missing post id" }, { status: 400 });
     }
 
-    if (!userId || userId === "usr-demo") {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized: User ID required" }, { status: 401 });
     }
 

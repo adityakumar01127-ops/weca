@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { Achievement, CreditTransaction, PayoutRequest, PayoutDetails, PayoutMethod } from "@/lib/types";
-import { MIN_CASHOUT_THRESHOLD_WC, WC_TO_USD_RATE, WC_TO_INR_RATE } from "@/lib/credits";
+import { CreditTransaction, PayoutRequest, PayoutDetails, PayoutMethod } from "@/lib/types";
+import { 
+  MIN_CASHOUT_THRESHOLD_WC, 
+  WC_TO_USD_RATE, 
+  WC_TO_INR_RATE, 
+  MONTHLY_CASHOUT_CAP_WC, 
+  formatINR, 
+  wcToINR 
+} from "@/lib/credits";
 import { 
   Sparkles, 
   Wallet, 
@@ -30,16 +37,32 @@ import {
   Building2,
   ExternalLink,
   Loader2,
-  Zap
+  Zap,
+  TrendingUp,
+  IndianRupee
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { initiateRazorpayCheckout } from "@/lib/razorpay/checkout";
+import { CreatorProgramCard } from "@/components/earnings/CreatorProgramCard";
+import { EarningsBreakdown } from "@/components/earnings/EarningsBreakdown";
+import { DailyBonusWidget } from "@/components/earnings/DailyBonusWidget";
+import { AchievementsGrid } from "@/components/earnings/AchievementsGrid";
 
 export const WalletView: React.FC = () => {
   const { user, profile } = useAuth();
 
   // Balance state
   const currentBalance = profile?.credits_balance ?? 680;
+  
+  // Tab and Eligibility state
+  const [activeTab, setActiveTab] = useState<"wallet" | "creator" | "earnings" | "rewards">("wallet");
+  const [isCreatorEligible, setIsCreatorEligible] = useState<boolean>(profile?.creator_status === "eligible");
+
+  useEffect(() => {
+    if (profile?.creator_status === "eligible") {
+      setIsCreatorEligible(true);
+    }
+  }, [profile?.creator_status]);
   
   // Transactions and Payouts state
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
@@ -125,90 +148,16 @@ export const WalletView: React.FC = () => {
     fetchData();
   }, [profile?.id]);
 
-  const userBalance = profile?.credits_balance ?? 50;
-  const userAchievements: Achievement[] = useMemo(() => {
-    return [
-      {
-        id: "ach-1",
-        title: "Explorer Registration",
-        description: "Successfully activate your Weca explorer account and receive your starting stipend.",
-        reward_wc: 50,
-        iconName: "Sparkles",
-        unlocked: true,
-        progress: 100,
-      },
-      {
-        id: "ach-2",
-        title: "First Anomaly Sighting",
-        description: "Submit your very first candid photograph to the Gemini Vision engine.",
-        reward_wc: 50,
-        iconName: "Eye",
-        unlocked: transactions.some((t) => t.reason?.toLowerCase().includes("upload") || t.reason?.toLowerCase().includes("sighting") || t.reason?.toLowerCase().includes("post")),
-        progress: transactions.some((t) => t.reason?.toLowerCase().includes("upload") || t.reason?.toLowerCase().includes("sighting") || t.reason?.toLowerCase().includes("post")) ? 100 : 0,
-      },
-      {
-        id: "ach-3",
-        title: "Versus Gladiator",
-        description: "Cast your vote on head-to-head candid physical battles in the Versus Arena.",
-        reward_wc: 100,
-        iconName: "Swords",
-        unlocked: false,
-        progress: 0,
-      },
-      {
-        id: "ach-4",
-        title: "Century Club",
-        description: "Amass a balance of 100 or more Weird Credits in your rewards ledger.",
-        reward_wc: 100,
-        iconName: "Flame",
-        unlocked: userBalance >= 100,
-        progress: Math.min(100, Math.round((userBalance / 100) * 100)),
-      },
-      {
-        id: "ach-5",
-        title: "Reality Shatterer",
-        description: "Attain a verified Weca Score of 85 or above on any candid physical photo.",
-        reward_wc: 250,
-        iconName: "Award",
-        unlocked: false,
-        progress: 0,
-      },
-      {
-        id: "ach-6",
-        title: "Master Spotter",
-        description: "Earn community endorsements and reach a lifetime total of 500 Weird Credits.",
-        reward_wc: 500,
-        iconName: "Trophy",
-        unlocked: userBalance >= 500,
-        progress: Math.min(100, Math.round((userBalance / 500) * 100)),
-      },
-    ];
-  }, [userBalance, transactions]);
 
-  const unlockedCount = userAchievements.filter((a) => a.unlocked).length;
-
-  // Icon mapper helper
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case "Eye":
-        return <Eye className="w-4 h-4 text-cyan" />;
-      case "Sparkles":
-        return <Sparkles className="w-4 h-4 text-violet" />;
-      case "Swords":
-        return <Swords className="w-4 h-4 text-magenta" />;
-      case "Flame":
-        return <Flame className="w-4 h-4 text-orange-500" />;
-      case "Globe":
-        return <Globe className="w-4 h-4 text-emerald-500" />;
-      case "Award":
-      default:
-        return <Award className="w-4 h-4 text-amber-500" />;
-    }
-  };
 
   const handleOpenModal = () => {
+    if (!isCreatorEligible) {
+      alert("Cash-out is locked. Complete the Creator Eligibility Program first.");
+      setActiveTab("creator");
+      return;
+    }
     setPayoutName(profile?.display_name || profile?.username || "");
-    setPayoutAmount(Math.max(MIN_CASHOUT_THRESHOLD_WC, Math.min(500, currentBalance)));
+    setPayoutAmount(Math.max(MIN_CASHOUT_THRESHOLD_WC, Math.min(1000, currentBalance)));
     setSubmitError(null);
     setSubmitSuccess(null);
     setIsModalOpen(true);
@@ -216,12 +165,20 @@ export const WalletView: React.FC = () => {
 
   const handleSubmitPayout = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isCreatorEligible) {
+      setSubmitError("Cash-out is locked. You must complete the Creator Eligibility Program first.");
+      return;
+    }
     if (currentBalance < MIN_CASHOUT_THRESHOLD_WC) {
-      setSubmitError(`Minimum cash-out requires ${MIN_CASHOUT_THRESHOLD_WC} WC.`);
+      setSubmitError(`Minimum cash-out requires ${MIN_CASHOUT_THRESHOLD_WC} WC (${formatINR(wcToINR(MIN_CASHOUT_THRESHOLD_WC))}).`);
       return;
     }
     if (payoutAmount > currentBalance) {
       setSubmitError(`Requested amount (${payoutAmount} WC) exceeds your balance (${currentBalance} WC).`);
+      return;
+    }
+    if (payoutAmount > MONTHLY_CASHOUT_CAP_WC) {
+      setSubmitError(`Requested amount exceeds the monthly cashout cap of ${MONTHLY_CASHOUT_CAP_WC} WC (${formatINR(wcToINR(MONTHLY_CASHOUT_CAP_WC))}).`);
       return;
     }
 
@@ -294,42 +251,119 @@ export const WalletView: React.FC = () => {
   const currentProgressPercent = Math.min(100, Math.round((currentBalance / nextTierThreshold) * 100));
 
   return (
-    <div className="w-full space-y-10">
-      {/* Financial Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Main Balance Card */}
-        <div className="md:col-span-2 p-8 rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-950 to-zinc-900 text-white border border-zinc-800 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-          <div className="absolute -top-16 -right-16 w-60 h-60 rounded-full bg-cyan/15 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-16 left-1/4 w-60 h-60 rounded-full bg-violet/20 blur-3xl pointer-events-none" />
+    <div className="w-full space-y-8">
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-zinc-100 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 font-mono text-xs overflow-x-auto scrollbar-none">
+        <button
+          onClick={() => setActiveTab("wallet")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === "wallet"
+              ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
+              : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+          }`}
+        >
+          <Wallet className="w-4 h-4 text-cyan-400" />
+          <span>Ledger & Top-Up</span>
+        </button>
 
-          <div className="relative z-10">
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan animate-pulse" />
-                <span className="font-mono text-xs uppercase tracking-wider text-zinc-400">
-                  Weird Credits Ledger
-                </span>
+        <button
+          onClick={() => setActiveTab("creator")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === "creator"
+              ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
+              : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-400" />
+          <span>Creator Program</span>
+          {isCreatorEligible ? (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              Eligible 🇮🇳
+            </span>
+          ) : (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              90d Clock
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("earnings")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === "earnings"
+              ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
+              : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+          }`}
+        >
+          <TrendingUp className="w-4 h-4 text-emerald-400" />
+          <span>Earnings Streams & Caps</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("rewards")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === "rewards"
+              ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
+              : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+          }`}
+        >
+          <Flame className="w-4 h-4 text-orange-400" />
+          <span>Daily Streak & Milestones</span>
+        </button>
+      </div>
+
+      {activeTab === "creator" && (
+        <CreatorProgramCard onStatusChange={setIsCreatorEligible} />
+      )}
+
+      {activeTab === "earnings" && (
+        <EarningsBreakdown />
+      )}
+
+      {activeTab === "rewards" && (
+        <div className="space-y-8">
+          <DailyBonusWidget />
+          <AchievementsGrid />
+        </div>
+      )}
+
+      {activeTab === "wallet" && (
+        <div className="space-y-10">
+          {/* Financial Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Main Balance Card */}
+            <div className="md:col-span-2 p-8 rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-950 to-zinc-900 text-white border border-zinc-800 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+              <div className="absolute -top-16 -right-16 w-60 h-60 rounded-full bg-cyan/15 blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 left-1/4 w-60 h-60 rounded-full bg-violet/20 blur-3xl pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan animate-pulse" />
+                    <span className="font-mono text-xs uppercase tracking-wider text-zinc-400">
+                      Weird Credits Ledger
+                    </span>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-violet/20 text-violet border border-violet/30 text-xs font-mono font-bold">
+                    Tier: {currentBalance >= 1000 ? "Reality-Breaking" : "Certified Weird"}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline gap-3 mb-2">
+                  <h2 className="font-display font-black text-4xl sm:text-6xl text-white tracking-tight">
+                    {currentBalance.toLocaleString()}
+                  </h2>
+                  <span className="font-mono text-cyan text-xl sm:text-2xl font-bold">WC</span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-zinc-400 text-xs sm:text-sm font-mono mb-6">
+                  <span>
+                    Est. Cash-Out: <strong className="text-emerald-400 font-bold">₹{(currentBalance * WC_TO_INR_RATE).toFixed(0)} INR</strong> (~${(currentBalance * WC_TO_USD_RATE).toFixed(2)} USD)
+                  </span>
+                  <span className="text-zinc-600">•</span>
+                  <span>Rate: 1,000 WC = ₹100 INR</span>
+                </div>
               </div>
-              <span className="px-3 py-1 rounded-full bg-violet/20 text-violet border border-violet/30 text-xs font-mono font-bold">
-                Tier: {currentBalance >= 1000 ? "Reality-Breaking" : "Certified Weird"}
-              </span>
-            </div>
-
-            <div className="flex items-baseline gap-3 mb-2">
-              <h2 className="font-display font-black text-4xl sm:text-6xl text-white tracking-tight">
-                {currentBalance.toLocaleString()}
-              </h2>
-              <span className="font-mono text-cyan text-xl sm:text-2xl font-bold">WC</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 text-zinc-400 text-xs sm:text-sm font-mono mb-6">
-              <span>
-                Est. Cash-Out: <strong className="text-emerald-400 font-bold">${(currentBalance * WC_TO_USD_RATE).toFixed(2)} USD</strong> (~₹{(currentBalance * WC_TO_INR_RATE).toFixed(0)} INR)
-              </span>
-              <span className="text-zinc-600">•</span>
-              <span>Rate: 1,000 WC = $10.00 USD</span>
-            </div>
-          </div>
 
           {/* Tier Progression Meter */}
           <div className="relative z-10 pt-4 border-t border-zinc-800">
@@ -561,14 +595,18 @@ export const WalletView: React.FC = () => {
           </p>
 
           {/* Anti-fraud requirement checklist */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 mb-6 text-xs font-mono">
-            <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
-              <span>Account Age &gt; 7 Days</span>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 mb-6 text-xs font-mono">
+            <div className={`flex items-center gap-2 ${isCreatorEligible ? "text-zinc-700 dark:text-zinc-300" : "text-amber-600 dark:text-amber-400 font-semibold"}`}>
+              {isCreatorEligible ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
+              ) : (
+                <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+              )}
+              <span>{isCreatorEligible ? "Creator Program Eligible" : "CEP In Progress"}</span>
             </div>
             <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
               <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
-              <span>1+ Verified Scored Post</span>
+              <span>Account Age &gt; 30 Days</span>
             </div>
             <div className={`flex items-center gap-2 ${currentBalance >= MIN_CASHOUT_THRESHOLD_WC ? "text-zinc-700 dark:text-zinc-300" : "text-zinc-400 dark:text-zinc-500"}`}>
               {currentBalance >= MIN_CASHOUT_THRESHOLD_WC ? (
@@ -576,26 +614,34 @@ export const WalletView: React.FC = () => {
               ) : (
                 <Lock className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
               )}
-              <span>Min. {MIN_CASHOUT_THRESHOLD_WC} WC Balance ({currentBalance}/{MIN_CASHOUT_THRESHOLD_WC})</span>
+              <span>Min. {MIN_CASHOUT_THRESHOLD_WC} WC (₹100)</span>
+            </div>
+            <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+              <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
+              <span>Cap: 50,000 WC/mo</span>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
             <div>
               <div className="text-xs font-mono text-zinc-800 dark:text-zinc-300 font-semibold mb-1">
-                Payout Channels: RazorpayX UPI & NEFT/IMPS
+                Payout Channels: RazorpayX UPI & Direct Bank Transfer
               </div>
               <div className="text-[11px] font-mono text-zinc-500">
-                Protected by automated cluster sybil guards and manual human review queue.
+                Direct to Indian bank accounts or UPI. Rate: 1 WC = ₹0.10. Protected by automated cluster sybil guards.
               </div>
             </div>
 
             <button
               onClick={handleOpenModal}
-              disabled={currentBalance < MIN_CASHOUT_THRESHOLD_WC}
+              disabled={!isCreatorEligible || currentBalance < MIN_CASHOUT_THRESHOLD_WC}
               className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs"
             >
-              {currentBalance >= MIN_CASHOUT_THRESHOLD_WC ? "Initiate Payout Request" : `Requires ${MIN_CASHOUT_THRESHOLD_WC} WC to Cash Out`}
+              {!isCreatorEligible
+                ? "Locked: Complete Creator Program"
+                : currentBalance >= MIN_CASHOUT_THRESHOLD_WC
+                ? "Initiate Payout Request"
+                : `Requires ${MIN_CASHOUT_THRESHOLD_WC} WC to Cash Out`}
             </button>
           </div>
         </div>
@@ -723,71 +769,8 @@ export const WalletView: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* ACHIEVEMENTS TRACK */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white tracking-tight">
-              Hunter Achievements & Milestones
-            </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-              Complete observational challenges to unlock prestigious badges and credit bounties.
-            </p>
-          </div>
-          <span className="text-xs font-mono text-violet font-semibold">
-            {unlockedCount} of {userAchievements.length} Unlocked ({Math.round((unlockedCount / userAchievements.length) * 100)}%)
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {userAchievements.map((ach) => (
-            <div
-              key={ach.id}
-              className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
-                ach.unlocked
-                  ? "bg-white dark:bg-zinc-900/80 border-violet/30 dark:border-violet/40 shadow-xs"
-                  : "bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 opacity-80"
-              }`}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                    {getIcon(ach.iconName)}
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-cyan/10 text-cyan-700 dark:text-cyan text-xs font-mono font-bold">
-                    +{ach.reward_wc} WC
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-display font-bold text-sm text-zinc-900 dark:text-white">{ach.title}</h4>
-                  {ach.unlocked && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />}
-                </div>
-
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  {ach.description}
-                </p>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-[10px] font-mono text-zinc-400 dark:text-zinc-500 mb-1">
-                  <span>{ach.unlocked ? "Completed" : "In Progress"}</span>
-                  <span>{ach.progress}%</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${
-                      ach.unlocked ? "bg-emerald-500" : "bg-violet"
-                    }`}
-                    style={{ width: `${ach.progress}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+    </div>
+  )}
 
       {/* REQUEST PAYOUT MODAL */}
       {isModalOpen && (
@@ -921,16 +904,16 @@ export const WalletView: React.FC = () => {
                 <input
                   type="range"
                   min={MIN_CASHOUT_THRESHOLD_WC}
-                  max={Math.max(MIN_CASHOUT_THRESHOLD_WC, currentBalance)}
-                  step="5"
+                  max={Math.min(MONTHLY_CASHOUT_CAP_WC, Math.max(MIN_CASHOUT_THRESHOLD_WC, currentBalance))}
+                  step="50"
                   value={payoutAmount}
                   onChange={(e) => setPayoutAmount(Number(e.target.value))}
                   className="w-full accent-emerald-500 cursor-pointer"
                 />
 
                 <div className="flex justify-between text-[11px] text-zinc-500 mt-1">
-                  <span>Min: {MIN_CASHOUT_THRESHOLD_WC} WC</span>
-                  <span>Max Available: {currentBalance} WC</span>
+                  <span>Min: {MIN_CASHOUT_THRESHOLD_WC} WC (₹100)</span>
+                  <span>Monthly Cap: {MONTHLY_CASHOUT_CAP_WC.toLocaleString()} WC (₹5,000)</span>
                 </div>
 
                 {/* Conversion Summary Banner */}
@@ -945,7 +928,7 @@ export const WalletView: React.FC = () => {
 
               {/* Abuse Guards Confirmation Note */}
               <div className="text-[10px] text-zinc-500 leading-relaxed bg-zinc-50 dark:bg-zinc-950/60 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800/80">
-                Notice: All payout requests are subject to anti-sybil cluster verification and manual human authorization before disbursement.
+                Notice: All payout requests require Creator Program eligibility, minimum 30-day account age, and are subject to anti-sybil cluster verification before disbursement.
               </div>
 
               <div className="flex items-center gap-3 pt-3">
@@ -958,7 +941,7 @@ export const WalletView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting || currentBalance < MIN_CASHOUT_THRESHOLD_WC}
+                  disabled={isSubmitting || !isCreatorEligible || currentBalance < MIN_CASHOUT_THRESHOLD_WC}
                   className="w-1/2 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                 >
                   {isSubmitting ? (

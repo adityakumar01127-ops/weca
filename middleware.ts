@@ -29,6 +29,9 @@ const PROTECTED_API_ROUTES = [
   "/api/wallet",
   "/api/admin",
   "/api/profile",
+  "/api/earnings",
+  "/api/impressions",
+  "/api/follows",
 ];
 
 // API routes that are public (no auth required)
@@ -50,6 +53,9 @@ const RATE_LIMITS: Record<string, number> = {
   "/api/score-post": 10,   // 10 requests/min
   "/api/battles": 30,      // 30 requests/min
   "/api/wallet": 20,       // 20 requests/min
+  "/api/earnings": 60,     // 60 requests/min
+  "/api/impressions": 120, // 120 requests/min
+  "/api/follows": 60,      // 60 requests/min
   "/api/admin": 30,        // 30 requests/min
   "/api/profile": 60,      // 60 requests/min
   "/api/image-proxy": 200, // 200 requests/min (high for images)
@@ -160,7 +166,12 @@ export async function middleware(req: NextRequest) {
 
   // --- Auth check ---
   const isProtectedPage = PROTECTED_PAGE_ROUTES.some((r) => pathname.startsWith(r));
-  const isProtectedApi = PROTECTED_API_ROUTES.some((r) => pathname.startsWith(r));
+  const isPublicApiGet =
+    (pathname.startsWith("/api/comments") && req.method === "GET") ||
+    (pathname.startsWith("/api/posts") && req.method === "GET") ||
+    (pathname.startsWith("/api/battles") && req.method === "GET") ||
+    (pathname.startsWith("/api/profile") && req.method === "GET");
+  const isProtectedApi = !isPublicApiGet && PROTECTED_API_ROUTES.some((r) => pathname.startsWith(r));
 
   if (isProtectedPage || isProtectedApi) {
     const supabaseUrl =

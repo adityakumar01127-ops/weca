@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Post } from "@/lib/types";
 import { LikeButton } from "./LikeButton";
+import { SuperLikeButton } from "./SuperLikeButton";
 import { MessageSquare, User as UserIcon, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -35,12 +36,45 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const author = post.profiles;
   const username = author?.username || "anonymous";
   const avatarUrl = author?.avatar_url;
+  const cardRef = useRef<HTMLElement>(null);
 
   const [weirdnessScore, setWeirdnessScore] = useState<number | null | undefined>(post.weirdness_score);
   const [uniquenessScore, setUniquenessScore] = useState<number | null | undefined>(post.uniqueness_score);
   const [scoringStatus, setScoringStatus] = useState<string>(
     post.scoring_status || (post.weirdness_score != null ? "completed" : "scoring")
   );
+
+  // Record impression when post is scrolled into view (reels-style impression tracking)
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    let timer: NodeJS.Timeout;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            timer = setTimeout(() => {
+              fetch("/api/impressions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ postId: post.id, impressionType: "view" }),
+              }).catch(() => {});
+            }, 800);
+          } else {
+            clearTimeout(timer);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(el);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [post.id]);
 
   // Subscribe to live post updates via Supabase Realtime
   useEffect(() => {
@@ -85,7 +119,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const hasScores = weirdnessScore != null && uniquenessScore != null;
 
   return (
-    <article className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/40 overflow-hidden transition-all">
+    <article ref={cardRef} className="rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/40 overflow-hidden transition-all">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
         <Link
@@ -174,6 +208,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <MessageSquare className="w-4 h-4" />
               <span>{post.comments_count || 0}</span>
             </Link>
+
+            <SuperLikeButton
+              postId={post.id}
+              creatorUsername={username}
+              compact
+            />
           </div>
 
           <Link

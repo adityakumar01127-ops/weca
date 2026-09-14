@@ -6,6 +6,7 @@ import { WicaImage, Comment, getTierFromScore, getTierColor } from "@/lib/types"
 import { useAuth } from "@/context/AuthContext";
 import { X, Heart, MessageSquare, Send, Sparkles, MapPin, Share2, Check, Bookmark, Edit3, Trash2, Loader2 } from "lucide-react";
 import { getSafeImageUrl } from "@/lib/utils/image";
+import { SuperLikeButton } from "./SuperLikeButton";
 
 interface PhotoDetailModalProps {
   image: WicaImage | null;
@@ -462,19 +463,26 @@ export const PhotoDetailModal: React.FC<PhotoDetailModalProps> = ({
             </div>
 
             {/* Like Action Bar */}
-            <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={handleToggleLike}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-medium transition-all cursor-pointer min-h-[44px] ${
-                  liked
-                    ? "bg-rose-500/10 border-rose-400 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-bold"
-                    : "bg-white dark:bg-zinc-950/80 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700"
-                }`}
-              >
-                <Heart className={`w-4 h-4 ${liked ? "fill-rose-500 text-rose-500" : ""}`} />
-                <span>{likeCount} {likeCount === 1 ? "Like" : "Likes"}</span>
-              </button>
+            <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleToggleLike}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-medium transition-all cursor-pointer min-h-[44px] ${
+                    liked
+                      ? "bg-rose-500/10 border-rose-400 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-bold"
+                      : "bg-white dark:bg-zinc-950/80 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700"
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${liked ? "fill-rose-500 text-rose-500" : ""}`} />
+                  <span>{likeCount} {likeCount === 1 ? "Like" : "Likes"}</span>
+                </button>
+
+                <SuperLikeButton
+                  postId={image.id}
+                  creatorUsername={image.author?.username}
+                />
+              </div>
 
               <div className="text-xs font-mono text-zinc-400 flex items-center gap-1">
                 <MessageSquare className="w-3.5 h-3.5" />

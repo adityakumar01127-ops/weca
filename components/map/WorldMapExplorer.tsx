@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { GEO_ANOMALIES, GeoAnomaly } from "@/lib/mockData";
+import { GEO_ANOMALIES, GeoAnomaly } from "@/lib/communityData";
 import { Category, CATEGORIES, Tier, getTierColor } from "@/lib/types";
 import { 
   Globe2, 

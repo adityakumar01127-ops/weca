@@ -2,6 +2,8 @@
 // WECA PHASE 1 DATA MODELS
 // ==============================================================================
 
+export type CreatorStatus = "viewer" | "enrolled" | "eligible" | "suspended";
+
 export interface Profile {
   id: string;
   username: string;
@@ -11,6 +13,10 @@ export interface Profile {
   pronouns?: string | null;
   credits_balance: number;
   is_admin?: boolean;
+  follower_count?: number;
+  following_count?: number;
+  total_impressions?: number;
+  creator_status?: CreatorStatus;
   created_at: string;
 }
 
@@ -340,4 +346,74 @@ export interface AbuseEvaluation {
   isSuspicious: boolean;
   riskScore: number;
   reasons: string[];
+}
+
+// ==============================================================================
+// WECA PHASE 5: EARNINGS, CREATOR ELIGIBILITY & INTERACTIONS
+// ==============================================================================
+
+export interface Follow {
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+}
+
+export type ImpressionType = "view" | "dwell_3s" | "share" | "save";
+
+export interface PostImpression {
+  id: string;
+  post_id: string;
+  viewer_id: string;
+  impression_type: ImpressionType;
+  impression_date?: string;
+  created_at: string;
+}
+
+export type EligibilityStatus = "pending" | "eligible" | "suspended";
+
+export interface CreatorEligibility {
+  user_id: string;
+  status: EligibilityStatus;
+  qualified_posts_count: number;
+  follower_count: number;
+  total_impressions: number;
+  enrollment_date: string;
+  qualification_date?: string | null;
+  deadline_date?: string | null;
+  last_checked_at: string;
+  moderation_strikes: number;
+}
+
+export interface DailyEarningCap {
+  user_id: string;
+  cap_date: string;
+  interaction_wc_earned: number;
+  total_wc_earned: number;
+}
+
+export interface LoginStreak {
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_login_date?: string | null;
+  last_bonus_claimed_date?: string | null;
+  total_bonus_earned: number;
+}
+
+export interface AchievementDefinition {
+  id: string;
+  title: string;
+  description: string;
+  reward_wc: number;
+  iconName: string;
+  category: "content" | "social" | "battles" | "milestones";
+  threshold: number;
+  checkField: string;
+}
+
+export interface InteractionCreditResult {
+  success: boolean;
+  new_balance: number;
+  daily_used: number;
+  capped: boolean;
 }

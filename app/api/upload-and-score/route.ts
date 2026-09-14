@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const username = (formData.get("username") as string) || "explorer";
     const avatarUrl = (formData.get("avatarUrl") as string) || null;
 
-    if (!userId || userId === "usr-demo") {
+    if (!userId) {
       return NextResponse.json(
         { error: "Authentication required: Please sign in to submit findings." },
         { status: 401 }

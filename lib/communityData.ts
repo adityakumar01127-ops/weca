@@ -62,7 +62,7 @@ export const GEO_ANOMALIES: GeoAnomaly[] = [
     latitude: 34.9756,
     longitude: 138.3828,
     image_url: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=800&auto=format&fit=crop&q=80",
-    verdict: "Agronomic geometry mocking organic curve theory.",
+    verdict: "Agronomic geometry defying organic curve theory.",
     hunter: "tokyo_drifter",
     date: "2026-02-28",
   },

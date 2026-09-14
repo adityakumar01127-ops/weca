@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { COMMUNITY_CHALLENGES } from "@/lib/mockData";
+import { COMMUNITY_CHALLENGES } from "@/lib/communityData";
 import { Challenge, WicaImage } from "@/lib/types";
 import { 
   Sparkles, 

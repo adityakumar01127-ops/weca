@@ -942,7 +942,7 @@ export const SettingsView: React.FC = () => {
                         <div className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">Latency: ~680ms</div>
                       </div>
 
-                      {/* Local Neural Mock */}
+                      {/* Local Neural Engine */}
                       <div
                         onClick={() => setVisionEngine("local-neural")}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${

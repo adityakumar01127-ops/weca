@@ -1329,8 +1329,17 @@ export async function createPayoutRequest(params: {
       };
     }
 
-    // 2. Evaluate abuse guards
-    const abuseEval = await evaluatePayoutAbuseGuards(supabase, params.userId);
+    // 2. Evaluate abuse guards (includes creator eligibility + monthly cap)
+    const abuseEval = await evaluatePayoutAbuseGuards(supabase, params.userId, params.amount);
+
+    // Block payout if risk score is critical (eligibility/cap failures)
+    if (abuseEval.riskScore >= 80) {
+      return {
+        success: false,
+        error: abuseEval.reasons[0] || "Payout blocked by abuse prevention system.",
+      };
+    }
+
 
     // 3. Deduct credits and log negative transaction
     const txResult = await recordCreditTransaction(supabase, {

@@ -1,19 +1,23 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { AbuseEvaluation } from "./types";
+import { MONTHLY_CASHOUT_CAP_WC, MIN_CASHOUT_THRESHOLD_WC } from "./credits";
 
-const MIN_ACCOUNT_AGE_DAYS = 7;
-const MIN_POST_COUNT = 1;
+const MIN_ACCOUNT_AGE_DAYS = 30;
+const MIN_POST_COUNT = 5;
 
 /**
  * Evaluates abuse guards before approving or processing a cash-out payout request:
- * 1. Account Maturity: checks if account age is at least MIN_ACCOUNT_AGE_DAYS
- * 2. Post Count: checks if user has uploaded at least MIN_POST_COUNT scored posts
- * 3. Voting Cluster & Sybil Analysis: detects suspicious coordinated voting patterns,
+ * 1. Creator Eligibility: checks if user has achieved creator_eligible status
+ * 2. Account Maturity: checks if account age is at least MIN_ACCOUNT_AGE_DAYS
+ * 3. Post Count: checks if user has uploaded at least MIN_POST_COUNT scored posts
+ * 4. Monthly Cashout Cap: enforces MONTHLY_CASHOUT_CAP_WC per calendar month
+ * 5. Voting Cluster & Sybil Analysis: detects suspicious coordinated voting patterns,
  *    rapid voting velocity, or multi-account clusters voting unanimously.
  */
 export async function evaluatePayoutAbuseGuards(
   supabase: SupabaseClient | null,
-  userId: string
+  userId: string,
+  requestedAmount?: number
 ): Promise<AbuseEvaluation> {
   const reasons: string[] = [];
   let riskScore = 0;
@@ -27,6 +31,18 @@ export async function evaluatePayoutAbuseGuards(
   }
 
   try {
+    // 0. Creator Eligibility Check
+    const { data: eligibility } = await supabase
+      .from("creator_eligibility")
+      .select("status")
+      .eq("user_id", userId)
+      .single();
+
+    if (!eligibility || eligibility.status !== "eligible") {
+      reasons.push("User has not achieved Creator Eligible status. Complete the Creator Eligibility Program first.");
+      riskScore += 80;
+    }
+
     // 1. Account Age Check
     const { data: profile } = await supabase
       .from("profiles")
@@ -55,7 +71,33 @@ export async function evaluatePayoutAbuseGuards(
       riskScore += 40;
     }
 
-    // 3. Voting Cluster & Sybil Pattern Analysis
+    // 3. Monthly Cashout Cap Check
+    if (requestedAmount) {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+      const { data: monthPayouts } = await supabase
+        .from("payout_requests")
+        .select("amount")
+        .eq("user_id", userId)
+        .in("status", ["pending", "approved", "paid"])
+        .gte("requested_at", monthStart)
+        .lte("requested_at", monthEnd);
+
+      const totalThisMonth = (monthPayouts ?? []).reduce((sum, p) => sum + (p.amount ?? 0), 0);
+      const remainingCap = MONTHLY_CASHOUT_CAP_WC - totalThisMonth;
+
+      if (requestedAmount > remainingCap) {
+        reasons.push(
+          `Monthly cashout cap exceeded. Used ${totalThisMonth} WC of ${MONTHLY_CASHOUT_CAP_WC} WC limit. ` +
+          `Remaining: ${Math.max(0, remainingCap)} WC. Requested: ${requestedAmount} WC.`
+        );
+        riskScore += 50;
+      }
+    }
+
+    // 4. Voting Cluster & Sybil Pattern Analysis
     // Fetch recent votes cast by this user
     const { data: userVotes } = await supabase
       .from("battle_votes")
@@ -65,7 +107,7 @@ export async function evaluatePayoutAbuseGuards(
       .limit(30);
 
     if (userVotes && userVotes.length >= 3) {
-      // Check 3.1: Voting Velocity (burst of votes in under 60 seconds)
+      // Check 4.1: Voting Velocity (burst of votes in under 60 seconds)
       const voteTimes = userVotes.map((v) => new Date(v.created_at).getTime());
       let rapidVoteBursts = 0;
       for (let i = 0; i < voteTimes.length - 1; i++) {
@@ -80,7 +122,7 @@ export async function evaluatePayoutAbuseGuards(
         riskScore += 30;
       }
 
-      // Check 3.2: Cluster Coordinated Battles (other accounts voting exactly identical to this voter at similar timestamps)
+      // Check 4.2: Cluster Coordinated Battles
       const battleIds = Array.from(new Set(userVotes.map((v) => v.battle_id)));
       if (battleIds.length > 0) {
         const { data: coVotes } = await supabase
@@ -90,7 +132,6 @@ export async function evaluatePayoutAbuseGuards(
           .neq("voter_id", userId);
 
         if (coVotes && coVotes.length > 0) {
-          // Check for tightly correlated timestamps (< 30s) on identical post picks
           let correlatedClusterVotes = 0;
           for (const uv of userVotes) {
             const uTime = new Date(uv.created_at).getTime();
@@ -112,6 +153,24 @@ export async function evaluatePayoutAbuseGuards(
         }
       }
     }
+
+    // 5. Self-impression inflation check
+    const { count: selfImpressions } = await supabase
+      .from("post_impressions")
+      .select("id", { count: "exact", head: true })
+      .eq("viewer_id", userId)
+      .in("post_id",
+        (await supabase
+          .from("posts")
+          .select("id")
+          .eq("user_id", userId)
+        ).data?.map((p) => p.id) ?? []
+      );
+
+    if (selfImpressions && selfImpressions > 0) {
+      reasons.push(`Self-impression inflation detected: ${selfImpressions} self-views found`);
+      riskScore += 20;
+    }
   } catch (err) {
     console.warn("evaluatePayoutAbuseGuards error:", err);
   }
@@ -123,3 +182,4 @@ export async function evaluatePayoutAbuseGuards(
     reasons,
   };
 }
+

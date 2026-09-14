@@ -39,7 +39,6 @@ import {
   UserNote,
   Conversation,
   ConversationParticipant,
-  DEMO_PARTICIPANTS,
 } from "@/lib/messages";
 import { CameraCaptureModal } from "@/components/messages/CameraCaptureModal";
 import { useAuth } from "@/context/AuthContext";
@@ -52,7 +51,7 @@ export const MessagesInbox: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const currentUserId = user?.id || profile?.id || DEMO_PARTICIPANTS.self.id;
+  const currentUserId = user?.id || profile?.id || "self";
   const currentAvatarUrl =
     profile?.avatar_url ||
     (profile?.username
@@ -207,7 +206,7 @@ export const MessagesInbox: React.FC = () => {
   const getLastMessagePreview = (conv: Conversation): string => {
     if (!conv.lastMessage) return "Start a conversation";
     const msg = conv.lastMessage;
-    const isSelf = msg.senderId === "00000000-0000-0000-0000-000000000001";
+    const isSelf = msg.senderId === currentUserId || msg.senderId === "00000000-0000-0000-0000-000000000001" || msg.senderId === "self";
     const prefix = isSelf ? "You: " : "";
 
     switch (msg.type) {
@@ -290,7 +289,7 @@ export const MessagesInbox: React.FC = () => {
 
     sendMessage(
       conv.id,
-      "00000000-0000-0000-0000-000000000001",
+      currentUserId,
       `Replied to your note "${activeNoteToView.text}": ${noteReplyText.trim()}`
     );
 
@@ -1072,7 +1071,7 @@ export const MessagesInbox: React.FC = () => {
           const conv = createConversation(cameraRecipient);
           sendMessage(
             conv.id,
-            "00000000-0000-0000-0000-000000000001",
+            currentUserId,
             undefined,
             "image",
             photoDataUrl

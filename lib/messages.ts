@@ -1,6 +1,6 @@
 // ==============================================================================
 // WECA MESSAGING DATA LAYER
-// Types, demo seed data, notes, and localStorage persistence helpers
+// Types, messaging helpers, notes, and localStorage persistence helpers
 // ==============================================================================
 
 export type MessageType =
@@ -87,18 +87,16 @@ export interface UserNote {
 }
 
 // ==============================================================================
-// DEMO PARTICIPANTS
+// DEFAULT PARTICIPANT FALLBACK
 // ==============================================================================
 
-export const DEMO_PARTICIPANTS: Record<string, ConversationParticipant> = {
-  self: {
-    id: "00000000-0000-0000-0000-000000000001",
-    username: "explorer",
-    displayName: "Explorer",
-    avatarUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=explorer",
-    isVerified: false,
-    hasActiveStory: false,
-  },
+export const DEFAULT_PARTICIPANT: ConversationParticipant = {
+  id: "self",
+  username: "explorer",
+  displayName: "Explorer",
+  avatarUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=explorer",
+  isVerified: false,
+  hasActiveStory: false,
 };
 
 // ==============================================================================
@@ -111,11 +109,11 @@ const NOTES_KEY = "weca_dm_notes_v2";
 const SEEDED_KEY = "weca_dm_seeded_v2";
 
 // ==============================================================================
-// INITIALIZATION: Seed demo data on first load
+// INITIALIZATION
 // ==============================================================================
 
 function ensureSeeded(): void {
-  // Demo auto-seeding disabled for clean production messaging
+  // Empty clean start for production messaging
   return;
 }
 
@@ -146,16 +144,24 @@ export function getConversationByUsername(username: string): Conversation | null
     c.participants.some(
       (p) =>
         p.username.toLowerCase() === username.toLowerCase() &&
-        p.id !== "00000000-0000-0000-0000-000000000001"
+        p.id !== "self"
     )
   ) || null;
 }
 
 export function createConversation(
-  otherUser: ConversationParticipant
+  otherUser: ConversationParticipant,
+  currentUser?: Partial<ConversationParticipant>
 ): Conversation {
   ensureSeeded();
-  const selfParticipant = DEMO_PARTICIPANTS.self;
+  const selfParticipant: ConversationParticipant = {
+    id: currentUser?.id || DEFAULT_PARTICIPANT.id,
+    username: currentUser?.username || DEFAULT_PARTICIPANT.username,
+    displayName: currentUser?.displayName || DEFAULT_PARTICIPANT.displayName,
+    avatarUrl: currentUser?.avatarUrl || DEFAULT_PARTICIPANT.avatarUrl,
+    isVerified: currentUser?.isVerified || false,
+    hasActiveStory: currentUser?.hasActiveStory || false,
+  };
   const convId = `conv-${otherUser.username.replace(/[^a-z0-9_]/gi, "").toLowerCase()}`;
 
   const existing = getConversation(convId);
@@ -442,11 +448,19 @@ export function saveSelfNote(
   text: string,
   musicTitle?: string,
   musicArtist?: string,
-  emoji?: string
+  emoji?: string,
+  currentUser?: Partial<ConversationParticipant>
 ): UserNote {
   ensureSeeded();
   const notes = getNotes();
-  const selfUser = DEMO_PARTICIPANTS.self;
+  const selfUser: ConversationParticipant = {
+    id: currentUser?.id || DEFAULT_PARTICIPANT.id,
+    username: currentUser?.username || DEFAULT_PARTICIPANT.username,
+    displayName: currentUser?.displayName || DEFAULT_PARTICIPANT.displayName,
+    avatarUrl: currentUser?.avatarUrl || DEFAULT_PARTICIPANT.avatarUrl,
+    isVerified: currentUser?.isVerified || false,
+    hasActiveStory: currentUser?.hasActiveStory || false,
+  };
 
   const newNote: UserNote = {
     id: `note-self-${Date.now()}`,
@@ -471,10 +485,10 @@ export function saveSelfNote(
   return newNote;
 }
 
-export function deleteSelfNote(): void {
+export function deleteSelfNote(currentUserId?: string): void {
   const notes = getNotes();
-  const selfUser = DEMO_PARTICIPANTS.self;
-  const updated = notes.filter((n) => !n.isSelf && n.userId !== selfUser.id);
+  const targetId = currentUserId || DEFAULT_PARTICIPANT.id;
+  const updated = notes.filter((n) => !n.isSelf && n.userId !== targetId);
   localStorage.setItem(NOTES_KEY, JSON.stringify(updated));
 }
 
@@ -538,7 +552,11 @@ export function formatDateSeparator(isoString: string): string {
 
 export function getOtherParticipant(
   conversation: Conversation,
-  selfId: string = "00000000-0000-0000-0000-000000000001"
+  selfId: string = "self"
 ): ConversationParticipant {
-  return conversation.participants.find((p) => p.id !== selfId) || conversation.participants[0];
+  return (
+    conversation.participants.find(
+      (p) => p.id !== selfId && p.id !== "00000000-0000-0000-0000-000000000001"
+    ) || conversation.participants[0]
+  );
 }

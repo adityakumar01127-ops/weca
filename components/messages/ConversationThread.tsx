@@ -52,7 +52,6 @@ import {
   Message,
   Conversation,
   ConversationParticipant,
-  DEMO_PARTICIPANTS,
 } from "@/lib/messages";
 import { CameraCaptureModal } from "@/components/messages/CameraCaptureModal";
 import { useAuth } from "@/context/AuthContext";
@@ -113,12 +112,12 @@ export const ConversationThread: React.FC<ConversationThreadProps> = ({
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
   const recordTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { user, profile } = useAuth();
-  const SELF_ID = user?.id || profile?.id || "00000000-0000-0000-0000-000000000001";
+  const SELF_ID = user?.id || profile?.id || "self";
   const currentAvatarUrl =
     profile?.avatar_url ||
     (profile?.username
       ? `https://api.dicebear.com/7.x/initials/svg?seed=${profile.username}`
-      : DEMO_PARTICIPANTS.self.avatarUrl);
+      : "https://api.dicebear.com/7.x/bottts/svg?seed=explorer");
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
