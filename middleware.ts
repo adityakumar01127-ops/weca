@@ -25,6 +25,7 @@ const PROTECTED_API_ROUTES = [
   "/api/comments",
   "/api/posts",
   "/api/upload-and-score",
+  "/api/score-post",
   "/api/battles",
   "/api/wallet",
   "/api/admin",
@@ -34,12 +35,6 @@ const PROTECTED_API_ROUTES = [
   "/api/follows",
 ];
 
-// API routes that are public (no auth required)
-const PUBLIC_API_ROUTES = [
-  "/api/feed",
-  "/api/image-proxy",
-  "/api/health",
-];
 
 // Sliding window rate limiter (in-memory, per-process)
 const rateLimitMap = new Map<string, number[]>();
@@ -174,6 +169,17 @@ export async function middleware(req: NextRequest) {
   const isProtectedApi = !isPublicApiGet && PROTECTED_API_ROUTES.some((r) => pathname.startsWith(r));
 
   if (isProtectedPage || isProtectedApi) {
+    // Permit service-to-service calls that provide the true Supabase Service Role Key
+    const authHeader = req.headers.get("authorization");
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (serviceRoleKey && authHeader === `Bearer ${serviceRoleKey}`) {
+      const res = NextResponse.next();
+      Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {
+        res.headers.set(key, value);
+      });
+      return res;
+    }
+
     const supabaseUrl =
       process.env.NEXT_PUBLIC_SUPABASE_URL || "https://qaaeshezrdxfsaxlpmzo.supabase.co";
     const supabaseAnonKey =
@@ -200,10 +206,12 @@ export async function middleware(req: NextRequest) {
           return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            req.cookies.set(name, value);
-            res.cookies.set(name, value, options);
-          });
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              req.cookies.set(name, value);
+              res.cookies.set(name, value, options);
+            });
+          } catch {}
         },
       },
     });

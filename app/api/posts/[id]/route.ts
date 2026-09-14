@@ -1,34 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { deleteImage, updateImage } from "@/lib/services/data";
 import { deletePost, updatePost } from "@/lib/supabase/data";
+import { getAuthenticatedUser, isUserAdmin } from "@/lib/auth-server";
 
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Authentication required to delete post." }, { status: 401 });
+    }
+
     const { id } = await context.params;
-    const body = await req.json().catch(() => ({}));
-    const { searchParams } = new URL(req.url);
-    const userId = body.userId || searchParams.get("userId") || "";
-
     if (!id) {
-      return NextResponse.json({ error: "Missing post id" }, { status: 400 });
+      return NextResponse.json({ error: "Missing post id parameter." }, { status: 400 });
     }
 
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized: User ID required" }, { status: 401 });
-    }
+    const isAdmin = await isUserAdmin(user.id, user.email);
+    const result = await deletePost(id, user.id, isAdmin);
 
-    // Attempt delete in both services (handles both posts and images tables + fallbacks)
-    await deletePost(id, userId);
-    await deleteImage(id, userId);
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || "Failed to delete post." }, { status: 403 });
+    }
 
     return NextResponse.json({ success: true, postId: id });
   } catch (error: unknown) {
     console.error("Delete post API error:", error);
     return NextResponse.json(
-      { error: "Failed to delete post" },
+      { error: "Internal server error deleting post." },
       { status: 500 }
     );
   }
@@ -39,20 +39,23 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Authentication required to update post." }, { status: 401 });
+    }
+
     const { id } = await context.params;
-    const body = await req.json().catch(() => ({}));
-    const { caption, userId = "" } = body;
-
     if (!id) {
-      return NextResponse.json({ error: "Missing post id" }, { status: 400 });
+      return NextResponse.json({ error: "Missing post id parameter." }, { status: 400 });
     }
 
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized: User ID required" }, { status: 401 });
-    }
+    const body = await req.json().catch(() => ({}));
+    const { caption } = body;
 
-    const resPost = await updatePost(id, userId, { caption });
-    await updateImage(id, userId, { caption });
+    const resPost = await updatePost(id, user.id, { caption });
+    if (!resPost.success) {
+      return NextResponse.json({ error: resPost.error || "Failed to update post." }, { status: 403 });
+    }
 
     return NextResponse.json({
       success: true,
@@ -63,8 +66,9 @@ export async function PATCH(
   } catch (error: unknown) {
     console.error("Update post API error:", error);
     return NextResponse.json(
-      { error: "Failed to update post" },
+      { error: "Internal server error updating post." },
       { status: 500 }
     );
   }
 }
+

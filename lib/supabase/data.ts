@@ -497,7 +497,8 @@ export async function getPostsByUserId(userId: string, currentUserId?: string, l
  */
 export async function deletePost(
   postId: string,
-  userId: string
+  userId: string,
+  isAdmin: boolean = false
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = createClient();
 
@@ -507,16 +508,19 @@ export async function deletePost(
       await supabase.from("likes").delete().eq("post_id", postId);
       await supabase.from("comments").delete().eq("post_id", postId);
 
-      const { error } = await supabase
-        .from("posts")
-        .delete()
-        .eq("id", postId)
-        .eq("user_id", userId);
+      let query = supabase.from("posts").delete().eq("id", postId);
+      if (!isAdmin) {
+        query = query.eq("user_id", userId);
+      }
+
+      const { error } = await query;
 
       if (error) {
         console.error("Supabase delete post error:", error);
         return { success: false, error: error.message };
       }
+
+      return { success: true };
     } catch (err) {
       console.warn("Supabase delete post error:", err);
       return { success: false, error: err instanceof Error ? err.message : String(err) };
@@ -525,6 +529,7 @@ export async function deletePost(
 
   return { success: false, error: "Failed to delete post from database" };
 }
+
 
 /**
  * Update a post's caption (with ownership check)
@@ -1532,6 +1537,7 @@ export async function processAdminPayoutAction(params: {
 }
 
 /**
+/**
  * Fetch real community leaderboard spotters ordered by credits balance
  */
 export async function getLeaderboardHunters(limit: number = 50): Promise<LeaderboardHunter[]> {
@@ -1547,9 +1553,29 @@ export async function getLeaderboardHunters(limit: number = 50): Promise<Leaderb
 
     if (error || !profiles) return [];
 
+    // Fetch real post count per profile
+    const profileIds = profiles.map((p: any) => p.id);
+    const { data: postCounts } = await supabase
+      .from("posts")
+      .select("user_id")
+      .in("user_id", profileIds);
+
+    const postCountMap = new Map<string, number>();
+    if (postCounts) {
+      postCounts.forEach((p: any) => {
+        postCountMap.set(p.user_id, (postCountMap.get(p.user_id) || 0) + 1);
+      });
+    }
+
     return (profiles as any[]).map((p, idx) => {
       const balance = p.credits_balance ?? 50;
       const tier = balance >= 500 ? "Legendary Anomaly" : balance >= 200 ? "Reality-Breaking" : "Certified Weird";
+      const totalPosts = postCountMap.get(p.id) || 0;
+      
+      // Calculate real account age streak
+      const daysSinceCreation = Math.max(1, Math.floor((Date.now() - new Date(p.created_at || Date.now()).getTime()) / (1000 * 60 * 60 * 24)));
+      const streakDays = Math.min(30, daysSinceCreation);
+
       return {
         rank: idx + 1,
         user: {
@@ -1560,9 +1586,9 @@ export async function getLeaderboardHunters(limit: number = 50): Promise<Leaderb
           tier,
           created_at: p.created_at || new Date().toISOString(),
         },
-        accuracy_percent: 85 + (idx % 15),
-        streak_days: Math.max(1, 7 - (idx % 7)),
-        anomalies_count: 0,
+        accuracy_percent: Math.min(99, 88 + (totalPosts > 0 ? 5 : 0)),
+        streak_days: streakDays,
+        anomalies_count: totalPosts,
         trend: "same" as const,
       };
     });
@@ -1593,5 +1619,76 @@ export async function getRegisteredSpotters(limit: number = 30): Promise<Profile
     return [];
   }
 }
+
+/**
+ * Fetch geotagged anomaly posts from Supabase database for the interactive World Map
+ */
+export async function getGeotaggedPosts(): Promise<any[]> {
+  const supabase = createClient();
+  if (!supabase) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(`
+        id,
+        user_id,
+        image_url,
+        caption,
+        weirdness_score,
+        category,
+        city,
+        country,
+        latitude,
+        longitude,
+        created_at,
+        profiles!posts_user_id_fkey (
+          username
+        )
+      `)
+      .not("latitude", "is", null)
+      .not("longitude", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (error || !data) return [];
+
+    return data.map((row: any) => {
+      const lat = Number(row.latitude);
+      const lng = Number(row.longitude);
+      let region: "North America" | "Europe" | "Asia-Pacific" | "Latin America" | "Africa" | "Global" = "Global";
+
+      if (lat >= 15 && lat <= 70 && lng >= -170 && lng <= -50) region = "North America";
+      else if (lat >= 35 && lat <= 70 && lng >= -25 && lng <= 45) region = "Europe";
+      else if (lat >= -35 && lat <= 38 && lng >= -20 && lng <= 55) region = "Africa";
+      else if (lat >= -55 && lat <= 15 && lng >= -110 && lng <= -35) region = "Latin America";
+      else if (lng >= 60 && lng <= 180) region = "Asia-Pacific";
+
+      const score = row.weirdness_score || 75;
+      const tier = score >= 90 ? "Legendary Anomaly" : score >= 75 ? "Reality-Breaking" : "Certified Weird";
+
+      return {
+        id: row.id,
+        title: row.caption || `${row.category || "Anomaly"} Finding`,
+        category: row.category || "Objects",
+        tier,
+        wica_score: score,
+        city: row.city || "Field Site",
+        country: row.country || "Global",
+        region,
+        latitude: lat,
+        longitude: lng,
+        image_url: row.image_url,
+        verdict: row.caption || "Community verified physical anomaly",
+        hunter: Array.isArray(row.profiles) ? row.profiles[0]?.username : row.profiles?.username || "spotter",
+        date: row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+      };
+    });
+  } catch (err) {
+    console.warn("Failed to fetch geotagged posts:", err);
+    return [];
+  }
+}
+
 
 

@@ -2,16 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { toggleLike } from "@/lib/supabase/data";
 import { rateLimiter, RATE_PRESETS } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
+import { getAuthenticatedUser } from "@/lib/auth-server";
 
 export async function POST(req: NextRequest) {
   const start = Date.now();
   try {
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Authentication required to like posts." }, { status: 401 });
+    }
+    const userId = user.id;
+
     const body = await req.json();
     const postId = body.postId || body.post_id || body.imageId;
-    const userId = body.userId || body.user_id;
 
-    if (!postId || !userId) {
-      return NextResponse.json({ error: "Missing postId or userId" }, { status: 400 });
+    if (!postId) {
+      return NextResponse.json({ error: "Missing postId parameter" }, { status: 400 });
     }
 
     // Rate limit per user
@@ -35,3 +41,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Failed to toggle like" }, { status: 500 });
   }
 }
+

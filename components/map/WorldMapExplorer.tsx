@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { GEO_ANOMALIES, GeoAnomaly } from "@/lib/communityData";
 import { Category, CATEGORIES, Tier, getTierColor } from "@/lib/types";
+import { getGeotaggedPosts } from "@/lib/supabase/data";
 import { 
   Globe2, 
   MapPin, 
@@ -20,14 +21,28 @@ import {
 export const WorldMapExplorer: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState<string>("All");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [communityAnomalies, setCommunityAnomalies] = useState<GeoAnomaly[]>([]);
   const [activePin, setActivePin] = useState<GeoAnomaly | null>(GEO_ANOMALIES[0]);
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  useEffect(() => {
+    getGeotaggedPosts().then((posts) => {
+      if (posts && posts.length > 0) {
+        setCommunityAnomalies(posts);
+      }
+    });
+  }, []);
+
+  const allAnomalies = useMemo(() => {
+    // Merge real live posts with curated benchmark discoveries
+    return [...communityAnomalies, ...GEO_ANOMALIES];
+  }, [communityAnomalies]);
 
   const regions = ["All", "Europe", "Asia-Pacific", "North America", "Latin America", "Africa"];
 
   // Filter anomalies based on region, category, search
   const filteredAnomalies = useMemo(() => {
-    return GEO_ANOMALIES.filter((a) => {
+    return allAnomalies.filter((a) => {
       const matchRegion = selectedRegion === "All" || a.region === selectedRegion;
       const matchCat = selectedCategory === "All" || a.category === selectedCategory;
       const matchSearch =
@@ -37,7 +52,8 @@ export const WorldMapExplorer: React.FC = () => {
         a.country.toLowerCase().includes(searchQuery.toLowerCase());
       return matchRegion && matchCat && matchSearch;
     });
-  }, [selectedRegion, selectedCategory, searchQuery]);
+  }, [allAnomalies, selectedRegion, selectedCategory, searchQuery]);
+
 
   // Convert lat/long to percentage for SVG/CSS container (Equirectangular projection)
   const coordsToPos = (lat: number, lng: number) => {

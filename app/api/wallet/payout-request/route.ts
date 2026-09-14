@@ -1,46 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { createPayoutRequest, getUserPayoutRequests, getUserCreditTransactions } from "@/lib/supabase/data";
-
-async function getAuthenticatedUser() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {}
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  return { supabase, user };
-}
+import { getAuthenticatedUser, isUserAdmin } from "@/lib/auth-server";
 
 export async function GET(req: NextRequest) {
   try {
-    const { user } = await getAuthenticatedUser();
-    const { searchParams } = new URL(req.url);
-    const queryUserId = searchParams.get("userId") || user?.id;
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Authentication required." }, { status: 401 });
+    }
 
-    if (!queryUserId) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    const { searchParams } = new URL(req.url);
+    const requestedUserId = searchParams.get("userId") || user.id;
+
+    // Security Guard: Non-admins are strictly forbidden from viewing another user's bank details or payouts
+    if (requestedUserId !== user.id) {
+      const isAdmin = await isUserAdmin(user.id, user.email);
+      if (!isAdmin) {
+        return NextResponse.json(
+          { success: false, error: "Forbidden: You can only view your own financial details." },
+          { status: 403 }
+        );
+      }
     }
 
     const [payouts, transactions] = await Promise.all([
-      getUserPayoutRequests(queryUserId),
-      getUserCreditTransactions(queryUserId),
+      getUserPayoutRequests(requestedUserId),
+      getUserCreditTransactions(requestedUserId),
     ]);
 
     return NextResponse.json({
@@ -56,17 +41,18 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { user } = await getAuthenticatedUser();
-    const body = await req.json();
-
-    const userId = user?.id || body.userId;
-    if (!userId) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { success: false, error: "Authentication required to request a payout." },
         { status: 401 }
       );
     }
 
+    // Always use the verified session user's ID
+    const userId = user.id;
+
+    const body = await req.json();
     const { amount, details } = body;
     if (!amount || typeof amount !== "number" || amount <= 0) {
       return NextResponse.json(
@@ -115,3 +101,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: err.message || "Internal server error" }, { status: 500 });
   }
 }
+

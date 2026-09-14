@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
 
-    // Cryptographic signature verification
+    // Cryptographic signature verification (Fail closed in production)
     if (secret) {
       if (!razorpay_signature) {
         return NextResponse.json(
@@ -72,7 +72,13 @@ export async function POST(req: NextRequest) {
         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
         .digest("hex");
 
-      if (generatedSignature !== razorpay_signature) {
+      const sigBuffer = Buffer.from(razorpay_signature, "utf-8");
+      const expectedBuffer = Buffer.from(generatedSignature, "utf-8");
+
+      if (
+        sigBuffer.length !== expectedBuffer.length ||
+        !crypto.timingSafeEqual(sigBuffer, expectedBuffer)
+      ) {
         logger.error("Razorpay signature mismatch", {
           orderId: razorpay_order_id,
           paymentId: razorpay_payment_id,
@@ -82,7 +88,25 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
+    } else {
+      if (process.env.NODE_ENV === "production") {
+        logger.error("RAZORPAY_KEY_SECRET missing in production: refusing unverified payment fulfillment");
+        return NextResponse.json(
+          { error: "Payment gateway configuration error. Contact support." },
+          { status: 500 }
+        );
+      }
+
+      // Development mock fallback: only allow explicitly tagged test orders
+      if (!razorpay_order_id.startsWith("order_test_")) {
+        return NextResponse.json(
+          { error: "Signature verification required." },
+          { status: 400 }
+        );
+      }
+      logger.warn("Dev mode mock payment verification accepted for order_test_*");
     }
+
 
     // Payment is verified! Now fulfill the order in Supabase
     const adminSupabase = createAdminClient();

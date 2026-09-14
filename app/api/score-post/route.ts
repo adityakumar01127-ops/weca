@@ -260,8 +260,35 @@ async function runVisionScoring(imageUrl: string, caption?: string | null): Prom
   return { weirdness, uniqueness };
 }
 
+import { getAuthenticatedUser } from "@/lib/auth-server";
+
 export async function POST(req: NextRequest) {
   try {
+    // 1. Authorization Guard: Ensure caller is an authenticated user or authorized internal service
+    const authHeader = req.headers.get("authorization");
+    const internalSecretHeader = req.headers.get("x-internal-secret");
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    let isAuthorized = false;
+    if (
+      serviceKey &&
+      (authHeader === `Bearer ${serviceKey}` || internalSecretHeader === serviceKey)
+    ) {
+      isAuthorized = true;
+    } else {
+      const sessionUser = await getAuthenticatedUser();
+      if (sessionUser) {
+        isAuthorized = true;
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: "Unauthorized. Authentication or service key required." },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
 
     // Supports both direct calls and Database Webhook payloads
@@ -278,11 +305,40 @@ export async function POST(req: NextRequest) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const activeServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     let supabase = null;
-    if (supabaseUrl && serviceKey) {
-      supabase = createClient(supabaseUrl, serviceKey);
+    if (supabaseUrl && activeServiceKey) {
+      supabase = createClient(supabaseUrl, activeServiceKey);
+    }
+
+    // 2. Existence & Idempotency Check: Verify post exists and is not already scored
+    if (supabase) {
+      const { data: postRecord, error: postFetchErr } = await supabase
+        .from("posts")
+        .select("id, user_id, weirdness_score, uniqueness_score, scoring_status")
+        .eq("id", postId)
+        .maybeSingle();
+
+      if (postFetchErr || !postRecord) {
+        return NextResponse.json(
+          { error: "Post record not found in database" },
+          { status: 404 }
+        );
+      }
+
+      // If already scored, return existing scores without re-running vision models or double-accruing credits
+      if (postRecord.weirdness_score != null && postRecord.scoring_status === "completed") {
+        return NextResponse.json({
+          success: true,
+          post_id: postId,
+          scores: {
+            weirdness: postRecord.weirdness_score,
+            uniqueness: postRecord.uniqueness_score,
+          },
+          alreadyScored: true,
+        });
+      }
     }
 
     try {
@@ -343,6 +399,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         post_id: postId,
+
         scores,
       });
     } catch (scoringErr) {

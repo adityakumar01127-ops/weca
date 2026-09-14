@@ -82,9 +82,10 @@ export async function initiateRazorpayXPayout(
     const contactData = await contactRes.json();
 
     // 2. Create Fund Account (VPA or Bank Account)
-    let fundAccountPayload: any = {
+    const fundAccountPayload: any = {
       contact_id: contactData.id,
     };
+
 
     if (payoutRequest.payout_details.method === "upi" && payoutRequest.payout_details.upi_id) {
       fundAccountPayload.account_type = "vpa";

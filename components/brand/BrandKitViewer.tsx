@@ -576,8 +576,9 @@ export const BrandKitViewer: React.FC = () => {
               2. Clear Space Margin
             </div>
             <p className="leading-relaxed">
-              Maintain a minimum clear space surrounding the logo equal to 50% of the emblem's diameter (0.5X) to protect optical integrity and legibility across busy layouts.
+              Maintain a minimum clear space surrounding the logo equal to 50% of the emblem&apos;s diameter (0.5X) to protect optical integrity and legibility across busy layouts.
             </p>
+
           </div>
           <div className="space-y-2">
             <div className="font-mono text-zinc-900 dark:text-white font-semibold uppercase tracking-wider">

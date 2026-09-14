@@ -22,16 +22,23 @@ export async function GET(req: NextRequest) {
   }
 }
 
+import { getAuthenticatedUser } from "@/lib/auth-server";
+
 export async function POST(req: NextRequest) {
   const start = Date.now();
   try {
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Authentication required to post comments." }, { status: 401 });
+    }
+    const userId = user.id;
+
     const body = await req.json();
     const postId = body.postId || body.post_id || body.imageId;
-    const userId = body.userId || body.user_id;
     const text = body.body || body.text || body.content;
 
-    if (!postId || !userId || !text?.trim()) {
-      return NextResponse.json({ error: "Missing required comment fields (postId, userId, text)" }, { status: 400 });
+    if (!postId || !text?.trim()) {
+      return NextResponse.json({ error: "Missing required comment fields (postId, text)" }, { status: 400 });
     }
 
     // Input sanitization / length limit
@@ -68,3 +75,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Failed to add comment" }, { status: 500 });
   }
 }
+

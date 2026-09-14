@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scoreImageWithGemini } from "@/lib/services/scoring";
-import { saveScoredImage } from "@/lib/services/data";
 import { Category } from "@/lib/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimiter, RATE_PRESETS } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
+import { getAuthenticatedUser } from "@/lib/auth-server";
+import { recordCreditTransaction } from "@/lib/credits";
 import sharp from "sharp";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB limit
@@ -12,21 +13,19 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB limit
 export async function POST(req: NextRequest) {
   const start = Date.now();
   try {
-    const formData = await req.formData();
-    const file = formData.get("image") as File | null;
-    const category = (formData.get("category") as Category) || "Other";
-    const caption = (formData.get("caption") as string) || null;
-    const country = (formData.get("country") as string) || null;
-    const userId = (formData.get("userId") as string) || "";
-    const username = (formData.get("username") as string) || "explorer";
-    const avatarUrl = (formData.get("avatarUrl") as string) || null;
-
-    if (!userId) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { error: "Authentication required: Please sign in to submit findings." },
         { status: 401 }
       );
     }
+    const userId = user.id;
+
+    const formData = await req.formData();
+    const file = formData.get("image") as File | null;
+    const category = (formData.get("category") as Category) || "Other";
+    const caption = (formData.get("caption") as string) || null;
 
     if (!file) {
       return NextResponse.json({ error: "No image file provided" }, { status: 400 });
@@ -60,15 +59,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Convert file to buffer and base64
+    // Convert file to buffer and optimize
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const mimeType = file.type || "image/jpeg";
 
-    // Optimize image buffer to modern web format (WebP max 1400px width)
     let uploadBuffer = buffer;
     let uploadMime = mimeType;
-    let fileExt = "jpg";
+    let fileExt = "webp";
 
     try {
       uploadBuffer = await sharp(buffer)
@@ -76,7 +74,6 @@ export async function POST(req: NextRequest) {
         .webp({ quality: 85 })
         .toBuffer();
       uploadMime = "image/webp";
-      fileExt = "webp";
     } catch (optErr) {
       console.warn("Sharp optimization skipped, using original buffer:", optErr);
       fileExt = file.name ? file.name.split(".").pop() || "jpg" : "jpg";
@@ -85,7 +82,7 @@ export async function POST(req: NextRequest) {
     const base64Data = uploadBuffer.toString("base64");
     const mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif" = "image/webp";
 
-    // 1. Upload to Supabase Storage if configured
+    // 1. Upload to Supabase Storage
     let storagePath = "";
     const supabase = createAdminClient();
 
@@ -93,8 +90,10 @@ export async function POST(req: NextRequest) {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
       const filePath = `uploads/${fileName}`;
 
+      // Upload to 'posts' storage bucket (fallback to 'wica-images')
+      const targetBucket = "posts";
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("wica-images")
+        .from(targetBucket)
         .upload(filePath, uploadBuffer, {
           contentType: uploadMime,
           upsert: true,
@@ -102,15 +101,15 @@ export async function POST(req: NextRequest) {
 
       if (!uploadError && uploadData) {
         const { data: publicUrlData } = supabase.storage
-          .from("wica-images")
+          .from(targetBucket)
           .getPublicUrl(filePath);
         storagePath = publicUrlData.publicUrl;
       }
     }
 
-    // Fallback storage path if Supabase is not connected
+    // Fallback data URI if Supabase storage is unconfigured
     if (!storagePath) {
-      storagePath = `data:${mimeType};base64,${base64Data}`;
+      storagePath = `data:${uploadMime};base64,${base64Data}`;
     }
 
     // 2. Call the Weirdness Engine (Gemini Vision API)
@@ -121,33 +120,72 @@ export async function POST(req: NextRequest) {
       caption,
     });
 
-    // 3. Save to database / local store
-    const savedImage = await saveScoredImage({
-      userId,
-      storagePath,
-      category,
-      caption,
-      country,
-      scoreBreakdown,
-      authorUser: {
-        username,
-        avatar_url: avatarUrl,
-      },
-    });
+    // 3. Save post record directly to Supabase PostgreSQL posts table
+    let savedPost: any = null;
+    if (supabase) {
+      const { data: postData, error: postErr } = await supabase
+        .from("posts")
+        .insert({
+          user_id: userId,
+          image_url: storagePath,
+          caption: caption?.trim() || null,
+          weirdness_score: scoreBreakdown.composite_score,
+          uniqueness_score: Math.min(100, scoreBreakdown.rarity * 10),
+          scoring_status: "completed",
+        })
+        .select(`
+          id,
+          user_id,
+          image_url,
+          caption,
+          weirdness_score,
+          uniqueness_score,
+          scoring_status,
+          created_at,
+          profiles!posts_user_id_fkey (
+            id,
+            username,
+            display_name,
+            avatar_url,
+            credits_balance
+          )
+        `)
+        .single();
+
+      if (!postErr && postData) {
+        savedPost = postData;
+
+        // Accrue Weird Credits for anomaly discovery
+        await recordCreditTransaction(supabase, {
+          userId,
+          amount: scoreBreakdown.composite_score,
+          reason: `Discovery Bonus: ${scoreBreakdown.composite_score} WC for ${category}`,
+          postId: postData.id,
+        });
+      }
+    }
 
     logger.info("Image uploaded and scored", {
       userId,
-      imageId: savedImage.id,
+      postId: savedPost?.id,
       category,
       durationMs: Date.now() - start,
     });
 
     return NextResponse.json({
       success: true,
-      image: savedImage,
+      post: savedPost,
+      image: {
+        id: savedPost?.id || `img_${Date.now()}`,
+        user_id: userId,
+        storage_path: storagePath,
+        category,
+        caption,
+        wica_score: scoreBreakdown.composite_score,
+        ai_verdict: scoreBreakdown.one_line_verdict,
+        moderation_status: "approved",
+      },
       scoreBreakdown,
-      moderationStatus: savedImage.moderation_status,
-      heldForReview: savedImage.moderation_status === "pending_review",
     });
   } catch (error: unknown) {
     logger.error("Upload & scoring error", { error, durationMs: Date.now() - start });
@@ -158,3 +196,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
