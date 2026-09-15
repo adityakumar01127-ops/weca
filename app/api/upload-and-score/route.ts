@@ -13,7 +13,7 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB limit
 export async function POST(req: NextRequest) {
   const start = Date.now();
   try {
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json(
         { error: "Authentication required: Please sign in to submit findings." },

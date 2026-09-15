@@ -13,10 +13,19 @@ export interface AuthenticatedAdmin {
  * Retrieves the currently authenticated Supabase user from server cookies.
  * Returns null if the user is unauthenticated or session is invalid.
  */
-export async function getAuthenticatedUser(): Promise<User | null> {
+export async function getAuthenticatedUser(req?: NextRequest): Promise<User | null> {
   try {
     const supabase = await createServerSupabaseClient();
     if (!supabase) return null;
+
+    if (req) {
+      const authHeader = req.headers.get("authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.replace("Bearer ", "").trim();
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (!error && user) return user;
+      }
+    }
 
     const {
       data: { user },
@@ -35,8 +44,8 @@ export async function getAuthenticatedUser(): Promise<User | null> {
  * Enforces that a valid user session exists.
  * Throws an Error with status 401 if unauthenticated.
  */
-export async function requireAuthenticatedUser(): Promise<User> {
-  const user = await getAuthenticatedUser();
+export async function requireAuthenticatedUser(req?: NextRequest): Promise<User> {
+  const user = await getAuthenticatedUser(req);
   if (!user) {
     const err = new Error("Authentication required. Please sign in.");
     (err as any).statusCode = 401;
