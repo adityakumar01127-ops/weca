@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ShieldAlert, ArrowLeft } from "lucide-react";
 import { getAuthenticatedUser, isUserAdmin } from "@/lib/auth-server";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Admin Control Panel",
   description: "Administrative console for managing payout requests and platform verifications.",

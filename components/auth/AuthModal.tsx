@@ -16,9 +16,10 @@ export const AuthModal: React.FC = () => {
   } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
-  const [email, setEmail] = useState<string>("");
+  const [identifier, setIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [username, setUsername] = useState<string>("");
+  const [optionalEmail, setOptionalEmail] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [confirmationSent, setConfirmationSent] = useState<boolean>(false);
@@ -43,6 +44,26 @@ export const AuthModal: React.FC = () => {
     closeAuthModal();
   };
 
+  const switchToSignUp = () => {
+    setMode("signup");
+    setError(null);
+    if (identifier && !username) {
+      if (identifier.includes("@")) {
+        setOptionalEmail(identifier);
+      } else {
+        setUsername(identifier.toLowerCase().replace(/[^a-z0-9_]/g, ""));
+      }
+    }
+  };
+
+  const switchToSignIn = () => {
+    setMode("signin");
+    setError(null);
+    if (username && !identifier) {
+      setIdentifier(username);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -50,12 +71,12 @@ export const AuthModal: React.FC = () => {
 
     try {
       if (mode === "forgot") {
-        if (!email.trim() || !email.includes("@")) {
-          setError("Please enter a valid email address.");
+        if (!identifier.trim()) {
+          setError("Please enter your username or recovery email.");
           setSubmitting(false);
           return;
         }
-        const res = await resetPassword(email.trim());
+        const res = await resetPassword(identifier.trim());
         if (res.error) {
           setError(res.error);
         } else {
@@ -77,7 +98,7 @@ export const AuthModal: React.FC = () => {
           setSubmitting(false);
           return;
         }
-        if (email.trim() && !email.includes("@")) {
+        if (optionalEmail.trim() && !optionalEmail.includes("@")) {
           setError("Please provide a valid email address or leave it blank.");
           setSubmitting(false);
           return;
@@ -88,7 +109,7 @@ export const AuthModal: React.FC = () => {
           return;
         }
 
-        const res = await signUp(cleanUsername, password, email.trim() || undefined);
+        const res = await signUp(cleanUsername, password, optionalEmail.trim() || undefined);
         if (res.error) {
           setError(res.error);
         } else if (res.requiresEmailConfirmation) {
@@ -97,15 +118,15 @@ export const AuthModal: React.FC = () => {
           handleClose();
         }
       } else {
-        // Sign in: email state holds username or email
-        const identifier = email.trim();
-        if (!identifier || !password) {
+        // Sign in
+        const cleanId = identifier.trim();
+        if (!cleanId || !password) {
           setError("Please enter your username/email and password.");
           setSubmitting(false);
           return;
         }
 
-        const res = await signIn(identifier, password);
+        const res = await signIn(cleanId, password);
         if (res.error) {
           setError(res.error);
         } else {
@@ -179,7 +200,7 @@ export const AuthModal: React.FC = () => {
               Check Your Inbox
             </h3>
             <p className="text-xs text-emerald-700 dark:text-emerald-400/90 leading-relaxed mb-3">
-              We sent a verification link to <strong className="font-mono">{email}</strong>. Click the link to activate your account and start exploring.
+              We sent a verification link to <strong className="font-mono">{optionalEmail || identifier}</strong>. Click the link to activate your account and start exploring.
             </p>
             <button
               type="button"
@@ -199,13 +220,13 @@ export const AuthModal: React.FC = () => {
               Reset Link Sent
             </h3>
             <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3">
-              We dispatched a secure reset link to <strong className="font-mono text-zinc-900 dark:text-zinc-200">{email}</strong>. Follow the instructions in the email to set a new password.
+              We dispatched a secure reset link to <strong className="font-mono text-zinc-900 dark:text-zinc-200">{identifier}</strong>. Follow the instructions in the email to set a new password.
             </p>
             <button
               type="button"
               onClick={() => {
                 setResetSent(false);
-                setMode("signin");
+                switchToSignIn();
               }}
               className="py-2 px-4 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-semibold text-xs hover:bg-zinc-800 transition-colors min-h-[44px]"
             >
@@ -250,8 +271,8 @@ export const AuthModal: React.FC = () => {
                       type="text"
                       required
                       placeholder="Enter username or email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
                       className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
                     />
                   </div>
@@ -303,8 +324,8 @@ export const AuthModal: React.FC = () => {
                     <input
                       type="email"
                       placeholder="you@example.com (optional recovery)"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={optionalEmail}
+                      onChange={(e) => setOptionalEmail(e.target.value)}
                       className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
                     />
                   </div>
@@ -340,10 +361,7 @@ export const AuthModal: React.FC = () => {
               {mode === "forgot" ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode("signin");
-                    setError(null);
-                  }}
+                  onClick={switchToSignIn}
                   className="text-xs text-violet font-semibold hover:underline cursor-pointer min-h-[44px] inline-flex items-center"
                 >
                   ← Return to Sign In
@@ -354,8 +372,11 @@ export const AuthModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      setMode(mode === "signup" ? "signin" : "signup");
-                      setError(null);
+                      if (mode === "signup") {
+                        switchToSignIn();
+                      } else {
+                        switchToSignUp();
+                      }
                     }}
                     className="text-violet font-semibold hover:underline cursor-pointer min-h-[44px] inline-flex items-center"
                   >

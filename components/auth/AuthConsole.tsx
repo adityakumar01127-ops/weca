@@ -32,7 +32,8 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
   const { signIn, signUp, resetPassword } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">(initialMode);
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
+  const [optionalEmail, setOptionalEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
@@ -48,6 +49,26 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
     setPrevInitialMode(initialMode);
     setMode(initialMode);
   }
+
+  const switchToSignUp = () => {
+    setMode("signup");
+    setError(null);
+    if (identifier && !username) {
+      if (identifier.includes("@")) {
+        setOptionalEmail(identifier);
+      } else {
+        setUsername(identifier.toLowerCase().replace(/[^a-z0-9_]/g, ""));
+      }
+    }
+  };
+
+  const switchToSignIn = () => {
+    setMode("signin");
+    setError(null);
+    if (username && !identifier) {
+      setIdentifier(username);
+    }
+  };
 
   // Real-time password strength calculation
   const getPasswordStrength = (pass: string) => {
@@ -100,13 +121,14 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
 
     try {
       if (mode === "forgot") {
-        if (!email.trim() || !email.includes("@")) {
-          setError("Please enter a valid email address to receive password reset instructions.");
+        const cleanId = identifier.trim();
+        if (!cleanId) {
+          setError("Please enter your username or registered recovery email.");
           setLoading(false);
           return;
         }
 
-        const res = await resetPassword(email.trim());
+        const res = await resetPassword(cleanId);
         if (res.error) {
           setError(res.error);
         } else {
@@ -117,14 +139,14 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
       }
 
       if (mode === "signin") {
-        const identifier = email.trim();
-        if (!identifier || !password) {
+        const cleanId = identifier.trim();
+        if (!cleanId || !password) {
           setError("Please enter both your username/email and password.");
           setLoading(false);
           return;
         }
 
-        const res = await signIn(identifier, password);
+        const res = await signIn(cleanId, password);
         if (res.error) {
           setError(res.error);
           setLoading(false);
@@ -144,7 +166,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
           setLoading(false);
           return;
         }
-        if (email.trim() && !email.includes("@")) {
+        if (optionalEmail.trim() && !optionalEmail.includes("@")) {
           setError("Please enter a valid email address, or leave it blank.");
           setLoading(false);
           return;
@@ -158,7 +180,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
         const res = await signUp(
           cleanUsername,
           password,
-          email.trim() || undefined,
+          optionalEmail.trim() || undefined,
           displayName.trim() || cleanUsername
         );
 
@@ -439,14 +461,13 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                     Check Your Inbox
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    We dispatched a verification link to <strong className="font-mono text-zinc-900 dark:text-white">{email}</strong>. Follow the link to activate your account and access the index.
+                    We dispatched a verification link to <strong className="font-mono text-zinc-900 dark:text-white">{optionalEmail || identifier}</strong>. Follow the link to activate your account and access the index.
                   </p>
                   <button
                     type="button"
                     onClick={() => {
                       setVerificationSent(false);
-                      setMode("signin");
-                      setError(null);
+                      switchToSignIn();
                     }}
                     className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-semibold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer min-h-[44px]"
                   >
@@ -463,14 +484,13 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                     Reset Link Dispatched
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    We sent password recovery instructions to <strong className="font-mono text-zinc-900 dark:text-white">{email}</strong>. Check your inbox to choose a new password.
+                    We sent password recovery instructions to <strong className="font-mono text-zinc-900 dark:text-white">{identifier}</strong>. Check your inbox to choose a new password.
                   </p>
                   <button
                     type="button"
                     onClick={() => {
                       setForgotSent(false);
-                      setMode("signin");
-                      setError(null);
+                      switchToSignIn();
                     }}
                     className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-950 font-semibold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer min-h-[44px]"
                   >
@@ -484,10 +504,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                     <div className="grid grid-cols-2 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800/80 mb-5">
                       <button
                         type="button"
-                        onClick={() => {
-                          setMode("signin");
-                          setError(null);
-                        }}
+                        onClick={switchToSignIn}
                         className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                           mode === "signin"
                             ? "bg-white text-zinc-900 shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:text-white dark:border-zinc-700/60"
@@ -498,10 +515,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
-                          setMode("signup");
-                          setError(null);
-                        }}
+                        onClick={switchToSignUp}
                         className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                           mode === "signup"
                             ? "bg-white text-zinc-900 shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:text-white dark:border-zinc-700/60"
@@ -515,10 +529,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                     <div className="mb-4">
                       <button
                         type="button"
-                        onClick={() => {
-                          setMode("signin");
-                          setError(null);
-                        }}
+                        onClick={switchToSignIn}
                         className="text-xs text-violet font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer min-h-[36px]"
                       >
                         ← Back to Sign In
@@ -564,8 +575,8 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                           <input
                             type="text"
                             required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
                             placeholder={mode === "signin" ? "Enter your username or email" : "Registered username or email"}
                             className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
                           />
@@ -642,8 +653,8 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                           <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                           <input
                             type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={optionalEmail}
+                            onChange={(e) => setOptionalEmail(e.target.value)}
                             placeholder="you@example.com (optional recovery)"
                             className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
                           />
