@@ -117,14 +117,14 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
       }
 
       if (mode === "signin") {
-        if (!email.trim() || !password) {
-          setError("Please enter both your email/username and password.");
+        const identifier = email.trim();
+        if (!identifier || !password) {
+          setError("Please enter both your username/email and password.");
           setLoading(false);
           return;
         }
 
-        const effectiveEmail = email.includes("@") ? email.trim() : `${email.trim()}@wica.ai`;
-        const res = await signIn(effectiveEmail, password);
+        const res = await signIn(identifier, password);
         if (res.error) {
           setError(res.error);
           setLoading(false);
@@ -132,15 +132,20 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
           router.push("/");
         }
       } else {
-        // Sign Up
+        // Sign Up: Username is primary, email is secondary & optional
         const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
         if (!cleanUsername || cleanUsername.length < 3) {
           setError("Username must be at least 3 characters (letters, numbers, underscores).");
           setLoading(false);
           return;
         }
-        if (!email.trim() || !email.includes("@")) {
-          setError("Please provide a valid email address.");
+        if (cleanUsername.length > 20) {
+          setError("Username must be 20 characters or fewer.");
+          setLoading(false);
+          return;
+        }
+        if (email.trim() && !email.includes("@")) {
+          setError("Please enter a valid email address, or leave it blank.");
           setLoading(false);
           return;
         }
@@ -151,9 +156,9 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
         }
 
         const res = await signUp(
-          email.trim(),
-          password,
           cleanUsername,
+          password,
+          email.trim() || undefined,
           displayName.trim() || cleanUsername
         );
 
@@ -524,12 +529,12 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                   {/* Auth Form */}
                   <form onSubmit={handleSubmit} className="space-y-3.5">
                     
-                    {/* Sign Up: Username Field */}
+                    {/* Sign Up: Username Field (Primary & Required) */}
                     {mode === "signup" && (
                       <div className="space-y-1">
                         <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
-                          <span>Username</span>
-                          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Unique handle</span>
+                          <span className="font-semibold text-zinc-900 dark:text-white">Unique Username</span>
+                          <span className="text-[10px] text-violet font-mono font-medium">Required</span>
                         </label>
                         <div className="relative">
                           <UserIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
@@ -537,58 +542,43 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                             type="text"
                             required
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="anomaly_scout"
+                            onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                            placeholder="anomaly_hunter"
                             className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono min-h-[44px]"
                           />
                         </div>
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                          Your public ID on Weca (letters, numbers, underscores).
+                        </p>
                       </div>
                     )}
 
-                    {/* Sign Up: Display Name (Optional) */}
-                    {mode === "signup" && (
+                    {/* Sign In & Forgot Mode: Username or Email Identifier Field */}
+                    {mode !== "signup" && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
-                          <span>Display Name</span>
-                          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Optional</span>
+                        <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                          {mode === "signin" ? "Username or Email" : "Your Username or Email"}
                         </label>
                         <div className="relative">
-                          <Sparkles className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
+                          <UserIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                           <input
                             type="text"
-                            value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)}
-                            placeholder="Dr. Elena Vance"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder={mode === "signin" ? "Enter your username or email" : "Registered username or email"}
                             className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
                           />
                         </div>
                       </div>
                     )}
 
-                    {/* Email / Identifier Field */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                        {mode === "signin" ? "Email or Username" : "Email Address"}
-                      </label>
-                      <div className="relative">
-                        <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
-                        <input
-                          type={mode === "signup" ? "email" : "text"}
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder={mode === "signup" ? "you@organization.org" : "you@example.com"}
-                          className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
-                        />
-                      </div>
-                    </div>
-
                     {/* Password Field */}
                     {mode !== "forgot" && (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                            Password
+                            {mode === "signup" ? "Create Password" : "Password"}
                           </label>
                           {mode === "signin" && (
                             <button
@@ -610,7 +600,7 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••••••"
+                            placeholder={mode === "signup" ? "At least 6 characters" : "••••••••••••"}
                             className="w-full pl-10 pr-10 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono min-h-[44px]"
                           />
                           <button
@@ -638,6 +628,49 @@ export const AuthConsole: React.FC<AuthConsoleProps> = ({ initialMode = "signin"
                             </div>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Sign Up: Email Field (Optional & Secondary) */}
+                    {mode === "signup" && (
+                      <div className="space-y-1 pt-1 border-t border-zinc-100 dark:border-zinc-800/50">
+                        <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
+                          <span>Email Address</span>
+                          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Optional</span>
+                        </label>
+                        <div className="relative">
+                          <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com (optional recovery)"
+                            className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
+                          />
+                        </div>
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                          Optional. Used only if you want password reset links or announcements.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Sign Up: Display Name (Optional) */}
+                    {mode === "signup" && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
+                          <span>Display Name</span>
+                          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Optional</span>
+                        </label>
+                        <div className="relative">
+                          <Sparkles className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3" />
+                          <input
+                            type="text"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            placeholder="e.g. Dr. Vance"
+                            className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
+                          />
+                        </div>
                       </div>
                     )}
 

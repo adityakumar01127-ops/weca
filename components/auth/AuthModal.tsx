@@ -72,8 +72,13 @@ export const AuthModal: React.FC = () => {
           setSubmitting(false);
           return;
         }
-        if (!email.trim() || !email.includes("@")) {
-          setError("Please provide a valid email address.");
+        if (cleanUsername.length > 20) {
+          setError("Username must be 20 characters or fewer.");
+          setSubmitting(false);
+          return;
+        }
+        if (email.trim() && !email.includes("@")) {
+          setError("Please provide a valid email address or leave it blank.");
           setSubmitting(false);
           return;
         }
@@ -83,7 +88,7 @@ export const AuthModal: React.FC = () => {
           return;
         }
 
-        const res = await signUp(email.trim(), password, cleanUsername);
+        const res = await signUp(cleanUsername, password, email.trim() || undefined);
         if (res.error) {
           setError(res.error);
         } else if (res.requiresEmailConfirmation) {
@@ -92,9 +97,15 @@ export const AuthModal: React.FC = () => {
           handleClose();
         }
       } else {
-        // Sign in
-        const effectiveEmail = email.includes("@") ? email.trim() : `${email.trim()}@wica.ai`;
-        const res = await signIn(effectiveEmail, password);
+        // Sign in: email state holds username or email
+        const identifier = email.trim();
+        if (!identifier || !password) {
+          setError("Please enter your username/email and password.");
+          setSubmitting(false);
+          return;
+        }
+
+        const res = await signIn(identifier, password);
         if (res.error) {
           setError(res.error);
         } else {
@@ -206,10 +217,12 @@ export const AuthModal: React.FC = () => {
         {!confirmationSent && !resetSent && (
           <>
             <form onSubmit={handleSubmit} className="space-y-3">
+              {/* Sign Up: Unique Username (Primary & Required) */}
               {mode === "signup" && (
                 <div>
-                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                    Username
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+                    <span className="font-semibold text-zinc-900 dark:text-white">Unique Username</span>
+                    <span className="text-[10px] text-violet font-mono font-medium">Required</span>
                   </label>
                   <div className="relative">
                     <UserIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
@@ -218,29 +231,32 @@ export const AuthModal: React.FC = () => {
                       required
                       placeholder="e.g. anomaly_hunter"
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
                       className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono min-h-[44px]"
                     />
                   </div>
                 </div>
               )}
 
-              <div>
-                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
-                  <input
-                    type="email"
-                    required
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
-                  />
+              {/* Sign In & Forgot Mode: Username or Email */}
+              {mode !== "signup" && (
+                <div>
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                    {mode === "signin" ? "Username or Email" : "Your Username or Email"}
+                  </label>
+                  <div className="relative">
+                    <UserIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter username or email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {mode !== "forgot" && (
                 <div>
@@ -272,6 +288,29 @@ export const AuthModal: React.FC = () => {
                       className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono min-h-[44px]"
                     />
                   </div>
+                </div>
+              )}
+
+              {/* Sign Up: Optional Email Address */}
+              {mode === "signup" && (
+                <div className="pt-1 border-t border-zinc-100 dark:border-zinc-800/60">
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+                    <span>Email Address</span>
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Optional</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-3.5" />
+                    <input
+                      type="email"
+                      placeholder="you@example.com (optional recovery)"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/90 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all min-h-[44px]"
+                    />
+                  </div>
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">
+                    Optional. Used only for password recovery or announcements.
+                  </p>
                 </div>
               )}
 

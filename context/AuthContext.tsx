@@ -10,15 +10,15 @@ interface AuthContextType {
   authUser: SupabaseAuthUser | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
+  signIn: (identifier: string, password: string) => Promise<{ error?: string }>;
+  signUp: (usernameOrEmail: string, password: string, optionalEmailOrUsername?: string, displayName?: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error?: string }>;
+  resetPassword: (identifier: string) => Promise<{ error?: string }>;
   updatePassword: (password: string) => Promise<{ error?: string }>;
   signInWithOAuth: (provider?: "google") => Promise<{ error?: string }>;
   // Compatibility aliases
-  signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
-  signUpWithEmail: (email: string, password: string, username: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
+  signInWithEmail: (identifier: string, password: string) => Promise<{ error?: string }>;
+  signUpWithEmail: (usernameOrEmail: string, password: string, optionalEmailOrUsername?: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
   openAuthModal: (mode?: "signin" | "signup" | unknown) => void;
   closeAuthModal: () => void;
   isAuthModalOpen: boolean;
@@ -163,14 +163,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<{ error?: string }> => {
+  const signIn = async (identifier: string, password: string): Promise<{ error?: string }> => {
     if (!supabase) {
       return { error: "Authentication service unavailable. Missing configuration." };
     }
 
     try {
+      const cleanIdentifier = identifier.trim();
+      let emailToUse = cleanIdentifier;
+
+      // If user provided a username without '@', resolve it via server resolver
+      if (!cleanIdentifier.includes("@")) {
+        try {
+          const res = await fetch("/api/auth/resolve-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ identifier: cleanIdentifier }),
+          });
+          const resolved = await res.json();
+          if (resolved.email) {
+            emailToUse = resolved.email;
+          } else {
+            emailToUse = `${cleanIdentifier.toLowerCase().replace(/[^a-z0-9_]/g, "")}@users.weca.app`;
+          }
+        } catch {
+          emailToUse = `${cleanIdentifier.toLowerCase().replace(/[^a-z0-9_]/g, "")}@users.weca.app`;
+        }
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: emailToUse.toLowerCase(),
         password,
       });
 
@@ -179,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return { error: "Please confirm your email address before signing in. Check your inbox for the verification link." };
         }
         if (error.message.toLowerCase().includes("invalid login credentials")) {
-          return { error: "Invalid email or password. Please check your credentials." };
+          return { error: "Invalid username/email or password. Please check your credentials." };
         }
         return { error: error.message };
       }
@@ -198,9 +220,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (
-    email: string,
+    usernameOrEmail: string,
     password: string,
-    username: string,
+    optionalEmailOrUsername?: string,
     displayName?: string
   ): Promise<{ error?: string; requiresEmailConfirmation?: boolean }> => {
     if (!supabase) {
@@ -208,33 +230,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
+      let finalUsername = "";
+      let finalEmail = "";
+      const finalDisplayName = displayName;
+
+      if (usernameOrEmail.includes("@")) {
+        // Legacy call signature: (email, password, username, displayName)
+        finalEmail = usernameOrEmail.trim().toLowerCase();
+        finalUsername = (optionalEmailOrUsername || "").trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+      } else {
+        // Modern username-first signature: (username, password, optionalEmail, displayName)
+        finalUsername = usernameOrEmail.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+        finalEmail = (optionalEmailOrUsername || "").trim().toLowerCase();
+      }
+
+      if (!finalUsername || finalUsername.length < 3) {
+        return { error: "Username must be at least 3 characters (letters, numbers, underscores)." };
+      }
+
+      if (finalUsername.length > 20) {
+        return { error: "Username must be 20 characters or fewer." };
+      }
+
+      if (!password || password.length < 6) {
+        return { error: "Password must be at least 6 characters long." };
+      }
+
+      // Check username availability in advance
+      try {
+        const checkRes = await fetch(`/api/auth/check-username?username=${encodeURIComponent(finalUsername)}`);
+        const checkData = await checkRes.json();
+        if (checkData && !checkData.available) {
+          return { error: checkData.message || "This username is already taken. Please choose another." };
+        }
+      } catch {
+        // Fallback: Supabase unique index will catch duplicates
+      }
+
+      // Use provided email or generate internal collision-free email
+      const effectiveAuthEmail = finalEmail && finalEmail.includes("@")
+        ? finalEmail
+        : `${finalUsername}@users.weca.app`;
+
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: effectiveAuthEmail,
         password,
         options: {
           emailRedirectTo: `${origin}/auth/callback`,
           data: {
-            username,
-            display_name: displayName || username,
-            avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${username}`,
+            username: finalUsername,
+            display_name: finalDisplayName || finalUsername,
+            avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${finalUsername}`,
           },
         },
       });
 
       if (error) {
+        if (
+          error.message.toLowerCase().includes("user already registered") ||
+          error.message.toLowerCase().includes("already exists")
+        ) {
+          return {
+            error: "An account with this username or email already exists. Please tap 'Sign In'.",
+          };
+        }
         return { error: error.message };
       }
 
-      // When an account with this email already exists, Supabase returns a user with empty identities array
+      // Supabase empty identities check
       if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
         return {
-          error: "An account with this email address already exists. Please tap 'Sign In' or use 'Forgot password?'.",
+          error: "An account with this username or email already exists. Please sign in.",
         };
       }
 
-      // Check if Supabase requires email verification before session creation
-      if (data.user && !data.session) {
+      // Check if email confirmation is required (only if an external email was provided and autoconfirm is off)
+      if (data.user && !data.session && finalEmail) {
         return { requiresEmailConfirmation: true };
       }
 
@@ -246,26 +318,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return {};
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to sign up";
+      const msg = err instanceof Error ? err.message : "Failed to create account";
       return { error: msg };
     }
   };
 
-  const resetPassword = async (email: string): Promise<{ error?: string }> => {
+  const resetPassword = async (identifier: string): Promise<{ error?: string }> => {
     if (!supabase) {
-      return { error: "Authentication service unavailable. Missing configuration." };
+      return { error: "Authentication service unavailable." };
     }
+
     try {
+      let emailToUse = identifier.trim().toLowerCase();
+
+      if (!emailToUse.includes("@")) {
+        const res = await fetch("/api/auth/resolve-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier: emailToUse }),
+        });
+        const resolved = await res.json();
+        if (resolved.email) {
+          emailToUse = resolved.email;
+        }
+      }
+
+      if (
+        emailToUse.endsWith("@users.weca.app") ||
+        emailToUse.endsWith("@wica.ai") ||
+        emailToUse.endsWith("@weca.internal")
+      ) {
+        return {
+          error: "This account was registered with a username only (no recovery email attached). Please sign in using your password.",
+        };
+      }
+
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${origin}/auth/callback?next=/reset-password`,
+      const { error } = await supabase.auth.resetPasswordForEmail(emailToUse, {
+        redirectTo: `${origin}/auth/reset-password`,
       });
+
       if (error) {
         return { error: error.message };
       }
+
       return {};
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to send reset email";
+      const msg = err instanceof Error ? err.message : "Failed to send reset link";
       return { error: msg };
     }
   };
