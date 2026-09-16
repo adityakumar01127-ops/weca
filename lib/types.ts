@@ -11,11 +11,16 @@ export interface Profile {
   avatar_url?: string | null;
   bio?: string | null;
   pronouns?: string | null;
+  website?: string | null;
+  gender?: string | null;
+  note?: string | null;
+  is_ai_profile?: boolean;
   credits_balance: number;
   is_admin?: boolean;
   is_pro?: boolean;
   tier?: string | null;
   follower_count?: number;
+  followers_count?: number;
   following_count?: number;
   total_impressions?: number;
   creator_status?: CreatorStatus;

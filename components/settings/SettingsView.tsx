@@ -76,18 +76,15 @@ export const SettingsView: React.FC = () => {
   // Synchronize state when user or profile loads
   useEffect(() => {
     if (user) {
-      setDisplayName(user.display_name || user.username || "Aditya Kaushik");
-      setUsername(user.username || "weca_explorer");
-      setPronouns(user.pronouns || "they/them");
-      setBio(
-        user.bio ||
-          "I am writer, dancer, director, editor, student, researcher, etc.\n💎 I AM THE PRESTIGE\n🔹 Tech & Anomaly Enthusiast"
-      );
-      setWebsite(user.website || "https://weca.ai");
-      setGender(user.gender || "Entrepreneur / Anomaly Investigator");
-      setNote(user.note || "Just curious...");
+      setDisplayName(user.display_name || user.username || "");
+      setUsername(user.username || "");
+      setPronouns(user.pronouns || "");
+      setBio(user.bio || "");
+      setWebsite(user.website || "");
+      setGender(user.gender || "");
+      setNote(user.note || "");
       setIsAiProfile(Boolean(user.is_ai_profile));
-      setAvatarUrl(user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.id || "explorer"}`);
+      setAvatarUrl(user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.id || user.username || "explorer"}`);
     }
   }, [user]);
 
@@ -580,7 +577,7 @@ export const SettingsView: React.FC = () => {
                         type="text"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
-                        placeholder="e.g. Aditya Kaushik"
+                        placeholder="e.g. Alex Rivera"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                         required
                       />
@@ -595,7 +592,7 @@ export const SettingsView: React.FC = () => {
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
-                          placeholder="weca_explorer"
+                          placeholder="your_username"
                           className="w-full pl-7 pr-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                           required
                         />
@@ -622,7 +619,7 @@ export const SettingsView: React.FC = () => {
                         value={note}
                         maxLength={40}
                         onChange={(e) => setNote(e.target.value)}
-                        placeholder="e.g. Just curious..."
+                        placeholder="e.g. What's on your mind?"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                       />
                     </div>
@@ -634,7 +631,7 @@ export const SettingsView: React.FC = () => {
                         type="text"
                         value={gender}
                         onChange={(e) => setGender(e.target.value)}
-                        placeholder="e.g. Entrepreneur / Anomaly Investigator"
+                        placeholder="e.g. Creator / Explorer"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-sans focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                       />
                     </div>
@@ -646,7 +643,7 @@ export const SettingsView: React.FC = () => {
                         type="text"
                         value={website}
                         onChange={(e) => setWebsite(e.target.value)}
-                        placeholder="https://weca.ai"
+                        placeholder="https://yourwebsite.com"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/30 transition-all"
                       />
                     </div>

@@ -152,7 +152,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
   const loadProfile = React.useCallback(async () => {
     setLoading(true);
     try {
-      const targetUsername = username || currentUser?.username || "weca_explorer";
+      const targetUsername = username || currentUser?.username || "";
       const res = await fetch(`/api/profile?username=${encodeURIComponent(targetUsername)}`);
       const data = await res.json();
       
@@ -170,7 +170,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
               category: gp.category || "Objects",
               country: gp.country,
               caption: gp.caption,
-              wica_score: gp.wica_score || 94,
+              wica_score: gp.wica_score || 0,
               absurdity: 9,
               rarity: 9,
               craft: 8,
@@ -200,14 +200,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         });
         const combined = Array.from(merged.values());
         setImages(combined);
-        setAvgScore(data.avgScore || (combined.length > 0 ? 92 : 0));
-        setTotalWC(data.totalWC || data.user.total_wc || authProfile?.credits_balance || 50);
+        setAvgScore(data.avgScore || 0);
+        setTotalWC(data.totalWC || data.user.total_wc || authProfile?.credits_balance || 0);
       } else if (isOwnProfile && currentUser) {
         setProfileUser(currentUser);
         const merged = new Map<string, WicaImage>();
         localGuestPosts.forEach((gp) => merged.set(gp.id, gp));
         setImages(Array.from(merged.values()));
-        setTotalWC(currentUser.total_wc || authProfile?.credits_balance || 50);
+        setTotalWC(currentUser.total_wc || authProfile?.credits_balance || 0);
       } else {
         setImages([]);
       }
@@ -504,19 +504,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
             <div className="relative shrink-0 select-none">
               
               {/* Floating Note Thought Bubble (Instagram Notes style) */}
-              <button 
-                type="button"
-                id="profile-status-note-bubble"
-                onClick={() => setIsStatusNoteOpen(true)}
-                className={`absolute -top-7 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-white/95 dark:bg-zinc-900/95 border border-violet/30 hover:border-violet shadow-lg shadow-violet/10 text-[11px] font-mono text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5 backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer group`}
-                title={isOwnProfile ? "Click to view & update status note" : "Status Note"}
-              >
-                <span className="max-w-[120px] truncate text-zinc-800 dark:text-zinc-200 group-hover:text-zinc-950 dark:group-hover:text-white font-medium">
-                  {displayUser?.note || "Just curious..."}
-                </span>
-                {/* Speech bubble pointer */}
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white dark:bg-zinc-900 border-b border-r border-violet/30 rotate-45" />
-              </button>
+              {(displayUser?.note || isOwnProfile) && (
+                <button 
+                  type="button"
+                  id="profile-status-note-bubble"
+                  onClick={() => setIsStatusNoteOpen(true)}
+                  className={`absolute -top-7 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-white/95 dark:bg-zinc-900/95 border border-violet/30 hover:border-violet shadow-lg shadow-violet/10 text-[11px] font-mono text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5 backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer group`}
+                  title={isOwnProfile ? "Click to view & update status note" : "Status Note"}
+                >
+                  <span className="max-w-[120px] truncate text-zinc-800 dark:text-zinc-200 group-hover:text-zinc-950 dark:group-hover:text-white font-medium">
+                    {displayUser?.note || "Add a note..."}
+                  </span>
+                  {/* Speech bubble pointer */}
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white dark:bg-zinc-900 border-b border-r border-violet/30 rotate-45" />
+                </button>
+              )}
 
               {/* Glowing Chromatic Lens Ring / Story Ring */}
               <div 
@@ -585,7 +587,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="font-display font-bold text-lg sm:text-xl text-zinc-900 dark:text-white tracking-tight">
-                    {displayUser?.display_name || displayUser?.username || "Aditya Kaushik"}
+                    {displayUser?.display_name || displayUser?.username || "Explorer"}
                   </h2>
                   <ShieldCheck className="w-4 h-4 text-cyan-600 dark:text-cyan shrink-0" />
                   
@@ -601,7 +603,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
               {/* Stats Counters Row */}
               <div className="flex items-center gap-5 sm:gap-7 text-xs sm:text-sm">
                 <div>
-                  <span className="font-bold text-zinc-900 dark:text-white font-mono">{images.length || 86}</span>{" "}
+                  <span className="font-bold text-zinc-900 dark:text-white font-mono">{images.length}</span>{" "}
                   <span className="text-zinc-500 dark:text-zinc-400 font-sans">posts</span>
                 </div>
                 
@@ -615,7 +617,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                   className="hover:opacity-80 transition-opacity text-left cursor-pointer group"
                 >
                   <span className="font-bold text-zinc-900 dark:text-white font-mono group-hover:text-cyan-600 dark:group-hover:text-cyan transition-colors">
-                    {displayUser?.followers_count || 472}
+                    {displayUser?.followers_count || 0}
                   </span>{" "}
                   <span className="text-zinc-500 dark:text-zinc-400 font-sans group-hover:text-zinc-700 dark:group-hover:text-zinc-200">followers</span>
                 </button>
@@ -630,7 +632,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                   className="hover:opacity-80 transition-opacity text-left cursor-pointer group"
                 >
                   <span className="font-bold text-zinc-900 dark:text-white font-mono group-hover:text-cyan-600 dark:group-hover:text-cyan transition-colors">
-                    174
+                    {displayUser?.following_count || 0}
                   </span>{" "}
                   <span className="text-zinc-500 dark:text-zinc-400 font-sans group-hover:text-zinc-700 dark:group-hover:text-zinc-200">following</span>
                 </button>
@@ -655,15 +657,22 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
           {/* Bio, Roles, and Link Pills */}
           <div className="space-y-2 pt-1">
             {/* Category / Specialty Tag */}
-            <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              {displayUser?.gender || "Entrepreneur / Anomaly Investigator"}
-            </div>
+            {displayUser?.gender && (
+              <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                {displayUser.gender}
+              </div>
+            )}
 
             {/* Bio Text */}
-            <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed whitespace-pre-line max-w-xl">
-              {displayUser?.bio ||
-                "I am writer, dancer, director, editor, student, researcher, etc.\n💎 I AM THE PRESTIGE\n🔹 Tech & Anomaly Enthusiast"}
-            </p>
+            {displayUser?.bio ? (
+              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed whitespace-pre-line max-w-xl">
+                {displayUser.bio}
+              </p>
+            ) : isOwnProfile ? (
+              <p className="text-xs sm:text-sm text-zinc-400 dark:text-zinc-500 font-sans italic">
+                Tap &quot;Edit Profile&quot; to add a bio.
+              </p>
+            ) : null}
 
             {/* Badges / Links Row */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -1074,7 +1083,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                           />
                           <div className="absolute top-2 right-2 z-10">
                             <span className="px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm border border-white/20 text-[10px] font-mono font-bold text-cyan">
-                              ★ {img.wica_score || 90}
+                              ★ {img.wica_score || 0}
                             </span>
                           </div>
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white text-xs font-mono font-semibold">
@@ -1118,7 +1127,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                       {/* Top Right Multi-indicator / Score */}
                       <div className="absolute top-2 right-2 z-10">
                         <span className="px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm border border-white/20 text-[10px] font-mono font-bold text-cyan">
-                          ★ {img.wica_score || 90}
+                          ★ {img.wica_score || 0}
                         </span>
                       </div>
 
@@ -1127,11 +1136,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                         <div className="flex items-center justify-center gap-4">
                           <div className="flex items-center gap-1">
                             <Heart className="w-4 h-4 fill-white" />
-                            <span>{img.likes_count || 42}</span>
+                            <span>{img.likes_count || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <MessageCircle className="w-4 h-4 fill-white" />
-                            <span>{img.comments_count || 7}</span>
+                            <span>{img.comments_count || 0}</span>
                           </div>
                         </div>
 
@@ -1307,7 +1316,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
         onClose={() => setIsDashboardOpen(false)}
         username={displayUser?.username || username || "explorer"}
         userSightings={images}
-        wcBalance={displayUser?.total_wc || authProfile?.credits_balance || 150}
+        wcBalance={displayUser?.total_wc || authProfile?.credits_balance || 0}
         onSelectSighting={(sighting) => setSelectedImage(sighting)}
       />
 

@@ -589,7 +589,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
   if (!isOpen || stories.length === 0 || !currentStory) return null;
 
   // Anomaly score & tier calculation
-  const score = currentStory.wica_score || 92;
+  const score = currentStory.wica_score || 0;
   const rarityTier =
     score >= 95 ? "Mythic" : score >= 90 ? "Legendary" : score >= 80 ? "Epic" : "Rare";
   const rarityColors = {
@@ -1146,7 +1146,7 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
                 title="View Insights"
               >
                 <Eye className="w-4 h-4 text-cyan-400" />
-                <span className="font-semibold">{currentStory.views_count || 142}</span>
+                <span className="font-semibold">{currentStory.views_count || 0}</span>
               </button>
             )}
           </div>

@@ -41,13 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     is_ai_profile?: boolean;
     note?: string | null;
     gender?: string | null;
-  }>({
-    pronouns: "they/them",
-    website: "https://weca.ai",
-    is_ai_profile: true,
-    note: "Just curious...",
-    gender: "Explorer",
-  });
+  }>({});
 
   const supabase = createClient();
 
@@ -410,7 +404,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("weca_demo_user");
+      localStorage.removeItem("weca_user_extras");
+      localStorage.removeItem("weca_custom_profile");
     }
+    setUserExtras({});
     setAuthUser(null);
     setProfile(null);
 
@@ -500,7 +497,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         display_name: profile.display_name || profile.username,
         avatar_url: profile.avatar_url,
         bio: profile.bio,
-        pronouns: profile.pronouns || userExtras.pronouns || "they/them",
+        pronouns: profile.pronouns || userExtras.pronouns || "",
         total_wc: profile.credits_balance || 0,
         tier: "Certified Weird",
         created_at: profile.created_at,
@@ -510,8 +507,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         following_count: 0,
         is_ai_profile: userExtras.is_ai_profile ?? false,
         show_suggestions: true,
-        gender: userExtras.gender || "Explorer",
-        note: userExtras.note || "Just curious...",
+        gender: userExtras.gender || "",
+        note: userExtras.note || "",
         email: authUser?.email,
       }
     : authUser
@@ -521,7 +518,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         display_name: authUser.email?.split("@")[0] || "user",
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${authUser.id}`,
         bio: "",
-        pronouns: userExtras.pronouns || "they/them",
+        pronouns: userExtras.pronouns || "",
         total_wc: 0,
         tier: "Mildly Odd",
         created_at: authUser.created_at,
@@ -532,7 +529,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         is_ai_profile: userExtras.is_ai_profile ?? false,
         show_suggestions: true,
         gender: userExtras.gender || "",
-        note: userExtras.note || "Just curious...",
+        note: userExtras.note || "",
         email: authUser.email,
       }
     : null;

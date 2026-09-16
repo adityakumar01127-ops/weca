@@ -32,12 +32,12 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   const [displayName, setDisplayName] = useState(currentUser.display_name || "");
   const [username, setUsername] = useState(currentUser.username || "");
-  const [pronouns, setPronouns] = useState(currentUser.pronouns || "he/him/his");
+  const [pronouns, setPronouns] = useState(currentUser.pronouns || "");
   const [bio, setBio] = useState(currentUser.bio || "");
   const [website, setWebsite] = useState(currentUser.website || "");
-  const [gender, setGender] = useState(currentUser.gender || "Explorer");
-  const [statusNote, setStatusNote] = useState(currentUser.note || "Just curious...");
-  const [isAiProfile, setIsAiProfile] = useState(currentUser.is_ai_profile ?? true);
+  const [gender, setGender] = useState(currentUser.gender || "");
+  const [statusNote, setStatusNote] = useState(currentUser.note || "");
+  const [isAiProfile, setIsAiProfile] = useState(currentUser.is_ai_profile ?? false);
   const [avatarUrl, setAvatarUrl] = useState(currentUser.avatar_url || "");
   const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -203,7 +203,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 required
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Aditya Kaushik"
+                placeholder="Your display name"
                 className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
               />
             </div>
@@ -222,7 +222,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="mr_adityakaushik"
+                placeholder="your_username"
                 className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
               />
             </div>
@@ -240,7 +240,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 type="text"
                 value={pronouns}
                 onChange={(e) => setPronouns(e.target.value)}
-                placeholder="he/him/his"
+                placeholder="they/them, he/him, she/her"
                 className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
               />
             </div>
@@ -256,7 +256,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 maxLength={150}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Anomaly investigator, photographer, researcher..."
+                placeholder="Share a short bio..."
                 className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all resize-none leading-relaxed"
               />
             </div>
@@ -274,7 +274,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 type="text"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                placeholder="https://agirheo.com"
+                placeholder="https://yourwebsite.com"
                 className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all font-mono"
               />
             </div>
@@ -293,7 +293,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 maxLength={30}
                 value={statusNote}
                 onChange={(e) => setStatusNote(e.target.value)}
-                placeholder="Just curious..."
+                placeholder="What's on your mind?"
                 className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
               />
             </div>
@@ -311,7 +311,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 type="text"
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                placeholder="Entrepreneur / Anomaly Scout"
+                placeholder="e.g. Creator / Explorer"
                 className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-violet focus:ring-1 focus:ring-violet/40 transition-all"
               />
             </div>
