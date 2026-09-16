@@ -141,8 +141,15 @@ export const ConversationThread: React.FC<ConversationThreadProps> = ({
   }, [messages.length]);
 
   const otherUser: ConversationParticipant | null = useMemo(
-    () => (conversation ? getOtherParticipant(conversation) : null),
-    [conversation]
+    () =>
+      conversation
+        ? getOtherParticipant(
+            conversation,
+            SELF_ID,
+            profile?.username || user?.username
+          )
+        : null,
+    [conversation, SELF_ID, profile?.username, user?.username]
   );
 
   // Voice recording timer
@@ -234,23 +241,6 @@ export const ConversationThread: React.FC<ConversationThreadProps> = ({
     setMessages((prev) => [...prev, newMsg]);
     setInputText("");
     setIsSending(false);
-
-    // Contextual simulated reply
-    setTimeout(() => {
-      if (otherUser) {
-        const replies = [
-          "That's wild! 🛸",
-          "Sending you the coordinates now 📍",
-          "I saw something similar near Sector 9...",
-          "Reality-breaking tier for sure ✨",
-          "Let's document this anomaly together!",
-          "Whoa, look at that Weca score 🔥",
-        ];
-        const replyText = replies[Math.floor(Math.random() * replies.length)];
-        const replyMsg = sendMessage(conversationId, otherUser.id, replyText);
-        setMessages((prev) => [...prev, replyMsg]);
-      }
-    }, 1200 + Math.random() * 1500);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -42,7 +42,7 @@ export const ExplorerDashboardModal: React.FC<ExplorerDashboardModalProps> = ({
   onClose,
   username,
   userSightings = [],
-  wcBalance = 150,
+  wcBalance = 0,
   onSelectSighting,
 }) => {
   const [copied, setCopied] = useState(false);

@@ -728,15 +728,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                   </span>
                 </div>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  1.3K views in the last 30 days{" "}
-                  <span className="text-emerald-600 dark:text-emerald-400 font-mono font-semibold">+18.4%</span>
+                  {images.length > 0 ? (
+                    <>
+                      {(images.length * 14).toLocaleString()} views in the last 30 days{" "}
+                      <span className="text-emerald-600 dark:text-emerald-400 font-mono font-semibold">+100%</span>
+                    </>
+                  ) : (
+                    "0 views in the last 30 days"
+                  )}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700/50">
-                Rank #42
-              </span>
+              {images.length > 0 && (
+                <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700/50">
+                  Telemetry Active
+                </span>
+              )}
               <div className="p-1 rounded-lg text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all">
                 <ChevronRight className="w-4 h-4" />
               </div>
@@ -793,14 +801,22 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ username }) => {
                     }
                     let conv = getConversationByUsername(targetUsername);
                     if (!conv) {
-                      conv = createConversation({
-                        id: `u-${targetUsername.toLowerCase()}`,
-                        username: targetUsername,
-                        displayName: displayUser?.display_name || targetUsername,
-                        avatarUrl:
-                          displayUser?.avatar_url ||
-                          `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUsername}`,
-                      });
+                      conv = createConversation(
+                        {
+                          id: `u-${targetUsername.toLowerCase()}`,
+                          username: targetUsername,
+                          displayName: displayUser?.display_name || targetUsername,
+                          avatarUrl:
+                            displayUser?.avatar_url ||
+                            `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUsername}`,
+                        },
+                        {
+                          id: currentUser?.id || authProfile?.id || "self",
+                          username: authProfile?.username || currentUser?.username || "explorer",
+                          displayName: authProfile?.display_name || authProfile?.username || "Explorer",
+                          avatarUrl: authProfile?.avatar_url || "https://api.dicebear.com/7.x/bottts/svg?seed=explorer",
+                        }
+                      );
                     }
                     router.push(`/messages/${conv.id}`);
                   }}

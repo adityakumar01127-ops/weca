@@ -59,6 +59,16 @@ export const MessagesInbox: React.FC = () => {
       : "https://api.dicebear.com/7.x/bottts/svg?seed=explorer");
   const currentDisplayName = profile?.display_name || profile?.username || "You";
 
+  const currentUserParticipant: Partial<ConversationParticipant> = useMemo(
+    () => ({
+      id: currentUserId,
+      username: profile?.username || user?.username || "explorer",
+      displayName: currentDisplayName,
+      avatarUrl: currentAvatarUrl,
+    }),
+    [currentUserId, profile?.username, user?.username, currentDisplayName, currentAvatarUrl]
+  );
+
   // State
   const [activeTab, setActiveTab] = useState<TabType>("primary");
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,12 +106,15 @@ export const MessagesInbox: React.FC = () => {
     if (targetUser && targetUser !== "user" && targetUser !== "weca_explorer") {
       const existing = getConversationByUsername(targetUser);
       if (!existing) {
-        createConversation({
-          id: `u-${targetUser.toLowerCase()}`,
-          username: targetUser,
-          displayName: targetUser,
-          avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUser}`,
-        });
+        createConversation(
+          {
+            id: `u-${targetUser.toLowerCase()}`,
+            username: targetUser,
+            displayName: targetUser,
+            avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUser}`,
+          },
+          currentUserParticipant
+        );
       }
       if (typeof window !== "undefined") {
         window.history.replaceState({}, "", "/messages");
@@ -206,7 +219,7 @@ export const MessagesInbox: React.FC = () => {
   const getLastMessagePreview = (conv: Conversation): string => {
     if (!conv.lastMessage) return "Start a conversation";
     const msg = conv.lastMessage;
-    const isSelf = msg.senderId === currentUserId || msg.senderId === "00000000-0000-0000-0000-000000000001" || msg.senderId === "self";
+    const isSelf = msg.senderId === currentUserId || msg.senderId === "self";
     const prefix = isSelf ? "You: " : "";
 
     switch (msg.type) {
@@ -259,7 +272,7 @@ export const MessagesInbox: React.FC = () => {
 
   const handleSaveNote = () => {
     if (!noteText.trim()) return;
-    saveSelfNote(noteText, noteMusicTitle, noteMusicArtist, noteEmoji);
+    saveSelfNote(noteText, noteMusicTitle, noteMusicArtist, noteEmoji, currentUserParticipant);
     setIsCreateNoteOpen(false);
     setNoteText("");
     setNoteMusicTitle("");
@@ -285,7 +298,7 @@ export const MessagesInbox: React.FC = () => {
       displayName: activeNoteToView.displayName,
       avatarUrl: activeNoteToView.avatarUrl,
     };
-    const conv = createConversation(participant);
+    const conv = createConversation(participant, currentUserParticipant);
 
     sendMessage(
       conv.id,
@@ -331,7 +344,7 @@ export const MessagesInbox: React.FC = () => {
               className="flex items-center gap-1.5 text-base font-bold text-zinc-900 dark:text-white font-sans tracking-tight hover:opacity-80 transition-opacity"
               title="View your profile"
             >
-              <span>mr_adityakaushik</span>
+              <span>{profile?.username || user?.username || "Messages"}</span>
               <ChevronDown className="w-4 h-4 text-zinc-400" />
             </Link>
           </div>
@@ -549,7 +562,7 @@ export const MessagesInbox: React.FC = () => {
                         key={account.id}
                         id={`search-account-${account.username}`}
                         onClick={() => {
-                          const conv = createConversation(account);
+                          const conv = createConversation(account, currentUserParticipant);
                           router.push(`/messages/${conv.id}`);
                         }}
                         className="flex items-center justify-between px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900/60 transition-colors cursor-pointer group"
@@ -582,7 +595,7 @@ export const MessagesInbox: React.FC = () => {
                           id={`message-account-btn-${account.username}`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            const conv = createConversation(account);
+                            const conv = createConversation(account, currentUserParticipant);
                             router.push(`/messages/${conv.id}`);
                           }}
                           className="px-3.5 py-1.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold hover:opacity-90 transition-all flex items-center gap-1.5 shrink-0 ml-2 shadow-xs cursor-pointer active:scale-95"
@@ -706,7 +719,11 @@ export const MessagesInbox: React.FC = () => {
           ) : (
             <ul className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
               {displayedConversations.map((conv) => {
-                const other = getOtherParticipant(conv);
+                const other = getOtherParticipant(
+                  conv,
+                  currentUserId,
+                  profile?.username || user?.username
+                );
                 const preview = getLastMessagePreview(conv);
                 const timeStr = conv.lastMessage
                   ? formatMessageTime(conv.lastMessage.timestamp)
@@ -862,7 +879,7 @@ export const MessagesInbox: React.FC = () => {
                     type="button"
                     onClick={() => {
                       setIsComposeOpen(false);
-                      const conv = createConversation(user);
+                      const conv = createConversation(user, currentUserParticipant);
                       router.push(`/messages/${conv.id}`);
                     }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors text-left cursor-pointer"
@@ -1068,7 +1085,7 @@ export const MessagesInbox: React.FC = () => {
         onClose={() => setCameraRecipient(null)}
         onCaptureAndSend={(photoDataUrl) => {
           if (!cameraRecipient) return;
-          const conv = createConversation(cameraRecipient);
+          const conv = createConversation(cameraRecipient, currentUserParticipant);
           sendMessage(
             conv.id,
             currentUserId,

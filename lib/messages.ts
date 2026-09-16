@@ -552,11 +552,25 @@ export function formatDateSeparator(isoString: string): string {
 
 export function getOtherParticipant(
   conversation: Conversation,
-  selfId: string = "self"
+  selfId: string = "self",
+  selfUsername?: string
 ): ConversationParticipant {
+  if (!conversation.participants || conversation.participants.length === 0) {
+    return DEFAULT_PARTICIPANT;
+  }
   return (
     conversation.participants.find(
-      (p) => p.id !== selfId && p.id !== "00000000-0000-0000-0000-000000000001"
-    ) || conversation.participants[0]
+      (p) =>
+        p.id !== selfId &&
+        p.id !== "self" &&
+        (!selfUsername || p.username.toLowerCase() !== selfUsername.toLowerCase())
+    ) ||
+    conversation.participants.find(
+      (p) =>
+        p.id !== selfId &&
+        (!selfUsername || p.username.toLowerCase() !== selfUsername.toLowerCase())
+    ) ||
+    conversation.participants.find((p) => p.id !== selfId) ||
+    conversation.participants[0]
   );
 }
