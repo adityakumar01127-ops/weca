@@ -4,7 +4,7 @@ import { getAuthenticatedUser, isUserAdmin } from "@/lib/auth-server";
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json({ success: false, error: "Authentication required." }, { status: 401 });
     }
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Authentication required to request a payout." },

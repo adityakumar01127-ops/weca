@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { getDailyCapUsage } from "@/lib/earnings/interaction-credits";
 import { MONTHLY_CASHOUT_CAP_WC, wcToINR } from "@/lib/credits";
 
-async function getSupabaseWithUser() {
+async function getSupabaseWithUser(req?: NextRequest) {
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -22,7 +22,24 @@ async function getSupabaseWithUser() {
       },
     }
   );
-  const { data: { user } } = await supabase.auth.getUser();
+
+  let user = null;
+  if (req) {
+    const authHeader = req.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "").trim();
+      const { data, error } = await supabase.auth.getUser(token);
+      if (!error && data?.user) {
+        user = data.user;
+      }
+    }
+  }
+
+  if (!user) {
+    const { data } = await supabase.auth.getUser();
+    user = data?.user ?? null;
+  }
+
   return { supabase, user };
 }
 
@@ -31,7 +48,7 @@ async function getSupabaseWithUser() {
  */
 export async function GET(req: NextRequest) {
   try {
-    const { supabase, user } = await getSupabaseWithUser();
+    const { supabase, user } = await getSupabaseWithUser(req);
     if (!user) {
       return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
     }

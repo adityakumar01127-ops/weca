@@ -52,7 +52,7 @@ export const WalletView: React.FC = () => {
   const { user, profile } = useAuth();
 
   // Balance state
-  const currentBalance = profile?.credits_balance ?? 680;
+  const currentBalance = profile?.credits_balance ?? 0;
   
   // Tab and Eligibility state
   const [activeTab, setActiveTab] = useState<"wallet" | "creator" | "earnings" | "rewards">("wallet");
@@ -391,7 +391,7 @@ export const WalletView: React.FC = () => {
               Lifetime Yield
             </span>
             <h3 className="font-display font-black text-3xl text-zinc-900 dark:text-white mb-1">
-              {(currentBalance + 285).toLocaleString()} WC
+              {currentBalance.toLocaleString()} WC
             </h3>
             <span className="text-xs text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1 font-semibold">
               <ArrowUpRight className="w-3.5 h-3.5" />
