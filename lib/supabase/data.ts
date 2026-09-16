@@ -336,15 +336,20 @@ export async function createPost(params: {
 
         // Fire-and-forget async AI scoring pipeline without blocking upload
         if (typeof window !== "undefined") {
-          fetch("/api/score-post", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: createdPost.id,
-              image_url: createdPost.image_url,
-              caption: createdPost.caption,
-            }),
-          }).catch((err) => console.warn("Async scoring trigger:", err));
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            fetch("/api/score-post", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+              },
+              body: JSON.stringify({
+                id: createdPost.id,
+                image_url: createdPost.image_url,
+                caption: createdPost.caption,
+              }),
+            }).catch((err) => console.warn("Async scoring trigger:", err));
+          });
         }
 
         return createdPost;

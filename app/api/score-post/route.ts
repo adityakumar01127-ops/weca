@@ -276,7 +276,7 @@ export async function POST(req: NextRequest) {
     ) {
       isAuthorized = true;
     } else {
-      const sessionUser = await getAuthenticatedUser();
+      const sessionUser = await getAuthenticatedUser(req);
       if (sessionUser) {
         isAuthorized = true;
       }
