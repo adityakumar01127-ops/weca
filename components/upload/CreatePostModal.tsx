@@ -18,11 +18,18 @@ import {
   FolderOpen,
   Grid as GridIcon,
   Zap,
+  Compass,
+  ShieldAlert,
+  Award,
+  Tag,
+  HelpCircle,
 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { Category } from "@/lib/types";
+import { Category, AnomalyEvaluation, ScoreBreakdown, Tier, WicaImage } from "@/lib/types";
 import { useAuth } from "@/context/AuthContext";
 import { uploadPostPhoto, createPost, checkUploadRateLimit } from "@/lib/supabase/data";
+import { AnomalyGuidelinesModal } from "./AnomalyGuidelinesModal";
+import { ScoreReveal } from "./ScoreReveal";
 
 export interface PostDraft {
   id: string;
@@ -103,6 +110,18 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [isSimulated, setIsSimulated] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [anomalyRating, setAnomalyRating] = useState<number>(94.5);
+
+  // Anomaly Scanner & Eligibility Evaluation state
+  const [evaluation, setEvaluation] = useState<AnomalyEvaluation | null>(null);
+  const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [showGuidelinesModal, setShowGuidelinesModal] = useState<boolean>(false);
+  const [showScoreReveal, setShowScoreReveal] = useState<boolean>(false);
+  const [revealedData, setRevealedData] = useState<{
+    image: WicaImage;
+    breakdown: ScoreBreakdown;
+    creditsAwarded: number;
+  } | null>(null);
 
   // Submissions & Drafts state
   const [uploading, setUploading] = useState<boolean>(false);
@@ -315,6 +334,83 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  // In-flight AI Anomaly Scanner
+  const scanAnomaly = useCallback(
+    async (imageSource: string, captionText?: string) => {
+      if (!imageSource) return;
+      setIsScanning(true);
+      setScanError(null);
+      try {
+        const isDataUrl = imageSource.startsWith("data:");
+        const isHttp = imageSource.startsWith("http");
+
+        const payload: Record<string, unknown> = {
+          mode: "precheck",
+          caption: captionText || "",
+          category,
+        };
+
+        if (isDataUrl) {
+          payload.image_url = imageSource;
+        } else if (isHttp) {
+          payload.image_url = imageSource;
+        } else {
+          payload.image_url = imageSource;
+        }
+
+        const res = await fetch("/api/score-post?mode=precheck", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Anomaly scanner returned status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data?.evaluation) {
+          setEvaluation(data.evaluation);
+          if (data.evaluation.weirdness_score) {
+            setAnomalyRating(data.evaluation.weirdness_score);
+          }
+          if (data.evaluation.suggested_category && category === "Objects") {
+            setCategory(data.evaluation.suggested_category);
+          }
+        }
+      } catch (err) {
+        console.warn("In-flight anomaly scan fallback:", err);
+        // Fallback evaluation if network hiccup so user isn't stuck
+        const fallbackEval: AnomalyEvaluation = {
+          is_eligible: true,
+          weirdness_score: 84,
+          uniqueness_score: 88,
+          composite_score: 86,
+          tier: "Certified Weird",
+          one_line_verdict: "An intriguing visual oddity awaiting community consensus.",
+          earned_credits: 25,
+          suggested_category: category,
+          suggested_tags: ["#anomaly", "#weirdness"],
+          dimensions: {
+            absurdity: 82,
+            incongruity: 85,
+            wit: 80,
+            rarity: 86,
+            freshness: 84,
+          },
+          flags: [],
+        };
+        setEvaluation(fallbackEval);
+        setAnomalyRating(84);
+      } finally {
+        setIsScanning(false);
+      }
+    },
+    [category]
+  );
+
   // Capture Live Photo from hardware camera or optical sensor
   const capturePhoto = () => {
     const canvas = document.createElement("canvas");
@@ -362,8 +458,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
           setAnomalyRating(Number((89 + Math.random() * 10.2).toFixed(1)));
           stopCamera();
           setError(null);
-          // Advance directly into the posting studio!
+          // Advance directly into the posting studio and scan
           setActiveTab("upload");
+          scanAnomaly(dataUrl, caption);
         }
       },
       "image/jpeg",
@@ -375,6 +472,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const handleRetakeLive = () => {
     setFile(null);
     setPreviewUrl(null);
+    setEvaluation(null);
     setError(null);
     setActiveTab("live");
   };
@@ -389,7 +487,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     setFile(selected);
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPreviewUrl(e.target?.result as string);
+      const resUrl = e.target?.result as string;
+      setPreviewUrl(resUrl);
+      scanAnomaly(resUrl, caption);
     };
     reader.readAsDataURL(selected);
   };
@@ -460,6 +560,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     }
     setActiveTab("upload");
     showToast("Draft loaded into studio!");
+    if (draft.image_url) {
+      scanAnomaly(draft.image_url, draft.caption);
+    }
   };
 
   // Delete Draft
@@ -524,6 +627,13 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       return;
     }
 
+    if (evaluation && !evaluation.is_eligible) {
+      setError(
+        `Photo Ineligible: ${evaluation.rejection_reason || "This submission does not qualify for Weca's feed."}`
+      );
+      return;
+    }
+
     const currentUserId = user?.id || profile?.id;
     if (!currentUserId || !user || !profile) {
       setError("Please sign in to publish candidate photographs to the community feed.");
@@ -582,6 +692,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         }
       }
 
+      let createdPostResult = null;
       if (uploadableFile) {
         // Authenticated Supabase flow
         const limitCheck = await checkUploadRateLimit(currentUserId);
@@ -594,7 +705,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         }
 
         const publicUrl = await uploadPostPhoto(uploadableFile, currentUserId);
-        await createPost({
+        createdPostResult = await createPost({
           userId: currentUserId,
           imageUrl: publicUrl,
           caption: caption.trim() || null,
@@ -617,8 +728,54 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         });
       } catch {}
 
-      if (onPostCreated) onPostCreated();
-      handleClose();
+      // Prepare ScoreReveal Celebration
+      if (createdPostResult) {
+        const earnedCredits =
+          evaluation?.earned_credits ??
+          (evaluation?.weirdness_score && evaluation.weirdness_score >= 30 ? 25 : 0);
+        const breakdown: ScoreBreakdown = {
+          composite_score: evaluation?.composite_score || Math.round(anomalyRating),
+          tier: (evaluation?.tier as Tier) || "Certified Weird",
+          absurdity: evaluation?.dimensions?.absurdity || 82,
+          rarity: evaluation?.dimensions?.rarity || 85,
+          craft: evaluation?.dimensions?.freshness || 80,
+          cultural_novelty: evaluation?.dimensions?.incongruity || 84,
+          wit: evaluation?.dimensions?.wit || 86,
+          one_line_verdict:
+            evaluation?.one_line_verdict || "A verified physical anomaly recorded into Weca.",
+          flags: evaluation?.flags || [],
+          weirdness_score: evaluation?.weirdness_score || Math.round(anomalyRating),
+          uniqueness_score: evaluation?.uniqueness_score || Math.round(anomalyRating),
+          earned_credits: earnedCredits,
+          suggested_category: evaluation?.suggested_category || category,
+          suggested_tags: evaluation?.suggested_tags || [],
+          is_eligible: true,
+        };
+        const scoredWicaImage: WicaImage = {
+          id: createdPostResult.id,
+          user_id: currentUserId,
+          storage_path: createdPostResult.image_url,
+          category: category,
+          wica_score: breakdown.composite_score,
+          absurdity: breakdown.absurdity,
+          rarity: breakdown.rarity,
+          craft: breakdown.craft,
+          cultural_novelty: breakdown.cultural_novelty,
+          wit: breakdown.wit,
+          ai_verdict: breakdown.one_line_verdict,
+          moderation_status: "approved",
+          created_at: createdPostResult.created_at,
+        };
+        setRevealedData({
+          image: scoredWicaImage,
+          breakdown,
+          creditsAwarded: earnedCredits,
+        });
+        setShowScoreReveal(true);
+      } else {
+        if (onPostCreated) onPostCreated();
+        handleClose();
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to publish post.";
       setError(msg);
@@ -716,6 +873,16 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             <span className="font-bold text-rose-400">LIVE</span>
             <span className="text-zinc-300">• OPTICAL SCANNER</span>
           </div>
+
+          {/* Handbook button in camera */}
+          <button
+            type="button"
+            onClick={() => setShowGuidelinesModal(true)}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs font-mono transition-all cursor-pointer"
+          >
+            <Compass className="w-3.5 h-3.5 text-cyan" />
+            <span>Handbook 📖</span>
+          </button>
 
           {/* Top Actions: Flash, Grid, Flip, Switch to File */}
           <div className="flex items-center gap-2">
@@ -882,14 +1049,28 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </div>
           </div>
 
-          <button
-            type="button"
-            id="close-create-post-modal-btn"
-            onClick={handleClose}
-            className="p-2.5 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              id="open-guidelines-header-btn"
+              onClick={() => setShowGuidelinesModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet/10 hover:bg-violet/20 border border-violet/30 text-violet dark:text-violet-300 text-xs font-semibold font-mono transition-all cursor-pointer active:scale-95"
+              title="View Anomaly Guidelines & Eligibility Criteria"
+            >
+              <Compass className="w-3.5 h-3.5 text-cyan" />
+              <span className="hidden sm:inline">Handbook</span>
+              <span>📖</span>
+            </button>
+
+            <button
+              type="button"
+              id="close-create-post-modal-btn"
+              onClick={handleClose}
+              className="p-2.5 rounded-full text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Studio Tabs: Live Camera, Upload File, Drafts, Scheduled */}
@@ -992,6 +1173,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       onClick={() => {
                         setFile(null);
                         setPreviewUrl(null);
+                        setEvaluation(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
                       }}
                       className="text-[11px] text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 transition-colors cursor-pointer"
                     >
@@ -1001,41 +1184,228 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 </label>
 
                 {previewUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 max-h-72 flex items-center justify-center group shadow-md">
-                    <img
-                      src={previewUrl}
-                      alt="Anomaly Preview"
-                      className="w-full max-h-72 object-cover"
-                    />
+                  <div className="space-y-3">
+                    <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 max-h-72 flex items-center justify-center group shadow-md">
+                      <img
+                        src={previewUrl}
+                        alt="Anomaly Preview"
+                        className="w-full max-h-72 object-cover"
+                      />
 
-                    {/* Anomaly Verified Badge */}
-                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-cyan/40 text-cyan text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
-                      <Sparkles className="w-3.5 h-3.5 text-cyan animate-pulse" />
-                      <span>Anomaly Verified • {anomalyRating}%</span>
-                    </div>
+                      {/* IN-FLIGHT ANOMALY SCANNER HUD OVERLAY */}
+                      {isScanning && (
+                        <div className="absolute inset-0 bg-black/65 backdrop-blur-xs flex flex-col items-center justify-center text-center p-4 z-20 animate-in fade-in">
+                          {/* Laser beam */}
+                          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-cyan to-transparent absolute top-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_15px_#22D3EE]" />
+                          <div className="relative p-4 rounded-2xl bg-zinc-950/90 border border-cyan/50 backdrop-blur-md flex flex-col items-center gap-2 shadow-2xl">
+                            <div className="w-8 h-8 rounded-full border-2 border-cyan border-t-transparent animate-spin flex items-center justify-center">
+                              <Sparkles className="w-4 h-4 text-cyan" />
+                            </div>
+                            <div>
+                              <span className="text-xs font-mono font-bold text-white block">
+                                SCANNING ANOMALY MATRIX
+                              </span>
+                              <span className="text-[10px] font-mono text-cyan/90">
+                                Evaluating Weirdness & Uniqueness...
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
-                    {/* Retake Camera Button */}
-                    <button
-                      type="button"
-                      id="retake-live-photo-btn"
-                      onClick={handleRetakeLive}
-                      className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 text-cyan" />
-                      <span>Retake Photo</span>
-                    </button>
+                      {/* Eligibility / Rating Badges when not scanning */}
+                      {!isScanning && evaluation && (
+                        evaluation.is_eligible ? (
+                          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-cyan/40 text-cyan text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
+                            <Sparkles className="w-3.5 h-3.5 text-cyan animate-pulse" />
+                            <span>Eligible • {evaluation.tier} Tier</span>
+                          </div>
+                        ) : (
+                          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-rose-950/90 backdrop-blur-md border border-rose-500/60 text-rose-300 text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
+                            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+                            <span>Ineligible Submission</span>
+                          </div>
+                        )
+                      )}
 
-                    {/* Change File button */}
-                    <div className="absolute bottom-3 right-3 opacity-90 hover:opacity-100 transition-opacity flex items-center gap-2">
+                      {!isScanning && !evaluation && (
+                        <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-cyan/40 text-cyan text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
+                          <Sparkles className="w-3.5 h-3.5 text-cyan animate-pulse" />
+                          <span>Anomaly Index • {anomalyRating}%</span>
+                        </div>
+                      )}
+
+                      {/* Retake Camera Button */}
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-1.5 cursor-pointer backdrop-blur-md shadow-md"
+                        id="retake-live-photo-btn"
+                        onClick={handleRetakeLive}
+                        className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
                       >
-                        <Upload className="w-3.5 h-3.5 text-violet" />
-                        <span>Change File</span>
+                        <RefreshCw className="w-3.5 h-3.5 text-cyan" />
+                        <span>Retake Photo</span>
                       </button>
+
+                      {/* Change File button */}
+                      <div className="absolute bottom-3 right-3 opacity-90 hover:opacity-100 transition-opacity flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-1.5 cursor-pointer backdrop-blur-md shadow-md"
+                        >
+                          <Upload className="w-3.5 h-3.5 text-violet" />
+                          <span>Change File</span>
+                        </button>
+                      </div>
                     </div>
+
+                    {/* DUAL ANOMALY METRICS GAUGE (When Eligible) */}
+                    {!isScanning && evaluation?.is_eligible && (
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-3 font-mono animate-in fade-in">
+                        {/* Top Bar: Metric Title & Minted WC Callout */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-zinc-900 dark:text-white tracking-wide uppercase">
+                              Anomaly Index
+                            </span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan/10 border border-cyan/30 text-cyan font-bold">
+                              {evaluation.tier} Tier
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-xs">
+                            <Award className="w-3.5 h-3.5 text-amber-500" />
+                            <span>+{evaluation.earned_credits ?? 25} WC Mint</span>
+                          </div>
+                        </div>
+
+                        {/* Dual Metric Bars: Weird Point & Unique Point */}
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {/* Weird Point */}
+                          <div className="p-3 rounded-xl bg-violet/5 dark:bg-violet-950/30 border border-violet/20 flex flex-col justify-between">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="font-bold text-violet flex items-center gap-1">
+                                <Zap className="w-3.5 h-3.5" />
+                                <span>Weird Pt</span>
+                              </span>
+                              <span className="font-extrabold text-sm text-zinc-900 dark:text-white">
+                                {evaluation.weirdness_score ?? 85}
+                              </span>
+                            </div>
+                            {/* Progress Meter */}
+                            <div className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden mb-1">
+                              <div
+                                className="h-full bg-gradient-to-r from-violet to-fuchsia-500 rounded-full transition-all duration-700"
+                                style={{ width: `${evaluation.weirdness_score ?? 85}%` }}
+                              />
+                            </div>
+                            <span className="text-[9px] text-zinc-500 dark:text-zinc-400">
+                              Absurdity &bull; Incongruity
+                            </span>
+                          </div>
+
+                          {/* Unique Point */}
+                          <div className="p-3 rounded-xl bg-cyan/5 dark:bg-cyan-950/30 border border-cyan/20 flex flex-col justify-between">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="font-bold text-cyan flex items-center gap-1">
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>Unique Pt</span>
+                              </span>
+                              <span className="font-extrabold text-sm text-zinc-900 dark:text-white">
+                                {evaluation.uniqueness_score ?? 85}
+                              </span>
+                            </div>
+                            {/* Progress Meter */}
+                            <div className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden mb-1">
+                              <div
+                                className="h-full bg-gradient-to-r from-cyan to-blue-500 rounded-full transition-all duration-700"
+                                style={{ width: `${evaluation.uniqueness_score ?? 85}%` }}
+                              />
+                            </div>
+                            <span className="text-[9px] text-zinc-500 dark:text-zinc-400">
+                              Rarity &bull; Authenticity
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* One-Line Verdict Quote */}
+                        {evaluation.one_line_verdict && (
+                          <p className="text-xs italic text-zinc-600 dark:text-zinc-300 bg-zinc-100/70 dark:bg-zinc-900/60 p-2.5 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 font-sans">
+                            &ldquo;{evaluation.one_line_verdict}&rdquo;
+                          </p>
+                        )}
+
+                        {/* Suggested Hashtags */}
+                        {evaluation.suggested_tags && evaluation.suggested_tags.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                            <span className="text-[10px] text-zinc-400 flex items-center gap-1">
+                              <Tag className="w-3 h-3" />
+                              <span>Suggested tags:</span>
+                            </span>
+                            {evaluation.suggested_tags.map((tag) => (
+                              <button
+                                key={tag}
+                                type="button"
+                                onClick={() => {
+                                  const cleanTag = tag.startsWith("#") ? tag : `#${tag}`;
+                                  if (!caption.includes(cleanTag)) {
+                                    setCaption((prev) => (prev ? `${prev} ${cleanTag}` : cleanTag));
+                                  }
+                                }}
+                                className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 transition-colors cursor-pointer"
+                              >
+                                {tag.startsWith("#") ? tag : `#${tag}`}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* COACHING REJECTION CARD (When Ineligible) */}
+                    {!isScanning && evaluation && !evaluation.is_eligible && (
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/10 via-amber-500/5 to-rose-500/10 border-2 border-rose-500/30 dark:border-rose-500/40 space-y-3 animate-in fade-in">
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shrink-0">
+                            <ShieldAlert className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide font-mono">
+                              Photo Not Eligible for Community Feed
+                            </h4>
+                            <p className="text-xs text-zinc-700 dark:text-zinc-300 font-medium mt-0.5">
+                              {evaluation.rejection_reason || "This image does not meet Weca's physical anomaly criteria."}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-3 rounded-xl bg-white/70 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 text-[11px] text-zinc-600 dark:text-zinc-400 space-y-1">
+                          <p className="font-semibold text-zinc-800 dark:text-zinc-200">
+                            What makes a photo eligible?
+                          </p>
+                          <p>
+                            Weca exclusively archives genuine real-world optical glitches, physical oddities, funny coincidences, and street absurdities. Digital memes, screenshots, AI art, mundane selfies, and blurred photos are not eligible.
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setShowGuidelinesModal(true)}
+                            className="flex-1 py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-semibold font-mono flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          >
+                            <Compass className="w-3.5 h-3.5 text-cyan" />
+                            <span>View Field Handbook</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleRetakeLive}
+                            className="py-2 px-3 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer"
+                          >
+                            Try Another Photo
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-2.5">
@@ -1237,9 +1607,11 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <button
                   type="submit"
                   id="submit-post-btn"
-                  disabled={uploading || !previewUrl}
-                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-1.5 cursor-pointer disabled:opacity-40 min-h-[44px] ${
-                    isScheduled
+                  disabled={uploading || !previewUrl || isScanning || (evaluation !== null && !evaluation.is_eligible)}
+                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] ${
+                    evaluation && !evaluation.is_eligible
+                      ? "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700"
+                      : isScheduled
                       ? "bg-gradient-to-r from-cyan to-blue-600 hover:from-cyan/90 text-zinc-950 shadow-cyan/20"
                       : "bg-gradient-to-r from-violet to-purple-600 hover:from-violet/90 text-white shadow-violet/25"
                   }`}
@@ -1249,6 +1621,16 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                       <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                       <span>Transmitting...</span>
                     </>
+                  ) : isScanning ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                      <span>Scanning Anomaly...</span>
+                    </>
+                  ) : evaluation && !evaluation.is_eligible ? (
+                    <>
+                      <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+                      <span>Locked: Ineligible Photo</span>
+                    </>
                   ) : isScheduled ? (
                     <>
                       <Calendar className="w-3.5 h-3.5" />
@@ -1257,7 +1639,11 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   ) : (
                     <>
                       <Send className="w-3.5 h-3.5" />
-                      <span>Publish Now</span>
+                      <span>
+                        {evaluation?.earned_credits
+                          ? `Mint & Publish (+${evaluation.earned_credits} WC)`
+                          : "Publish Now"}
+                      </span>
                     </>
                   )}
                 </button>
@@ -1410,6 +1796,40 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
               </div>
             )}
           </div>
+        )}
+        {/* Hidden File Input for Studio */}
+        <input
+          ref={fileInputRef}
+          id="studio-file-input"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              handleFileSelect(f);
+            }
+          }}
+        />
+
+        {/* Guidelines Modal */}
+        <AnomalyGuidelinesModal
+          isOpen={showGuidelinesModal}
+          onClose={() => setShowGuidelinesModal(false)}
+        />
+
+        {/* Score Reveal Celebration Modal */}
+        {showScoreReveal && revealedData && (
+          <ScoreReveal
+            image={revealedData.image}
+            breakdown={revealedData.breakdown}
+            onFinish={() => {
+              setShowScoreReveal(false);
+              handleClose();
+              if (onPostCreated) onPostCreated();
+            }}
+            previewUrl={revealedData.image.storage_path}
+          />
         )}
       </div>
     </div>,

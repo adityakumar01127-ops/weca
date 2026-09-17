@@ -147,6 +147,36 @@ export interface WicaImage {
   user_has_liked?: boolean;
 }
 
+export type RejectionCode = 
+  | "mundane" 
+  | "digital_screenshot" 
+  | "ai_generated" 
+  | "commercial_stock" 
+  | "obstructed" 
+  | "prohibited";
+
+export interface AnomalyEvaluation {
+  is_eligible: boolean;
+  rejection_code?: RejectionCode | null;
+  rejection_reason?: string | null;
+  weirdness_score: number;
+  uniqueness_score: number;
+  composite_score: number;
+  tier: Tier;
+  one_line_verdict: string;
+  earned_credits: number;
+  suggested_category?: Category;
+  suggested_tags?: string[];
+  dimensions: {
+    absurdity: number;
+    incongruity: number;
+    wit: number;
+    rarity: number;
+    freshness: number;
+  };
+  flags: string[];
+}
+
 export interface ScoreBreakdown {
   absurdity: number;
   rarity: number;
@@ -157,6 +187,15 @@ export interface ScoreBreakdown {
   flags: string[];
   composite_score: number;
   tier: Tier;
+  // Enhanced anomaly eligibility metrics
+  is_eligible?: boolean;
+  rejection_code?: RejectionCode | null;
+  rejection_reason?: string | null;
+  weirdness_score?: number;
+  uniqueness_score?: number;
+  earned_credits?: number;
+  suggested_category?: Category;
+  suggested_tags?: string[];
 }
 
 export function getTierFromScore(score: number): Tier {

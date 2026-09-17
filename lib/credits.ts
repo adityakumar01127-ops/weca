@@ -82,6 +82,11 @@ export function calculatePostScoringCredits(
   const safeU = Math.max(0, Math.min(100, Math.round(uniquenessScore || 0)));
   const combined = safeW + safeU;
 
+  // Ineligible / mundane submissions (both scores below 30) receive 0 credits
+  if (safeW < 30 && safeU < 30) {
+    return { base: 0, bonus: 0, total: 0 };
+  }
+
   const base = Math.max(10, Math.round(combined / 2));
   const bonus = combined >= 160 ? 25 : combined >= 130 ? 10 : 0;
   const total = base + bonus;

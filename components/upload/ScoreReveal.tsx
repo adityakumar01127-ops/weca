@@ -206,7 +206,7 @@ export const ScoreReveal: React.FC<ScoreRevealProps> = ({
 
                 <div className="relative z-10">
                   <span className="text-[10px] font-mono tracking-widest uppercase text-cyan block mb-1">
-                    WICA COMPOSITE SCORE
+                    WECA ANOMALY SCORE
                   </span>
                   <div className="flex items-baseline gap-1.5 my-1">
                     <span className="font-display font-black text-5xl sm:text-6xl tracking-tighter text-white">
@@ -215,14 +215,27 @@ export const ScoreReveal: React.FC<ScoreRevealProps> = ({
                     <span className="text-zinc-400 font-display text-xl font-bold">/100</span>
                   </div>
 
-                  <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-mono text-white">
-                    <Sparkles className="w-3 h-3 text-cyan" />
-                    <span>+{breakdown.composite_score} Weird Credits</span>
+                  {/* Dual Meters for Weird Point & Unique Point */}
+                  <div className="grid grid-cols-2 gap-2 mt-2.5 font-mono">
+                    <div className="p-2 rounded-xl bg-black/40 border border-violet/30">
+                      <span className="text-[9px] text-violet uppercase tracking-wider block font-bold">WEIRD POINT</span>
+                      <span className="text-base font-black text-white">{breakdown.weirdness_score ?? Math.round(breakdown.composite_score * 0.95)}<span className="text-[10px] text-zinc-500 font-normal">/100</span></span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-black/40 border border-cyan/30">
+                      <span className="text-[9px] text-cyan uppercase tracking-wider block font-bold">UNIQUE POINT</span>
+                      <span className="text-base font-black text-white">{breakdown.uniqueness_score ?? Math.round(breakdown.composite_score * 1.05)}<span className="text-[10px] text-zinc-500 font-normal">/100</span></span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-xs font-mono text-emerald-300 font-semibold">
+                    <Sparkles className="w-3 h-3 text-emerald-400" />
+                    <span>+{breakdown.earned_credits ?? breakdown.composite_score} Weird Credits Minted</span>
                   </div>
                 </div>
 
-                <div className="relative z-10 mt-4 pt-3 border-t border-white/10 text-xs text-zinc-400 font-mono">
-                  Tier: <span className="text-white font-semibold">{breakdown.tier}</span>
+                <div className="relative z-10 mt-3 pt-2.5 border-t border-white/10 text-xs text-zinc-400 font-mono flex items-center justify-between">
+                  <span>Rarity Tier:</span>
+                  <span className="text-white font-bold">{breakdown.tier}</span>
                 </div>
               </div>
             </div>

@@ -166,7 +166,10 @@ export async function middleware(req: NextRequest) {
     (pathname.startsWith("/api/posts") && req.method === "GET") ||
     (pathname.startsWith("/api/battles") && req.method === "GET") ||
     (pathname.startsWith("/api/profile") && req.method === "GET");
-  const isProtectedApi = !isPublicApiGet && PROTECTED_API_ROUTES.some((r) => pathname.startsWith(r));
+  const isPublicApi =
+    isPublicApiGet ||
+    (pathname === "/api/score-post" && (req.nextUrl.searchParams.get("mode") === "precheck" || req.headers.get("x-mode") === "precheck"));
+  const isProtectedApi = !isPublicApi && PROTECTED_API_ROUTES.some((r) => pathname.startsWith(r));
 
   if (isProtectedPage || isProtectedApi) {
     // Permit service-to-service calls that provide the true Supabase Service Role Key
